@@ -1,7 +1,7 @@
 {
   "name": "@klinecharts/pro",
-  "version": "0.1.1",
-  "description": "Financial chart built out of the box based on KLineChart.",
+  "version": "0.1.2",
+  "description": "Financial chart built out of the box based on KLineChart. Edited by Abdullah-Waseem",
   "type": "module",
   "main": "./dist/klinecharts-pro.umd.js",
   "module": "./dist/klinecharts-pro.js",
@@ -63,6 +63,6 @@
     "solid-js": "^1.6.11"
   },
   "peerDependencies": {
-    "klinecharts": ">=9.0.0"
+    "klinecharts": "^9.8.10"
   }
 }
