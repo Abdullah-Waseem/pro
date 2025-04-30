@@ -1,5 +1,5 @@
 {
-  "name": "@klinecharts/pro",
+  "name": "@abdullah-waseem/klinecharts-pro",
   "version": "0.1.3",
   "description": "Financial chart built out of the box based on KLineChart. Edited by Abdullah-Waseem",
   "type": "module",
