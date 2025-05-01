@@ -73,7 +73,7 @@ function createIndicator(
   indicatorName: string,
   isStack?: boolean,
   paneOptions?: PaneOptions,
-  calcParams?: number[],
+  calcParams?: number[]
 ): Nullable<string> {
   if (indicatorName === "VOL") {
     paneOptions = { gap: { bottom: 2 }, ...paneOptions };
@@ -82,7 +82,7 @@ function createIndicator(
     widget?.createIndicator(
       {
         name: indicatorName,
-        calcParams:calcParams,
+        calcParams: calcParams,
         // @ts-expect-error
         createTooltipDataSource: ({ indicator, defaultStyles }) => {
           const icons = [];
@@ -328,17 +328,16 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         "candle_pane",
         DomPosition.YAxis
       );
-      
+
       priceUnitDom = document.createElement("span");
       priceUnitDom.className = "klinecharts-pro-price-unit";
       priceUnitContainer?.appendChild(priceUnitDom);
     }
 
     mainIndicators().forEach((indicator) => {
-      if (indicator=='MA'){
-        createIndicator(widget, indicator, true, { id: "candle_pane" },[9,]);
-      }
-      else{
+      if (indicator == "MA") {
+        createIndicator(widget, indicator, true, { id: "candle_pane" }, [9]);
+      } else {
         createIndicator(widget, indicator, true, { id: "candle_pane" });
       }
     });
@@ -406,7 +405,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                 newMainIndicators.indexOf(data.indicatorName),
                 1
               );
-              localStorage.setItem("mainIndicators", JSON.stringify(newMainIndicators));
+              localStorage.setItem(
+                "mainIndicators",
+                JSON.stringify(newMainIndicators)
+              );
               setMainIndicators(newMainIndicators);
             } else {
               const newIndicators = { ...subIndicators() };
@@ -436,7 +438,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     } else {
       priceUnitDom.style.display = "none";
     }
-    
+
     widget?.setPriceVolumePrecision(
       s?.pricePrecision ?? 2,
       s?.volumePrecision ?? 0
@@ -476,7 +478,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           if (!currentCandle || currentCandle.timestamp !== data.timestamp) {
             currentCandle = { ...data };
             widget?.updateData(currentCandle);
-            
           } else {
             // Same candle period, update the existing candle
             // Keep the original open
@@ -634,10 +635,15 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           onMainIndicatorChange={(data) => {
             const newMainIndicators = [...mainIndicators()];
             if (data.added) {
-              if (data.name =='MA'){
-                createIndicator(widget, data.name, true, { id: "candle_pane" },[9,]);
-              }
-              else{
+              if (data.name == "MA") {
+                createIndicator(
+                  widget,
+                  data.name,
+                  true,
+                  { id: "candle_pane" },
+                  [9]
+                );
+              } else {
                 createIndicator(widget, data.name, true, { id: "candle_pane" });
               }
               newMainIndicators.push(data.name);
@@ -645,7 +651,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               widget?.removeIndicator("candle_pane", data.name);
               newMainIndicators.splice(newMainIndicators.indexOf(data.name), 1);
             }
-            localStorage.setItem("mainIndicators", JSON.stringify(newMainIndicators));
+            localStorage.setItem(
+              "mainIndicators",
+              JSON.stringify(newMainIndicators)
+            );
             setMainIndicators(newMainIndicators);
           }}
           onSubIndicatorChange={(data) => {
@@ -750,7 +759,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         onSymbolClick={() => {
           setSymbolSearchModalVisible(!symbolSearchModalVisible());
         }}
-        onPeriodChange={(props)=>{
+        onPeriodChange={(props) => {
           localStorage.setItem("period", JSON.stringify(props));
           setPeriod(props);
         }}
@@ -763,16 +772,16 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         onSettingClick={() => {
           setSettingModalVisible((visible) => !visible);
         }}
-        onScreenshotClick={() => {
-          if (widget) {
-            const url = widget.getConvertPictureUrl(
-              true,
-              "jpeg",
-              props.theme === "dark" ? "#151517" : "#ffffff"
-            );
-            setScreenshotUrl(url);
-          }
-        }}
+        // onScreenshotClick={() => {
+        //   if (widget) {
+        //     const url = widget.getConvertPictureUrl(
+        //       true,
+        //       "jpeg",
+        //       props.theme === "dark" ? "#151517" : "#ffffff"
+        //     );
+        //     setScreenshotUrl(url);
+        //   }
+        // }}
       />
       <div class="klinecharts-pro-content">
         <Show when={loadingVisible()}>
