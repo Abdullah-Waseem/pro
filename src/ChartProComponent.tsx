@@ -57,6 +57,10 @@ import {
 import { translateTimezone } from "./widget/timezone-modal/data";
 
 import { SymbolInfo, Period, ChartProOptions, ChartPro } from "./types";
+import {
+  formatTimerText,
+  getCandleStickInterval,
+} from "./utils/timerCalculations";
 
 export interface ChartProComponentProps
   extends Required<Omit<ChartProOptions, "container">> {
@@ -475,6 +479,15 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
         props.datafeed.subscribe(s, p, (data) => {
           // If this is a new candle (different timestamp), use it directly
+          widget?.overrideOverlay({
+            name: "simpleAnnotation",
+            points: [
+              {
+                timestamp: data?.timestamp,
+                value: (currentCandle?.high || data?.high) - 0.001,
+              },
+            ],
+          });
           if (!currentCandle || currentCandle.timestamp !== data.timestamp) {
             currentCandle = { ...data };
             widget?.updateData(currentCandle);
@@ -593,6 +606,44 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       },
     });
   });
+
+  createEffect(() => {
+    let baseInterval = 1000;
+    const candleStickInterval = getCandleStickInterval(period(), baseInterval);
+    // Set up an interval to run this effect every second
+    const intervalId = setInterval(() => {
+      const now = Date.now();
+      const timeLeft = formatTimerText(
+        candleStickInterval - (now % candleStickInterval)
+      );
+
+      // Override overlay to show time left
+      widget?.overrideOverlay({
+        name: "simpleAnnotation",
+        extendData: `${timeLeft}`,
+      });
+    }, 500); // Run every 500ms (0.5 second)
+
+    // Clean up the interval when the component is destroyed
+    onCleanup(() => {
+      clearInterval(intervalId);
+    });
+
+    // Create the overlay
+    widget?.createOverlay({
+      name: "simpleAnnotation",
+      points: [{ timestamp: new Date().getTime() }],
+
+      styles: {
+        polygon: { color: "rgba(255, 255, 255, 0)" },
+        text: {
+          color: "rgb(255, 255, 255)",
+          backgroundColor: "rgba(0, 0, 0, 0)",
+        },
+        line: { color: "rgba(255, 255, 255, 0)" },
+      },
+    });
+  }, [symbol().name, period().text]);
 
   createEffect(() => {
     widget?.setLocale(locale());
