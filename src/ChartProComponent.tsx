@@ -484,7 +484,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             points: [
               {
                 timestamp: data?.timestamp,
-                value: (currentCandle?.high || data?.high) - 0.001,
+                value: currentCandle?.high || data?.high,
               },
             ],
           });
