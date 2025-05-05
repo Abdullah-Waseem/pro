@@ -771,18 +771,19 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   const createTrade = (trade: TradesData) => {
     console.log(trade);
     // 1. Register countdown rectangle figure
+
+    // 1) Rectangle countdown (unchanged)
     registerFigure({
       name: "tradeRectangle",
       draw: (ctx, attrs: any, styles: any) => {
         const { x, y, width, height, remainingSeconds, offsetX } = attrs;
         const { borderRadius = 8, textColor = "#fff" } = styles;
         const adjustedX = x + offsetX;
-
         const left = adjustedX - width / 2;
         const top = y - height / 2;
         const r = borderRadius;
 
-        // 1) Build the rounded‐rect path
+        // path
         ctx.beginPath();
         ctx.moveTo(left + r, top);
         ctx.lineTo(left + width - r, top);
@@ -794,76 +795,113 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           left + width - r,
           top + height
         );
-
         ctx.lineTo(left + r, top + height);
         ctx.quadraticCurveTo(left, top + height, left, top + height - r);
         ctx.lineTo(left, top + r);
         ctx.quadraticCurveTo(left, top, left + r, top);
         ctx.closePath();
 
-        // 2) Stroke the border dashed white
+        // dashed border
         ctx.save();
-        ctx.strokeStyle = "#ffffff";
+        ctx.strokeStyle = "#fff";
         ctx.lineWidth = 1;
-        ctx.setLineDash([4, 2]); // 4px dash, 2px gap
+        ctx.setLineDash([4, 2]);
         ctx.stroke();
         ctx.restore();
-        ctx.fillStyle = "#19192D";
-        ctx.fill();
-        // 3) Draw the countdown text
+
+        // text
         ctx.fillStyle = textColor;
         ctx.font = "11px sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(remainingSeconds.toString(), adjustedX, y);
       },
-
-      checkEventOn: (coordinate: any, attrs: any) => {
-        const cx = coordinate.x;
-        const cy = coordinate.y;
+      checkEventOn: (coord: any, attrs: any) => {
+        const { x, y } = coord;
         const adjustedX = attrs.x + attrs.offsetX;
         const left = adjustedX - attrs.width / 2;
         const top = attrs.y - attrs.height / 2;
         return (
-          cx >= left &&
-          cx <= left + attrs.width &&
-          cy >= top &&
-          cy <= top + attrs.height
+          x >= left &&
+          x <= left + attrs.width &&
+          y >= top &&
+          y <= top + attrs.height
         );
       },
     });
 
-    // 2. Register overlay
+    // 2) Horizontal line figure — make sure its name matches the overlay below!
+    registerFigure({
+      name: "infiniteRightLine",
+      draw: (ctx, attrs: any, styles: any) => {
+        const { x, offsetX } = attrs;
+        const { color = "#2DC08E", lineWidth = 2 } = styles;
+
+        // Compute the start X, then extend to the full canvas width
+        const startX = x + offsetX;
+        const endX = ctx.canvas.width;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.moveTo(startX, attrs.y);
+        ctx.lineTo(endX, attrs.y);
+        ctx.stroke();
+        ctx.restore();
+      },
+      checkEventOn: () => false,
+    });
+
+    // 3) Overlay: return both shapes
     registerOverlay({
       name: `tradeOverlay-${trade.ticketNo}`,
       totalStep: 2,
-      createPointFigures: ({ coordinates, overlay, xAxis }) => {
-        const elapsed = Math.floor(
-          (Date.now() - overlay.extendData.startTime) / 1000
-        );
-        const remaining =
-          overlay.extendData.text + overlay.extendData.countdown;
+      createPointFigures: ({ coordinates, overlay }) => {
+        const baseX = coordinates[0].x;
+        const baseY = coordinates[0].y;
+        const barSpacing = 0;
+        const barsRight = 6;
+        const offsetX = barSpacing * barsRight;
 
-        const barSpacing = 0; // default bar space if not provided
-        const offsetX = barSpacing * 25; // move 6 bars to the right
+        // overlay.extendData should be an object like:
+        // { text: "Trade Time", countdown: "00:30" }
+        const { text, countdown } = overlay.extendData as any;
 
-        return {
-          type: "tradeRectangle",
-          attrs: {
-            x: coordinates[0].x,
-            y: coordinates[0].y,
-            width: 87,
-            height: 25,
-            remainingSeconds: remaining,
-            offsetX: 0,
+        // Combine text + countdown into one string if you wish:
+        const remaining = `${text} ${countdown}`;
+
+        return [
+          {
+            type: "tradeRectangle",
+            attrs: {
+              x: baseX,
+              y: baseY,
+              width: 87,
+              height: 25,
+              remainingSeconds: remaining,
+              offsetX,
+            },
+            styles: {
+              textColor: "#fff",
+              borderRadius: 6,
+            },
           },
-          styles: {
-            baseColor: "#2DC08E",
-            warningColor: "#e53935",
-            textColor: "#ffffff",
-            borderRadius: 6,
+          {
+            type: "infiniteRightLine", // must match the registered figure name
+            attrs: {
+              x: baseX,
+              y: baseY,
+              width: 1000,
+              height: 1,
+              offsetX: 45,
+            },
+            styles: {
+              color: "#ffffff",
+              lineWidth: 1,
+            },
           },
-        };
+        ];
       },
     });
     const arrowText = trade.tradeDirection === "up" ? "⇡" : "⇣";
@@ -872,7 +910,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       name: `tradeOverlay-${trade.ticketNo}`,
       points: [
         {
-          timestamp: new Date(trade.openingTime!).getTime(),
+          timestamp:
+            widget.getDataList()[widget.getDataList().length - 1].timestamp,
           value: trade.openingPrice!,
         },
       ],
@@ -895,14 +934,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         widget?.removeOverlay({ name: `tradeOverlay-${trade.ticketNo}` });
         clearInterval(intervalId);
       }
-
-      widget?.overrideOverlay({
-        name: `tradeOverlay-${trade.ticketNo}`,
-        extendData: {
-          text: `${arrowText}  $ ${trade.openingPrice} `,
-          countdown: "",
-        },
-      });
     }, 1000);
     onCleanup(() => {
       clearInterval(intervalId);
