@@ -18,7 +18,13 @@ import { utils, Nullable, DeepPartial, Styles } from "klinecharts";
 
 import ChartProComponent from "./ChartProComponent";
 
-import { SymbolInfo, Period, ChartPro, ChartProOptions } from "./types";
+import {
+  SymbolInfo,
+  Period,
+  ChartPro,
+  ChartProOptions,
+  TradesData,
+} from "./types";
 
 const Logo = (
   <svg class="logo" viewBox="0 0 80 92">
@@ -67,7 +73,7 @@ export default class KLineChartPro implements ChartPro {
               { multiplier: 1, timespan: "hour", text: "1H" },
               { multiplier: 2, timespan: "hour", text: "2H" },
               { multiplier: 4, timespan: "hour", text: "4H" },
-              { multiplier: 1, timespan: "day", text: "D" },
+              { multiplier: 24, timespan: "hour", text: "D" },
             ]
           }
           timezone={options.timezone ?? "Asia/Shanghai"}
@@ -131,5 +137,9 @@ export default class KLineChartPro implements ChartPro {
 
   getPeriod(): Period {
     return this._chartApi!.getPeriod();
+  }
+
+  createTrade(trade: TradesData): void {
+    this._chartApi!.createTrade(trade);
   }
 }
