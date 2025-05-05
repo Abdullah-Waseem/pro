@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+import "./custom-button.less";
 import {
   createSignal,
   createEffect,
@@ -36,12 +37,14 @@ import {
   Indicator,
   DomPosition,
   FormatDateType,
+  registerOverlay,
+  registerFigure,
 } from "klinecharts";
 
 import lodashSet from "lodash/set";
 import lodashClone from "lodash/cloneDeep";
 
-import { SelectDataSourceItem, Loading } from "./component";
+import { SelectDataSourceItem, Loading, Button } from "./component";
 
 import {
   PeriodBar,
@@ -359,7 +362,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       const get = async () => {
         const p = period();
         const [to] = adjustFromTo(p, timestamp!, 1);
-        const [from] = adjustFromTo(p, to, 500);
+        const [from] = adjustFromTo(p, to, 100);
         const kLineDataList = await props.datafeed.getHistoryKLineData(
           symbol(),
           p,
@@ -463,7 +466,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       let currentCandle: any = null;
 
       const get = async () => {
-        const [from, to] = adjustFromTo(p, new Date().getTime(), 500);
+        const [from, to] = adjustFromTo(p, new Date().getTime(), 100);
         const kLineDataList = await props.datafeed.getHistoryKLineData(
           s,
           p,
@@ -478,16 +481,17 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         }
 
         props.datafeed.subscribe(s, p, (data) => {
-          // If this is a new candle (different timestamp), use it directly
-          widget?.overrideOverlay({
-            name: "simpleAnnotation",
-            points: [
-              {
-                timestamp: data?.timestamp,
-                value: currentCandle?.high || data?.high,
-              },
-            ],
-          });
+          if (data) {
+            widget?.overrideOverlay({
+              name: "customOverlayCustomFigure",
+              points: [
+                {
+                  timestamp: data?.timestamp,
+                  value: data?.close,
+                },
+              ],
+            });
+          }
           if (!currentCandle || currentCandle.timestamp !== data.timestamp) {
             currentCandle = { ...data };
             widget?.updateData(currentCandle);
@@ -518,6 +522,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   });
 
   createEffect(() => {
+    widget?.setOffsetRightDistance(500);
     const t = theme();
     widget?.setStyles(t);
     const color = t === "dark" ? "#929AA5" : "#76808F";
@@ -619,7 +624,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
       // Override overlay to show time left
       widget?.overrideOverlay({
-        name: "simpleAnnotation",
+        name: "customOverlayCustomFigure",
         extendData: `${timeLeft}`,
       });
     }, 500); // Run every 500ms (0.5 second)
@@ -629,19 +634,95 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       clearInterval(intervalId);
     });
 
+    // 1. Register countdown rectangle figure
+    registerFigure({
+      name: "countdownRectangle",
+      draw: (ctx, attrs, styles) => {
+        const { x, y, width, height, remainingSeconds, offsetX } = attrs;
+        const { baseColor, warningColor, textColor, borderRadius } = styles;
+        const color = remainingSeconds <= 10 ? warningColor : baseColor;
+        const adjustedX = x + offsetX;
+
+        const left = adjustedX - width / 2;
+        const top = y - height / 2;
+        const radius = borderRadius;
+
+        ctx.beginPath();
+        ctx.moveTo(left + radius, top);
+        ctx.lineTo(left + width - radius, top);
+        ctx.quadraticCurveTo(left + width, top, left + width, top + radius);
+        ctx.lineTo(left + width, top + height - radius);
+        ctx.quadraticCurveTo(
+          left + width,
+          top + height,
+          left + width - radius,
+          top + height
+        );
+        ctx.lineTo(left + radius, top + height);
+        ctx.quadraticCurveTo(left, top + height, left, top + height - radius);
+        ctx.lineTo(left, top + radius);
+        ctx.quadraticCurveTo(left, top, left + radius, top);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        ctx.fillStyle = textColor || "#ffffff";
+        ctx.font = "11px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(remainingSeconds.toString(), adjustedX, y);
+      },
+      checkEventOn: (coordinate, attrs) => {
+        const { x, y } = coordinate;
+        const adjustedX = attrs.x + attrs.offsetX;
+        const left = adjustedX - attrs.width / 2;
+        const top = attrs.y - attrs.height / 2;
+        return (
+          x >= left &&
+          x <= left + attrs.width &&
+          y >= top &&
+          y <= top + attrs.height
+        );
+      },
+    });
+
+    // 2. Register overlay
+    registerOverlay({
+      name: "customOverlayCustomFigure",
+      totalStep: 2,
+      createPointFigures: ({ coordinates, overlay, xAxis }) => {
+        const elapsed = Math.floor(
+          (Date.now() - overlay.extendData.startTime) / 1000
+        );
+        const remaining = overlay.extendData;
+
+        const barSpacing = 5; // default bar space if not provided
+        const offsetX = barSpacing * 25; // move 6 bars to the right
+
+        return {
+          type: "countdownRectangle",
+          attrs: {
+            x: coordinates[0].x,
+            y: coordinates[0].y,
+            width: 50,
+            height: 20,
+            remainingSeconds: remaining,
+            offsetX: offsetX,
+          },
+          styles: {
+            baseColor: "#2DC08E",
+            warningColor: "#e53935",
+            textColor: "#ffffff",
+            borderRadius: 3,
+          },
+        };
+      },
+    });
     // Create the overlay
     widget?.createOverlay({
-      name: "simpleAnnotation",
-      points: [{ timestamp: new Date().getTime() }],
-
-      styles: {
-        polygon: { color: "rgba(255, 255, 255, 0)" },
-        text: {
-          color: "rgb(255, 255, 255)",
-          backgroundColor: "rgba(0, 0, 0, 0)",
-        },
-        line: { color: "rgba(255, 255, 255, 0)" },
-      },
+      name: "customOverlayCustomFigure",
+      points: [{ timestamp: new Date().getTime(), value: 0 }],
+      extendData: 5,
     });
   }, [symbol().name, period().text]);
 
@@ -663,6 +744,14 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   return (
     <>
       <i class="icon-close klinecharts-pro-load-icon" />
+      <div
+        class="custom-button"
+        onClick={() => {
+          widget?.scrollToRealTime();
+        }}
+      >
+        →
+      </div>
       <Show when={symbolSearchModalVisible()}>
         <SymbolSearchModal
           locale={props.locale}
