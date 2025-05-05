@@ -57,6 +57,10 @@ import {
 import { translateTimezone } from "./widget/timezone-modal/data";
 
 import { SymbolInfo, Period, ChartProOptions, ChartPro } from "./types";
+import {
+  formatTimerText,
+  getCandleStickInterval,
+} from "./utils/timerCalculations";
 
 export interface ChartProComponentProps
   extends Required<Omit<ChartProOptions, "container">> {
@@ -73,7 +77,7 @@ function createIndicator(
   indicatorName: string,
   isStack?: boolean,
   paneOptions?: PaneOptions,
-  calcParams?: number[],
+  calcParams?: number[]
 ): Nullable<string> {
   if (indicatorName === "VOL") {
     paneOptions = { gap: { bottom: 2 }, ...paneOptions };
@@ -82,7 +86,7 @@ function createIndicator(
     widget?.createIndicator(
       {
         name: indicatorName,
-        calcParams:calcParams,
+        calcParams: calcParams,
         // @ts-expect-error
         createTooltipDataSource: ({ indicator, defaultStyles }) => {
           const icons = [];
@@ -328,17 +332,16 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         "candle_pane",
         DomPosition.YAxis
       );
-      
+
       priceUnitDom = document.createElement("span");
       priceUnitDom.className = "klinecharts-pro-price-unit";
       priceUnitContainer?.appendChild(priceUnitDom);
     }
 
     mainIndicators().forEach((indicator) => {
-      if (indicator=='MA'){
-        createIndicator(widget, indicator, true, { id: "candle_pane" },[9,]);
-      }
-      else{
+      if (indicator == "MA") {
+        createIndicator(widget, indicator, true, { id: "candle_pane" }, [9]);
+      } else {
         createIndicator(widget, indicator, true, { id: "candle_pane" });
       }
     });
@@ -406,7 +409,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                 newMainIndicators.indexOf(data.indicatorName),
                 1
               );
-              localStorage.setItem("mainIndicators", JSON.stringify(newMainIndicators));
+              localStorage.setItem(
+                "mainIndicators",
+                JSON.stringify(newMainIndicators)
+              );
               setMainIndicators(newMainIndicators);
             } else {
               const newIndicators = { ...subIndicators() };
@@ -436,7 +442,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     } else {
       priceUnitDom.style.display = "none";
     }
-    
+
     widget?.setPriceVolumePrecision(
       s?.pricePrecision ?? 2,
       s?.volumePrecision ?? 0
@@ -473,10 +479,18 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
         props.datafeed.subscribe(s, p, (data) => {
           // If this is a new candle (different timestamp), use it directly
+          widget?.overrideOverlay({
+            name: "simpleAnnotation",
+            points: [
+              {
+                timestamp: data?.timestamp,
+                value: currentCandle?.high || data?.high,
+              },
+            ],
+          });
           if (!currentCandle || currentCandle.timestamp !== data.timestamp) {
             currentCandle = { ...data };
             widget?.updateData(currentCandle);
-            
           } else {
             // Same candle period, update the existing candle
             // Keep the original open
@@ -594,6 +608,44 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   });
 
   createEffect(() => {
+    let baseInterval = 1000;
+    const candleStickInterval = getCandleStickInterval(period(), baseInterval);
+    // Set up an interval to run this effect every second
+    const intervalId = setInterval(() => {
+      const now = Date.now();
+      const timeLeft = formatTimerText(
+        candleStickInterval - (now % candleStickInterval)
+      );
+
+      // Override overlay to show time left
+      widget?.overrideOverlay({
+        name: "simpleAnnotation",
+        extendData: `${timeLeft}`,
+      });
+    }, 500); // Run every 500ms (0.5 second)
+
+    // Clean up the interval when the component is destroyed
+    onCleanup(() => {
+      clearInterval(intervalId);
+    });
+
+    // Create the overlay
+    widget?.createOverlay({
+      name: "simpleAnnotation",
+      points: [{ timestamp: new Date().getTime() }],
+
+      styles: {
+        polygon: { color: "rgba(255, 255, 255, 0)" },
+        text: {
+          color: "rgb(255, 255, 255)",
+          backgroundColor: "rgba(0, 0, 0, 0)",
+        },
+        line: { color: "rgba(255, 255, 255, 0)" },
+      },
+    });
+  }, [symbol().name, period().text]);
+
+  createEffect(() => {
     widget?.setLocale(locale());
   });
 
@@ -634,10 +686,15 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           onMainIndicatorChange={(data) => {
             const newMainIndicators = [...mainIndicators()];
             if (data.added) {
-              if (data.name =='MA'){
-                createIndicator(widget, data.name, true, { id: "candle_pane" },[9,]);
-              }
-              else{
+              if (data.name == "MA") {
+                createIndicator(
+                  widget,
+                  data.name,
+                  true,
+                  { id: "candle_pane" },
+                  [9]
+                );
+              } else {
                 createIndicator(widget, data.name, true, { id: "candle_pane" });
               }
               newMainIndicators.push(data.name);
@@ -645,7 +702,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               widget?.removeIndicator("candle_pane", data.name);
               newMainIndicators.splice(newMainIndicators.indexOf(data.name), 1);
             }
-            localStorage.setItem("mainIndicators", JSON.stringify(newMainIndicators));
+            localStorage.setItem(
+              "mainIndicators",
+              JSON.stringify(newMainIndicators)
+            );
             setMainIndicators(newMainIndicators);
           }}
           onSubIndicatorChange={(data) => {
@@ -750,7 +810,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         onSymbolClick={() => {
           setSymbolSearchModalVisible(!symbolSearchModalVisible());
         }}
-        onPeriodChange={(props)=>{
+        onPeriodChange={(props) => {
           localStorage.setItem("period", JSON.stringify(props));
           setPeriod(props);
         }}
@@ -763,16 +823,16 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         onSettingClick={() => {
           setSettingModalVisible((visible) => !visible);
         }}
-        onScreenshotClick={() => {
-          if (widget) {
-            const url = widget.getConvertPictureUrl(
-              true,
-              "jpeg",
-              props.theme === "dark" ? "#151517" : "#ffffff"
-            );
-            setScreenshotUrl(url);
-          }
-        }}
+        // onScreenshotClick={() => {
+        //   if (widget) {
+        //     const url = widget.getConvertPictureUrl(
+        //       true,
+        //       "jpeg",
+        //       props.theme === "dark" ? "#151517" : "#ffffff"
+        //     );
+        //     setScreenshotUrl(url);
+        //   }
+        // }}
       />
       <div class="klinecharts-pro-content">
         <Show when={loadingVisible()}>
