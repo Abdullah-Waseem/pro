@@ -473,6 +473,19 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           from,
           to
         );
+        if (kLineDataList.length > 0) {
+          const data = kLineDataList[kLineDataList.length - 1];
+          widget?.overrideOverlay({
+            name: "customOverlayCustomFigure",
+            visible: true,
+            points: [
+              {
+                timestamp: data?.timestamp,
+                value: data?.close,
+              },
+            ],
+          });
+        }
         widget?.applyNewData(kLineDataList, kLineDataList.length > 0);
 
         // Initialize current candle from the last data point if available
@@ -722,6 +735,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     widget?.createOverlay({
       name: "customOverlayCustomFigure",
       points: [{ timestamp: new Date().getTime(), value: 0 }],
+      visible: false,
       extendData: 5,
     });
   }, [symbol().name, period().text]);
