@@ -547,7 +547,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     widget?.setOffsetRightDistance(500);
     const t = theme();
     widget?.setStyles(t);
-    const color = t === "dark" ? "#929AA5" : "#76808F";
+    const color = t === "dark" ? "#19192D" : "#76808F";
     widget?.setStyles({
       indicator: {
         tooltip: {
@@ -772,52 +772,63 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     console.log(trade);
     // 1. Register countdown rectangle figure
     registerFigure({
-      name: "countdownRectangle",
-      draw: (ctx, attrs, styles) => {
+      name: "tradeRectangle",
+      draw: (ctx, attrs: any, styles: any) => {
         const { x, y, width, height, remainingSeconds, offsetX } = attrs;
-        const { baseColor, warningColor, textColor, borderRadius } = styles;
-        const color = trade.tradeDirection === "up" ? "#2DC08E" : "#e53935";
+        const { borderRadius = 8, textColor = "#fff" } = styles;
         const adjustedX = x + offsetX;
 
         const left = adjustedX - width / 2;
         const top = y - height / 2;
-        const radius = borderRadius;
+        const r = borderRadius;
 
+        // 1) Build the rounded‐rect path
         ctx.beginPath();
-        ctx.moveTo(left + radius, top);
-        ctx.lineTo(left + width - radius, top);
-        ctx.quadraticCurveTo(left + width, top, left + width, top + radius);
-        ctx.lineTo(left + width, top + height - radius);
+        ctx.moveTo(left + r, top);
+        ctx.lineTo(left + width - r, top);
+        ctx.quadraticCurveTo(left + width, top, left + width, top + r);
+        ctx.lineTo(left + width, top + height - r);
         ctx.quadraticCurveTo(
           left + width,
           top + height,
-          left + width - radius,
+          left + width - r,
           top + height
         );
-        ctx.lineTo(left + radius, top + height);
-        ctx.quadraticCurveTo(left, top + height, left, top + height - radius);
-        ctx.lineTo(left, top + radius);
-        ctx.quadraticCurveTo(left, top, left + radius, top);
-        ctx.closePath();
-        ctx.fillStyle = color;
-        ctx.fill();
 
-        ctx.fillStyle = textColor || "#ffffff";
+        ctx.lineTo(left + r, top + height);
+        ctx.quadraticCurveTo(left, top + height, left, top + height - r);
+        ctx.lineTo(left, top + r);
+        ctx.quadraticCurveTo(left, top, left + r, top);
+        ctx.closePath();
+
+        // 2) Stroke the border dashed white
+        ctx.save();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 2]); // 4px dash, 2px gap
+        ctx.stroke();
+        ctx.restore();
+        ctx.fillStyle = "#19192D";
+        ctx.fill();
+        // 3) Draw the countdown text
+        ctx.fillStyle = textColor;
         ctx.font = "11px sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(remainingSeconds.toString(), adjustedX, y);
       },
-      checkEventOn: (coordinate, attrs) => {
-        const { x, y } = coordinate;
+
+      checkEventOn: (coordinate: any, attrs: any) => {
+        const cx = coordinate.x;
+        const cy = coordinate.y;
         const adjustedX = attrs.x + attrs.offsetX;
         const left = adjustedX - attrs.width / 2;
         const top = attrs.y - attrs.height / 2;
         return (
-          x >= left &&
-          x <= left + attrs.width &&
-          y >= top &&
-          y <= top + attrs.height
+          cx >= left &&
+          cx <= left + attrs.width &&
+          cy >= top &&
+          cy <= top + attrs.height
         );
       },
     });
@@ -837,24 +848,25 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         const offsetX = barSpacing * 25; // move 6 bars to the right
 
         return {
-          type: "countdownRectangle",
+          type: "tradeRectangle",
           attrs: {
             x: coordinates[0].x,
             y: coordinates[0].y,
-            width: 80,
-            height: 20,
+            width: 87,
+            height: 25,
             remainingSeconds: remaining,
-            offsetX: offsetX,
+            offsetX: 0,
           },
           styles: {
             baseColor: "#2DC08E",
             warningColor: "#e53935",
             textColor: "#ffffff",
-            borderRadius: 3,
+            borderRadius: 6,
           },
         };
       },
     });
+    const arrowText = trade.tradeDirection === "up" ? "⇡" : "⇣";
     // Create the overlay
     widget?.createOverlay({
       name: `tradeOverlay-${trade.ticketNo}`,
@@ -868,7 +880,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       onRightClick: () => {
         return true;
       },
-      extendData: { text: `$ ${trade.openingPrice} `, countdown: "00:00" },
+      extendData: {
+        text: `${arrowText}  $ ${trade.openingPrice} `,
+        countdown: "",
+      },
     });
 
     const intervalId = setInterval(() => {
@@ -880,9 +895,13 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         widget?.removeOverlay({ name: `tradeOverlay-${trade.ticketNo}` });
         clearInterval(intervalId);
       }
+
       widget?.overrideOverlay({
         name: `tradeOverlay-${trade.ticketNo}`,
-        extendData: { text: `$ ${trade.openingPrice} `, countdown: timeLeft },
+        extendData: {
+          text: `${arrowText}  $ ${trade.openingPrice} `,
+          countdown: "",
+        },
       });
     }, 1000);
     onCleanup(() => {
@@ -910,14 +929,16 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             accountNo: "asdf",
             symbol: "BABA",
             currency: "USD",
-            tradeDirection: "up",
+            tradeDirection: "down",
             amountInvested: 100,
-            openingPrice: 143.9,
+            openingPrice:
+              widget?.getDataList()[widget.getDataList().length - 1].close ||
+              143.8,
             closingPrice: null,
             openingTime: new Date().toISOString(),
             payout: 100,
             // closing timeshould be 20 seconds after opening time
-            closingTime: new Date(Date.now() + 5000).toISOString(),
+            closingTime: new Date(Date.now() + 25000).toISOString(),
             isComplete: false,
             pnlValue: null,
           });
