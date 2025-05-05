@@ -920,32 +920,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       >
         →
       </div>
-      <div
-        class="custom-button"
-        style={{ right: "150px" }}
-        onClick={() => {
-          createTrade({
-            ticketNo: "123",
-            accountNo: "asdf",
-            symbol: "BABA",
-            currency: "USD",
-            tradeDirection: "down",
-            amountInvested: 100,
-            openingPrice:
-              widget?.getDataList()[widget.getDataList().length - 1].close ||
-              143.8,
-            closingPrice: null,
-            openingTime: new Date().toISOString(),
-            payout: 100,
-            // closing timeshould be 20 seconds after opening time
-            closingTime: new Date(Date.now() + 25000).toISOString(),
-            isComplete: false,
-            pnlValue: null,
-          });
-        }}
-      >
-        trade
-      </div>
       <Show when={symbolSearchModalVisible()}>
         <SymbolSearchModal
           locale={props.locale}
