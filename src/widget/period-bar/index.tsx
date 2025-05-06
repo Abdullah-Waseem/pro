@@ -148,7 +148,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
       <Select
         class="period-select"
         style={{ width: "150px", margin: "0 10px" }}
-        value={(styles() as Styles).candle.type}
+        value={(styles() as Styles)?.candle?.type || "candle_solid"}
         dataSource={candleOption().dataSource}
         onSelected={(data) => {
           const newValue = (data as SelectDataSourceItem).key;
