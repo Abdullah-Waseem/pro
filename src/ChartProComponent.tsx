@@ -774,7 +774,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
     // 1) Rectangle countdown (unchanged)
     registerFigure({
-      name: "tradeRectangle",
+      name: `tradeRectangle-${trade.ticketNo}`,
       draw: (ctx, attrs: any, styles: any) => {
         const { x, y, width, height, remainingSeconds, offsetX } = attrs;
         const { borderRadius = 8, textColor = "#fff" } = styles;
@@ -835,7 +835,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
     // 2) Horizontal line figure — make sure its name matches the overlay below!
     registerFigure({
-      name: "infiniteRightLine",
+      name: `infiniteRightLine-${trade.ticketNo}`,
       draw: (ctx, attrs: any, styles: any) => {
         const { x, offsetX } = attrs;
         const { color = "#2DC08E", lineWidth = 2 } = styles;
@@ -876,7 +876,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
         return [
           {
-            type: "tradeRectangle",
+            type: `tradeRectangle-${trade.ticketNo}`,
             attrs: {
               x: baseX,
               y: baseY,
@@ -891,7 +891,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             },
           },
           {
-            type: "infiniteRightLine", // must match the registered figure name
+            type: `infiniteRightLine-${trade.ticketNo}`, // must match the registered figure name
             attrs: {
               x: baseX,
               y: baseY,
@@ -909,14 +909,17 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       },
     });
     const arrowText = trade.tradeDirection === "up" ? "⇡" : "⇣";
+    console.log(new Date(trade.openingTime));
+    // 1. Register countdown rectangle figure
+    const datapoint = widget?.getDataList()[widget.getDataList().length - 1];
     // Create the overlay
     widget?.createOverlay({
       name: `tradeOverlay-${trade.ticketNo}`,
       points: [
         {
-          timestamp:
-            widget?.getDataList()[widget.getDataList().length - 1].timestamp ||
-            new Date(trade.openingTime).getTime(),
+          timestamp: datapoint?.timestamp
+            ? datapoint.timestamp
+            : new Date(trade.openingTime).getTime(),
           value: trade.openingPrice!,
         },
       ],
