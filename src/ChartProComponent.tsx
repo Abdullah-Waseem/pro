@@ -769,9 +769,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   });
 
   const createTrade = (trade: TradesData) => {
-    console.log(trade);
-    // 1. Register countdown rectangle figure
-
     // 1) Rectangle countdown (unchanged)
     registerFigure({
       name: `tradeRectangle-${trade.ticketNo}`,
@@ -947,7 +944,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       clearInterval(intervalId);
     });
   };
-
+  let id = "1";
+  let tradeDirection = "up";
   return (
     <>
       <i class="icon-close klinecharts-pro-load-icon" />
@@ -964,11 +962,11 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         style={{ right: "150px" }}
         onClick={() => {
           createTrade({
-            ticketNo: "123",
+            ticketNo: id,
             accountNo: "asdf",
             symbol: "BABA",
             currency: "USD",
-            tradeDirection: "down",
+            tradeDirection: tradeDirection,
             amountInvested: 100,
             openingPrice:
               widget?.getDataList()[widget.getDataList().length - 1].close ||
@@ -977,10 +975,12 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             openingTime: new Date().toISOString(),
             payout: 100,
             // closing timeshould be 20 seconds after opening time
-            closingTime: new Date(Date.now() + 25000).toISOString(),
+            closingTime: new Date(Date.now() + 60000).toISOString(),
             isComplete: false,
             pnlValue: null,
           });
+          id = id + "1";
+          tradeDirection = tradeDirection === "up" ? "down" : "up";
         }}
       >
         trade
