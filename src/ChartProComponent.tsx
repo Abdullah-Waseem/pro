@@ -803,11 +803,14 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
         // dashed border
         ctx.save();
-        ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 2]);
-        ctx.stroke();
-        ctx.restore();
+        // ctx.strokeStyle = "#fff";
+        // ctx.lineWidth = 1;
+        // ctx.setLineDash([4, 2]);
+        // ctx.stroke();
+        // ctx.restore();
+
+        ctx.fillStyle = trade.tradeDirection == "up" ? "#15803D" : "#E53935";
+        ctx.fill();
 
         // text
         ctx.fillStyle = textColor;
@@ -860,8 +863,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       createPointFigures: ({ coordinates, overlay }) => {
         const baseX = coordinates[0].x;
         const baseY = coordinates[0].y;
-        const barSpacing = 0;
-        const barsRight = 6;
+        const barSpacing = 18;
+        const barsRight = -2;
         const offsetX = barSpacing * barsRight;
 
         // overlay.extendData should be an object like:
@@ -877,7 +880,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             attrs: {
               x: baseX,
               y: baseY,
-              width: 87,
+              width: 72,
               height: 25,
               remainingSeconds: remaining,
               offsetX,
@@ -894,10 +897,11 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               y: baseY,
               width: 1000,
               height: 1,
-              offsetX: 45,
+              offsetX: 0,
             },
             styles: {
-              color: "#ffffff",
+              color: trade.tradeDirection == "up" ? "#2DC08E" : "#E53935",
+
               lineWidth: 1,
             },
           },
@@ -911,7 +915,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       points: [
         {
           timestamp:
-            widget.getDataList()[widget.getDataList().length - 1].timestamp,
+            widget?.getDataList()[widget.getDataList().length - 1].timestamp ||
+            new Date(trade.openingTime).getTime(),
           value: trade.openingPrice!,
         },
       ],
