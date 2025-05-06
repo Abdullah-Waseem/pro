@@ -1,7 +1,7 @@
-@import (reference) './base.less';
-@import './component/index.less';
-@import './widget/index.less';
-@import './iconfonts/style.css';
+@import (reference) "./base.less";
+@import "./component/index.less";
+@import "./widget/index.less";
+@import "./iconfonts/style.css";
 
 .@{prefix-cls} {
   --klinecharts-pro-primary-color: @c-primary;
@@ -53,7 +53,7 @@
     font-weight: bold;
     padding: 1px 4px;
     color: var(--klinecharts-pro-text-second-color);
-    box-shadow: 0 3px 3px 0 rgba(50, 50, 50, .3);
+    box-shadow: 0 3px 3px 0 rgba(50, 50, 50, 0.3);
     border: solid 1px var(--klinecharts-pro-border-color);
     background-color: var(--klinecharts-pro-background-color);
   }
@@ -78,5 +78,43 @@
     &[data-drawing-bar-visible="false"] {
       width: 100%;
     }
+  }
+}
+
+/* Global scrollbar styling */
+* {
+  /* Webkit (Chrome, Safari, newer versions of Opera) */
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #666;
+  }
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #444 transparent;
+}
+
+/* Specific styling for the list component */
+.@{prefix-cls}-list {
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 2px;
   }
 }
