@@ -1,4 +1,4 @@
-@import (reference) '../../base.less';
+@import (reference) "../../base.less";
 
 .@{prefix-cls}-select {
   position: relative;
@@ -29,23 +29,23 @@
       border-left: 5px solid transparent;
       border-right: 5px solid transparent;
       border-top: 6px solid var(--klinecharts-pro-text-color);
-      transition: all .2s;
+      transition: all 0.2s;
     }
   }
   .drop-down-container {
     background-color: var(--klinecharts-pro-popover-background-color);
-    box-shadow: 0 6px 12px 0 rgba(0, 0, 0, .3);
+    box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.3);
     position: absolute;
     left: 0;
     width: 100%;
     top: calc(100% + 1px);
-    transition: all .2s;
+    transition: all 0.2s;
     transform: scaleY(0);
     transform-origin: top;
     opacity: 0;
     z-index: 100;
     border-radius: 2px;
-    max-height: 200px;
+    max-height: 300px;
     overflow-y: auto;
     ul {
       list-style: none;
@@ -76,7 +76,7 @@
 
 .@{prefix-cls}-select-show {
   .selector-container {
-    border-color: var(--klinecharts-pro-primary-color)!important;
+    border-color: var(--klinecharts-pro-primary-color) !important;
     .value {
       color: var(--klinecharts-pro-primary-color);
     }
@@ -85,7 +85,7 @@
     }
   }
   .drop-down-container {
-    transform: scaleY(1)!important;
-    opacity: 1!important;
+    transform: scaleY(1) !important;
+    opacity: 1 !important;
   }
 }

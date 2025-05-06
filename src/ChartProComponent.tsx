@@ -877,7 +877,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             attrs: {
               x: baseX,
               y: baseY,
-              width: 72,
+              width: 95,
               height: 25,
               remainingSeconds: remaining,
               offsetX,
@@ -905,7 +905,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         ];
       },
     });
-    const arrowText = trade.tradeDirection === "up" ? "⇡" : "⇣";
+    // const arrowText = trade.tradeDirection === "up" ? "⇡" : "⇣";
     console.log(new Date(trade.openingTime));
     // 1. Register countdown rectangle figure
     const datapoint = widget?.getDataList()[widget.getDataList().length - 1];
@@ -925,8 +925,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         return true;
       },
       extendData: {
-        text: `${arrowText}  $ ${trade.openingPrice} `,
-        countdown: "",
+        text: `$ ${trade.openingPrice}  `,
+        countdown: "00:00",
       },
     });
 
@@ -935,6 +935,13 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       const timeLeft = formatTimerText(
         new Date(trade.closingTime).getTime() - now
       );
+      widget?.overrideOverlay({
+        name: `tradeOverlay-${trade.ticketNo}`,
+        extendData: {
+          text: `$ ${trade.openingPrice}  `,
+          countdown: timeLeft,
+        },
+      });
       if (timeLeft === "00:00") {
         widget?.removeOverlay({ name: `tradeOverlay-${trade.ticketNo}` });
         clearInterval(intervalId);
@@ -1121,6 +1128,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         spread={drawingBarVisible()}
         period={period()}
         periods={props.periods}
+        currentStyles={utils.clone(widget!.getStyles())}
+        onChartStyleChange={(style) => {
+          widget?.setStyles(style);
+        }}
         onMenuClick={async () => {
           try {
             await startTransition(() =>
