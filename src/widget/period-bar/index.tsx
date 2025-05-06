@@ -34,7 +34,7 @@ export interface PeriodBarProps {
   symbol: SymbolInfo;
   period: Period;
   periods: Period[];
-  currentStyles: Styles;
+  currentStyles: Styles | {};
   onChartStyleChange: (style: DeepPartial<Styles>) => void;
   onMenuClick: () => void;
   onSymbolClick: () => void;
@@ -147,8 +147,8 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
       </div> */}
       <Select
         class="period-select"
-        style={{ width: "100px", margin: "0 10px" }}
-        value={candleOption().dataSource[0].text}
+        style={{ width: "150px", margin: "0 10px" }}
+        value={styles().candle.type}
         dataSource={candleOption().dataSource}
         onSelected={(data) => {
           const newValue = (data as SelectDataSourceItem).key;

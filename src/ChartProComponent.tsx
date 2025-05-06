@@ -1096,13 +1096,14 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           }}
         />
       </Show>
+
       <PeriodBar
         locale={props.locale}
         symbol={symbol()}
         spread={drawingBarVisible()}
         period={period()}
         periods={props.periods}
-        currentStyles={utils.clone(widget!.getStyles())}
+        currentStyles={widget ? utils.clone((widget as Chart).getStyles()) : {}}
         onChartStyleChange={(style) => {
           widget?.setStyles(style);
         }}
@@ -1141,6 +1142,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         //   }
         // }}
       />
+
       <div class="klinecharts-pro-content">
         <Show when={loadingVisible()}>
           <Loading />
