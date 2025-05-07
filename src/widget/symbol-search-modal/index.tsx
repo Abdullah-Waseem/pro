@@ -85,11 +85,20 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
               <div class="symbol-info">
                 <div
                   class="star"
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation();
                     if (props.datafeed.addOrRemoveFavorite) {
-                      props.datafeed.addOrRemoveFavorite(symbol);
-                      refetch();
+                      const success = await props.datafeed.addOrRemoveFavorite(
+                        symbol
+                      );
+                      if (!success) return;
+                      setLocalSymbols(
+                        localSymbols().map((s) =>
+                          s.ticker === symbol.ticker
+                            ? { ...s, isFavorite: !s.isFavorite }
+                            : s
+                        )
+                      );
                     }
                   }}
                 >
