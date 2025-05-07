@@ -769,6 +769,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   });
 
   const createTrade = (trade: TradesData) => {
+    console.log(trade);
+    // 1. Register countdown rectangle figure
+
     // 1) Rectangle countdown (unchanged)
     registerFigure({
       name: `tradeRectangle-${trade.ticketNo}`,
