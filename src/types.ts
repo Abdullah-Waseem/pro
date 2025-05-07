@@ -15,6 +15,7 @@
 import { KLineData, Styles, DeepPartial } from "klinecharts";
 
 export interface SymbolInfo {
+  _id?: string;
   ticker: string;
   name?: string;
   shortName?: string;
@@ -65,7 +66,7 @@ export interface Datafeed {
     period: Period,
     callback: DatafeedSubscribeCallback
   ): void;
-  addOrRemoveFavorite?(symbol: SymbolInfo): void;
+  addOrRemoveFavorite?(symbol: SymbolInfo): boolean;
   unsubscribe(symbol: SymbolInfo, period: Period): void;
 }
 

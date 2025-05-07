@@ -12,7 +12,13 @@
  * limitations under the License.
  */
 
-import { Component, createSignal, createResource, Show } from "solid-js";
+import {
+  Component,
+  createSignal,
+  createResource,
+  Show,
+  createEffect,
+} from "solid-js";
 
 import { Modal, List, Input } from "../../component";
 
@@ -30,10 +36,16 @@ export interface SymbolSearchModalProps {
 const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
   const [value, setValue] = createSignal("");
 
-  const [symbolList] = createResource(
+  const [symbolList, { refetch }] = createResource(
     value,
     props.datafeed.searchSymbols.bind(props.datafeed)
   );
+  const [localSymbols, setLocalSymbols] = createSignal<SymbolInfo[]>([]);
+  // whenever the resource loads, sync it into the store
+  createEffect(() => {
+    const data = symbolList();
+    if (data) setLocalSymbols(data);
+  });
 
   return (
     <Modal
@@ -58,7 +70,7 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
       <List
         class="klinecharts-pro-symbol-search-modal-list"
         loading={symbolList.loading}
-        dataSource={symbolList() ?? []}
+        dataSource={localSymbols() ?? []}
         renderItem={(symbol: SymbolInfo) => (
           <li
             onClick={() => {
@@ -77,6 +89,7 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
                     e.stopPropagation();
                     if (props.datafeed.addOrRemoveFavorite) {
                       props.datafeed.addOrRemoveFavorite(symbol);
+                      refetch();
                     }
                   }}
                 >
