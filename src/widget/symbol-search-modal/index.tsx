@@ -73,28 +73,28 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
         dataSource={localSymbols() ?? []}
         renderItem={(symbol: SymbolInfo) => (
           <li
+            class="symbol-item"
             onClick={() => {
               props.onSymbolSelected(symbol);
               props.onClose();
             }}
           >
-            <div>
-              {/* <Show when={symbol.logo}>
-                <img alt="symbol" src={symbol.logo} />
-              </Show> */}
-              <div class="symbol-info">
+            <div class="symbol-info">
+              {/* Left: star + ticker */}
+              <div class="symbol-left">
                 <div
                   class="star"
                   onClick={async (e) => {
                     e.stopPropagation();
                     if (props.datafeed.addOrRemoveFavorite) {
-                      const success = await props.datafeed.addOrRemoveFavorite(
+                      const ok = await props.datafeed.addOrRemoveFavorite(
                         symbol
                       );
-                      if (!success) return;
+                      if (!ok) return;
+                      // flip locally
                       setLocalSymbols(
                         localSymbols().map((s) =>
-                          s.ticker === symbol.ticker
+                          s._id === symbol._id
                             ? { ...s, isFavorite: !s.isFavorite }
                             : s
                         )
@@ -116,12 +116,18 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
                 <span class="symbol-shortname" title={symbol.name ?? ""}>
                   {symbol.shortName ?? symbol.ticker}
                 </span>
-                <span class="symbol-name">
-                  {symbol.name ? `(${symbol.name})` : ""}
-                </span>
+              </div>
+
+              {/* Center: payout */}
+              <div class="symbol-payout">
+                {symbol.payout != null ? `${symbol.payout}%` : ""}
+              </div>
+
+              {/* Right: full name */}
+              <div class="symbol-name">
+                {symbol.name ? `(${symbol.name})` : ""}
               </div>
             </div>
-            {symbol.exchange ?? ""}
           </li>
         )}
       ></List>
