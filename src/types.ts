@@ -27,6 +27,7 @@ export interface SymbolInfo {
   type?: string;
   logo?: string;
   isFavorite?: boolean;
+  payout: number;
 }
 
 export interface Period {

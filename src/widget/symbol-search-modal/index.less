@@ -12,52 +12,65 @@
     font-size: 16px;
   }
 }
+
 .@{prefix-cls}-symbol-search-modal-list {
   height: 400px;
   margin-left: -20px;
   margin-right: -20px;
 
-  li {
-    justify-content: space-between;
-
-    div {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-
-      img {
-        width: 16px;
-        height: 16px;
-        margin-right: 6px;
-      }
-    }
-  }
-}
-
-.symbol-info {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  .star {
-    width: 16px;
-    height: 16px;
+  li.symbol-item {
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin-right: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
   }
 
-  .symbol-shortname {
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .symbol-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .symbol-left {
+    display: flex;
+    align-items: center;
+
+    .star {
+      width: 16px;
+      height: 16px;
+      margin-right: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .symbol-shortname {
+      max-width: 150px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .symbol-payout {
+    flex: 0 0 60px; // fixed width for center
+    text-align: center;
+    color: var(--klinecharts-pro-text-highlight-color);
   }
 
   .symbol-name {
-    margin-left: auto;
-    color: var(--klinecharts-pro-text-second-color);
+    flex: 1;
+    text-align: right;
+    overflow: hidden;
     white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--klinecharts-pro-text-second-color);
+    margin-left: 12px;
   }
 }
