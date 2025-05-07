@@ -6,7 +6,7 @@ import {
   SymbolInfo,
 } from "./types";
 import API from "./utils/API";
-import { aggregateData, NATIVE_MULTIPLIERS, Timespan } from "./helper";
+import { aggregateData, NATIVE_MULTIPLIERS, Timespan, UNIT_MS } from "./helper";
 const SERVER_IP = "binary-trading-app-be.onrender.com";
 const WEBSOCKET_PROTOCOL = "wss";
 const socketUrl = `${WEBSOCKET_PROTOCOL}://${SERVER_IP}`;
@@ -136,59 +136,9 @@ export default class CustomDatafeed implements Datafeed {
     timestamp: number,
     period: Period
   ): number {
-    // For a 5-second period, we want to align to the nearest 5-second boundary
-    if (period.timespan === "second") {
-      // Calculate how many seconds into the current period we are
-      const secondsIntoCurrentPeriod =
-        Math.floor(timestamp / 1000) % period.multiplier;
-
-      // Subtract those seconds to get to the start of the current period
-      return (
-        Math.floor(timestamp / 1000) * 1000 - secondsIntoCurrentPeriod * 1000
-      );
-    }
-
-    // For a minute period
-    if (period.timespan === "minute") {
-      // Calculate how many minutes into the current period we are
-      const minutesIntoCurrentPeriod =
-        Math.floor(timestamp / (60 * 1000)) % period.multiplier;
-
-      // Subtract those minutes to get to the start of the current period
-      return (
-        Math.floor(timestamp / (60 * 1000)) * (60 * 1000) -
-        minutesIntoCurrentPeriod * (60 * 1000)
-      );
-    }
-    // For a hour period
-    if (period.timespan === "hour") {
-      // Calculate how many minutes into the current period we are
-      const hourMs = 60 * 60 * 1000;
-      const hoursIntoCurrentPeriod =
-        Math.floor(timestamp / hourMs) % period.multiplier;
-
-      // Subtract those minutes to get to the start of the current period
-      return (
-        Math.floor(timestamp / hourMs) * hourMs -
-        hoursIntoCurrentPeriod * hourMs
-      );
-    }
-    // For a day period
-    if (period.timespan === "day") {
-      // Calculate how many minutes into the current period we are
-      const dayMs = 24 * 60 * 60 * 1000;
-      const daysIntoCurrentPeriod =
-        Math.floor(timestamp / dayMs) % period.multiplier;
-
-      // Subtract those minutes to get to the start of the current period
-      return (
-        Math.floor(timestamp / dayMs) * dayMs - daysIntoCurrentPeriod * dayMs
-      );
-    }
-
-    // Add similar logic for other timespan types (hour, day, etc.)
-    // For now, return the original timestamp for unsupported periods
-    return timestamp;
+    const windowMs = period.multiplier * UNIT_MS[period.timespan as Timespan];
+    // Align to fixed time boundaries by flooring to the nearest period boundary
+    return Math.floor(timestamp / windowMs) * windowMs;
   }
   unsubscribe(symbol: SymbolInfo, period: Period): void {
     console.log(symbol, period);

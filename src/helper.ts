@@ -39,11 +39,13 @@ export function aggregateData(
 ): KLineData[] {
   const windowMs = period.multiplier * UNIT_MS[ts];
   const buckets = new Map<number, any[]>();
-  // group into buckets
+
+  // group into buckets aligned to fixed time boundaries
   for (const d of data) {
     const tsMs = d.date;
-    const index = Math.floor((tsMs - startMs) / windowMs);
-    const bucketStart = startMs + index * windowMs;
+    // Calculate the bucket start time by aligning to fixed time boundaries
+    // This ensures candles start at times like 10:00, 10:05, 10:10 etc.
+    const bucketStart = Math.floor(tsMs / windowMs) * windowMs;
 
     if (!buckets.has(bucketStart)) {
       buckets.set(bucketStart, []);
