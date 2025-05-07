@@ -34,7 +34,7 @@ export interface PeriodBarProps {
   symbol: SymbolInfo;
   period: Period;
   periods: Period[];
-  currentStyles: Styles | {};
+  currentStyles: DeepPartial<Styles>;
   onChartStyleChange: (style: DeepPartial<Styles>) => void;
   onMenuClick: () => void;
   onSymbolClick: () => void;

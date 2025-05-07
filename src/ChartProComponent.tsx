@@ -1103,7 +1103,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         spread={drawingBarVisible()}
         period={period()}
         periods={props.periods}
-        currentStyles={widget ? utils.clone((widget as Chart).getStyles()) : {}}
+        currentStyles={props.styles}
         onChartStyleChange={(style) => {
           widget?.setStyles(style);
         }}
