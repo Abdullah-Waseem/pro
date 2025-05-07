@@ -1,4 +1,4 @@
-@import (reference) '../../base.less';
+@import (reference) "../../base.less";
 
 .@{prefix-cls}-symbol-search-modal-input {
   margin: 20px 0 10px 0;
@@ -12,28 +12,52 @@
     font-size: 16px;
   }
 }
-
 .@{prefix-cls}-symbol-search-modal-list {
   height: 400px;
   margin-left: -20px;
   margin-right: -20px;
+
   li {
     justify-content: space-between;
+
     div {
       display: flex;
       flex-direction: row;
       align-items: center;
+
       img {
         width: 16px;
         height: 16px;
         margin-right: 6px;
       }
-      span {
-        width: 300px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
     }
+  }
+}
+
+.symbol-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .star {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 6px;
+  }
+
+  .symbol-shortname {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .symbol-name {
+    margin-left: auto;
+    color: var(--klinecharts-pro-text-second-color);
+    white-space: nowrap;
   }
 }
