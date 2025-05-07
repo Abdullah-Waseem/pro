@@ -25,6 +25,7 @@ export interface SymbolInfo {
   priceCurrency?: string;
   type?: string;
   logo?: string;
+  isFavorite?: boolean;
 }
 
 export interface Period {
@@ -64,6 +65,7 @@ export interface Datafeed {
     period: Period,
     callback: DatafeedSubscribeCallback
   ): void;
+  addOrRemoveFavorite?(symbol: SymbolInfo): void;
   unsubscribe(symbol: SymbolInfo, period: Period): void;
 }
 

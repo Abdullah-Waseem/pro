@@ -67,13 +67,37 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
             }}
           >
             <div>
-              <Show when={symbol.logo}>
+              {/* <Show when={symbol.logo}>
                 <img alt="symbol" src={symbol.logo} />
-              </Show>
-              <span title={symbol.name ?? ""}>
-                {symbol.shortName ?? symbol.ticker}
-                {`${symbol.name ? `(${symbol.name})` : ""}`}
-              </span>
+              </Show> */}
+              <div class="symbol-info">
+                <div
+                  class="star"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (props.datafeed.addOrRemoveFavorite) {
+                      props.datafeed.addOrRemoveFavorite(symbol);
+                    }
+                  }}
+                >
+                  <svg
+                    viewBox="0 0 1024 1024"
+                    width="16"
+                    height="16"
+                    fill={symbol.isFavorite ? "#f5c518" : "none"}
+                    stroke="#f5c518"
+                    stroke-width="48"
+                  >
+                    <path d="M908.1 353.1l-267-38.8L512 64 382.9 314.3l-267 38.8L234 602.5l-45.6 266.1L512 728.4l239.6 140.2L706 602.5l169.6-249.4z" />
+                  </svg>
+                </div>
+                <span class="symbol-shortname" title={symbol.name ?? ""}>
+                  {symbol.shortName ?? symbol.ticker}
+                </span>
+                <span class="symbol-name">
+                  {symbol.name ? `(${symbol.name})` : ""}
+                </span>
+              </div>
             </div>
             {symbol.exchange ?? ""}
           </li>
