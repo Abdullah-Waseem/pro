@@ -66,7 +66,7 @@ export interface Datafeed {
     period: Period,
     callback: DatafeedSubscribeCallback
   ): void;
-  addOrRemoveFavorite?(symbol: SymbolInfo): boolean;
+  addOrRemoveFavorite?(symbol: SymbolInfo): Promise<boolean>;
   unsubscribe(symbol: SymbolInfo, period: Period): void;
 }
 
