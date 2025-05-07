@@ -22,6 +22,7 @@ export default class CustomDatafeed implements Datafeed {
   async searchSymbols(): Promise<SymbolInfo[]> {
     const result = await API.getSymbols(sessionStorage.getItem("token") || "");
     return await (result.data || []).map((data: any) => ({
+      payout: 80,
       ticker: data.ticker,
       name: data.description,
       shortName: data.name,
