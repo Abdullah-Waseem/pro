@@ -1032,7 +1032,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           }}
         />
       </Show>
-      <Show when={timezoneModalVisible()}>
+      {/* <Show when={timezoneModalVisible()}>
         <TimezoneModal
           locale={props.locale}
           timezone={timezone()}
@@ -1041,7 +1041,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           }}
           onConfirm={setTimezone}
         />
-      </Show>
+      </Show> */}
       <Show when={settingModalVisible()}>
         <SettingModal
           locale={props.locale}
