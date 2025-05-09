@@ -15,12 +15,18 @@
 import i18n from "../../i18n";
 
 export function getCandleTypes(locale: string) {
+  const iconUrl = "/public/candleTypesIcons/";
+
   return {
     key: "candle.type",
     text: i18n("candle_type", locale),
     component: "select",
     dataSource: [
-      { key: "candle_solid", text: i18n("candle_solid", locale) },
+      {
+        key: "candle_solid",
+        text: i18n("candle_solid", locale),
+        icon: iconUrl + "candle_solid.svg",
+      },
       { key: "candle_stroke", text: i18n("candle_stroke", locale) },
       { key: "candle_up_stroke", text: i18n("candle_up_stroke", locale) },
       { key: "candle_down_stroke", text: i18n("candle_down_stroke", locale) },
@@ -37,7 +43,11 @@ export function getOptions(locale: string) {
       text: i18n("candle_type", locale),
       component: "select",
       dataSource: [
-        { key: "candle_solid", text: i18n("candle_solid", locale) },
+        {
+          key: "candle_solid",
+          text: i18n("candle_solid", locale),
+          icon: "candle-solid.svg",
+        },
         { key: "candle_stroke", text: i18n("candle_stroke", locale) },
         { key: "candle_up_stroke", text: i18n("candle_up_stroke", locale) },
         { key: "candle_down_stroke", text: i18n("candle_down_stroke", locale) },
