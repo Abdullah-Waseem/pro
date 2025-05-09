@@ -1,4 +1,4 @@
-@import (reference) '../../base.less';
+@import (reference) "../../base.less";
 
 .@{prefix-cls}-modal {
   position: absolute;
@@ -10,11 +10,11 @@
   height: 100%;
   left: 0;
   top: 0;
-  background-color: rgba(0, 0, 0, .2);
+  background-color: rgba(0, 0, 0, 0.2);
   z-index: 99;
   .inner {
     background-color: var(--klinecharts-pro-popover-background-color);
-    box-shadow: 0 6px 12px 0 rgba(0, 0, 0, .3);
+    box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.3);
     border-radius: 4px;
     .title-container {
       display: flex;
@@ -48,6 +48,54 @@
       flex-direction: row;
       justify-content: flex-end;
       padding: 20px 20px 26px 20px;
+    }
+  }
+}
+
+/* Media queries for responsive design */
+@media screen and (max-width: 768px) {
+  .@{prefix-cls}-modal {
+    .inner {
+      max-width: 90%;
+      max-height: 90%;
+
+      .title-container {
+        height: 42px;
+        padding: 0 20px;
+        font-size: 16px;
+      }
+      .content-container {
+        padding: 0 20px;
+        min-height: 120px;
+      }
+      .button-container {
+        padding: 15px 15px 20px 15px;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .@{prefix-cls}-modal {
+    .inner {
+      max-width: 90%;
+      max-height: 90%;
+      .title-container {
+        height: 36px;
+        padding: 0 15px;
+        font-size: 14px;
+        .close-icon {
+          width: 12px;
+          height: 12px;
+        }
+      }
+      .content-container {
+        padding: 0 15px;
+        min-height: 100px;
+      }
+      .button-container {
+        padding: 10px 10px 15px 10px;
+      }
     }
   }
 }

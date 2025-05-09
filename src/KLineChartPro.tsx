@@ -57,7 +57,7 @@ export default class KLineChartPro implements ChartPro {
           watermark={options.watermark ?? (Logo as Node)}
           theme={options.theme ?? "dark"}
           locale={options.locale ?? "en-US"}
-          drawingBarVisible={options.drawingBarVisible ?? true}
+          drawingBarVisible={options.drawingBarVisible ?? false}
           symbol={options.symbol}
           period={options.period}
           periods={

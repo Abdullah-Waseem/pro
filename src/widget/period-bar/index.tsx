@@ -126,12 +126,9 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
         }}
       />
       <Select
-        class="period-select"
-        style={{ width: "150px", margin: "0 10px" }}
-        value={i18n(
-          (styles() as Styles)?.candle?.type || "candle_solid",
-          props.locale
-        )}
+        class="candle-select"
+        style={{ width: "60px", margin: "0 10px" }}
+        value={(styles() as Styles)?.candle?.type || "candle_solid"}
         dataSource={candleOption().dataSource}
         onSelected={(data) => {
           localStorage.setItem(
