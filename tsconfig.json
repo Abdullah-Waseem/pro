@@ -15,8 +15,8 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
-    "jsxImportSource": "solid-js",
+    "jsxImportSource": "solid-js"
   },
-  "include": ["src"],
+  "include": ["src", "public/candleTypesIcons"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
