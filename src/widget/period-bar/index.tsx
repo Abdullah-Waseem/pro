@@ -78,7 +78,9 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
   //   document.removeEventListener("webkitfullscreenchange", fullScreenChange);
   //   document.removeEventListener("msfullscreenchange", fullScreenChange);
   // });
-
+  const mapCandleToIcon = (candleType: string) => {
+    return candleOption().dataSource.find((d) => d.key === candleType)?.icon;
+  };
   return (
     <div
       ref={(el) => {
@@ -128,7 +130,9 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
       <Select
         class="candle-select"
         style={{ width: "60px", margin: "0 10px" }}
-        value={(styles() as Styles)?.candle?.type || "candle_solid"}
+        value={mapCandleToIcon(
+          (styles() as Styles)?.candle?.type || "candle_solid"
+        )}
         dataSource={candleOption().dataSource}
         onSelected={(data) => {
           localStorage.setItem(

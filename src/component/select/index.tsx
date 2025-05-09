@@ -13,7 +13,6 @@
  */
 
 import { createSignal, Component, JSX } from "solid-js";
-import { CandleSolid } from "../../widget/period-bar/chartStyleIcons";
 export interface SelectDataSourceItem {
   key: string;
   text: JSX.Element;
@@ -46,11 +45,7 @@ const Select: Component<SelectProps> = (props) => {
       }}
     >
       <div class="selector-container">
-        {props.class == "candle-select" ? (
-          <CandleSolid />
-        ) : (
-          <span class="value">{props.value}</span>
-        )}
+        {props.value}
         <i class="arrow" />
       </div>
       {props.dataSource && props.dataSource.length > 0 && (
@@ -61,7 +56,7 @@ const Select: Component<SelectProps> = (props) => {
               // @ts-expect-error
               const v = d[props.valueKey ?? "text"] ?? data;
               // @ts-expect-error
-              const icon = d.icon;
+              const Icon = d.icon;
               return (
                 <li
                   onClick={(e) => {
@@ -72,7 +67,7 @@ const Select: Component<SelectProps> = (props) => {
                     setOpen(false);
                   }}
                 >
-                  {icon ? <img src={icon} height={25} /> : <div>{v}</div>}
+                  {Icon ? <Icon /> : <div>{v}</div>}
                 </li>
               );
             })}

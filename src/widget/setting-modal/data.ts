@@ -13,10 +13,15 @@
  */
 
 import i18n from "../../i18n";
-
+import {
+  Area,
+  CandleDownStroke,
+  CandleSolid,
+  CandleStroke,
+  CandleUpStroke,
+  Ohlc,
+} from "../../widget/period-bar/chartStyleIcons";
 export function getCandleTypes(locale: string) {
-  const iconUrl = "/public/candleTypesIcons/";
-
   return {
     key: "candle.type",
     text: i18n("candle_type", locale),
@@ -25,13 +30,25 @@ export function getCandleTypes(locale: string) {
       {
         key: "candle_solid",
         text: i18n("candle_solid", locale),
-        icon: iconUrl + "candle_solid.svg",
+        icon: CandleSolid,
       },
-      { key: "candle_stroke", text: i18n("candle_stroke", locale) },
-      { key: "candle_up_stroke", text: i18n("candle_up_stroke", locale) },
-      { key: "candle_down_stroke", text: i18n("candle_down_stroke", locale) },
-      { key: "ohlc", text: i18n("ohlc", locale) },
-      { key: "area", text: i18n("area", locale) },
+      {
+        key: "candle_stroke",
+        text: i18n("candle_stroke", locale),
+        icon: CandleStroke,
+      },
+      {
+        key: "candle_up_stroke",
+        text: i18n("candle_up_stroke", locale),
+        icon: CandleUpStroke,
+      },
+      {
+        key: "candle_down_stroke",
+        text: i18n("candle_down_stroke", locale),
+        icon: CandleDownStroke,
+      },
+      { key: "ohlc", text: i18n("ohlc", locale), icon: Ohlc },
+      { key: "area", text: i18n("area", locale), icon: Area },
     ],
   };
 }
