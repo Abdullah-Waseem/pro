@@ -544,7 +544,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   });
 
   createEffect(() => {
-    widget?.setOffsetRightDistance(500);
+    widget?.setOffsetRightDistance(200);
     const t = theme();
     widget?.setStyles(t);
     const color = t === "dark" ? "#19192D" : "#76808F";
