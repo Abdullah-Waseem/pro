@@ -547,7 +547,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     widget?.setOffsetRightDistance(200);
     const t = theme();
     widget?.setStyles(t);
-    const color = t === "dark" ? "#19192D" : "#76808F";
+    const color = t === "dark" ? "#999999" : "#76808F";
     widget?.setStyles({
       indicator: {
         tooltip: {
@@ -556,7 +556,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               id: "visible",
               position: TooltipIconPosition.Middle,
               marginLeft: 8,
-              marginTop: 7,
+              marginTop: 3,
               marginRight: 0,
               marginBottom: 0,
               paddingLeft: 0,
@@ -575,7 +575,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               id: "invisible",
               position: TooltipIconPosition.Middle,
               marginLeft: 8,
-              marginTop: 7,
+              marginTop: 3,
               marginRight: 0,
               marginBottom: 0,
               paddingLeft: 0,
@@ -594,7 +594,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               id: "setting",
               position: TooltipIconPosition.Middle,
               marginLeft: 6,
-              marginTop: 7,
+              marginTop: 3,
               marginBottom: 0,
               marginRight: 0,
               paddingLeft: 0,
@@ -613,7 +613,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               id: "close",
               position: TooltipIconPosition.Middle,
               marginLeft: 6,
-              marginTop: 7,
+              marginTop: 3,
               marginRight: 0,
               marginBottom: 0,
               paddingLeft: 0,
