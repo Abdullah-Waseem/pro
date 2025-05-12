@@ -112,7 +112,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
       ))} */}
       <Select
         class="period-select"
-        style={{ width: "90px", margin: "0 10px" }}
+        style={{ width: "70px", margin: "0 10px" }}
         value={props.period.text}
         dataSource={props.periods.map((p) => ({
           key: p.text,
