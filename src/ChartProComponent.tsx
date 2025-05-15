@@ -88,6 +88,7 @@ function createIndicator(
   paneOptions?: PaneOptions,
   calcParams?: number[]
 ): Nullable<string> {
+  paneOptions = { height: 180, ...paneOptions };
   if (indicatorName === "VOL") {
     paneOptions = { gap: { bottom: 2 }, ...paneOptions };
   }
@@ -718,7 +719,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         );
         const remaining = overlay.extendData;
 
-        const barSpacing = 5; // default bar space if not provided
+        const barSpacing = 3; // default bar space if not provided
         const offsetX = barSpacing * 25; // move 6 bars to the right
 
         return {
@@ -963,6 +964,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         class="custom-button"
         onClick={() => {
           widget?.scrollToRealTime();
+          widget?.setOffsetRightDistance(100);
         }}
       >
         →
