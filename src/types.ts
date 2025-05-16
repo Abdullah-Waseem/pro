@@ -101,4 +101,5 @@ export interface ChartPro {
   setPeriod(period: Period): void;
   getPeriod(): Period;
   createTrade(trade: TradesData): void;
+  toggleSearchSymbolModal?(): void;
 }
