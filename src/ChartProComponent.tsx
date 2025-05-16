@@ -187,6 +187,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     createTrade: (trade: TradesData) => {
       createTrade(trade);
     },
+    toggleSearchSymbolModal: () => {
+      setSymbolSearchModalVisible(!symbolSearchModalVisible());
+    },
   });
 
   const documentResize = () => {
