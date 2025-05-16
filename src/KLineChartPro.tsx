@@ -142,4 +142,8 @@ export default class KLineChartPro implements ChartPro {
   createTrade(trade: TradesData): void {
     this._chartApi!.createTrade(trade);
   }
+
+  toggleSearchSymbolModal(): void {
+    this._chartApi!.toggleSearchSymbolModal!();
+  }
 }
