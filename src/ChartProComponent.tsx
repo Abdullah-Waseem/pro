@@ -646,10 +646,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       },
     });
   });
-  // let countdownRef: HTMLDivElement | undefined;
+  let countdownRef: HTMLDivElement | undefined;
   function updateCountdown(timestamp: number, close: number) {
-    const countdownDiv = document.getElementById("countdown");
-    if (countdownDiv && timestamp && close) {
+    // const countdownDiv = document.getElementById("countdown");
+    if (countdownRef && timestamp && close) {
       const coord: any = widget?.convertToPixel(
         {
           timestamp: timestamp,
@@ -662,8 +662,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         const containerWidth = container?.clientWidth;
         const paddingRight = 58;
         if (containerWidth) {
-          countdownDiv.style.left = `${containerWidth - paddingRight}px`;
-          countdownDiv.style.top = `${coord.y + 48}px`;
+          countdownRef.style.left = `${containerWidth - paddingRight}px`;
+          countdownRef.style.top = `${coord.y + 48}px`;
         }
       }
     }
@@ -683,9 +683,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         candleStickInterval - (now % candleStickInterval)
       );
 
-      const countdownDiv = document.getElementById("countdown");
-      if (countdownDiv) {
-        countdownDiv.innerHTML = timeLeft;
+      // const countdownDiv = document.getElementById("countdown");
+      if (countdownRef) {
+        countdownRef.innerHTML = timeLeft;
       }
     }, 1000); // Run every 500ms (0.5 second)
 
@@ -693,7 +693,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     onCleanup(() => {
       clearInterval(intervalId);
     });
-  }, [period().text, symbol().name]);
+  });
   // Store the latest timestamp and close values
 
   let animationFrameId: number | null = null;
@@ -1052,7 +1052,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       <div
         id="countdown"
         class="countdown"
-        // ref={(el) => (countdownRef = el)}
+        ref={(el) => (countdownRef = el)}
         style={{
           position: "absolute",
           color: "white",
