@@ -508,15 +508,18 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
         props.datafeed.subscribe(s, p, (data) => {
           if (data) {
-            widget?.overrideOverlay({
-              name: "customOverlayCustomFigure",
-              points: [
-                {
-                  timestamp: data?.timestamp,
-                  value: data?.close,
-                },
-              ],
-            });
+            lastTimestamp = data.timestamp;
+            lastClose = data.close;
+            updateCountdown(data.timestamp, data.close);
+            // widget?.overrideOverlay({
+            //   name: "customOverlayCustomFigure",
+            //   points: [
+            //     {
+            //       timestamp: data?.timestamp,
+            //       value: data?.close,
+            //     },
+            //   ],
+            // });
           }
           if (!currentCandle || currentCandle.timestamp !== data.timestamp) {
             currentCandle = { ...data };
@@ -548,7 +551,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   });
 
   createEffect(() => {
-    widget?.setOffsetRightDistance(200);
+    widget?.setOffsetRightDistance(100);
     const t = theme();
     widget?.setStyles(t);
     const color = t === "dark" ? "#999999" : "#76808F";
@@ -637,8 +640,35 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       },
     });
   });
-
+  let countdownRef: HTMLDivElement | undefined;
+  function updateCountdown(timestamp: number, close: number) {
+    // const countdownDiv = document.getElementById("countdown");
+    if (countdownRef && timestamp && close) {
+      const coord: any = widget?.convertToPixel(
+        {
+          timestamp: timestamp,
+          value: close,
+        },
+        { paneId: "candle_pane" }
+      );
+      if (coord) {
+        const container = document.getElementById("chart-container");
+        const containerWidth = container?.clientWidth;
+        const paddingRight = 58;
+        if (containerWidth) {
+          countdownRef.style.left = `${containerWidth - paddingRight}px`;
+          countdownRef.style.top = `${coord.y + 48}px`;
+        }
+      }
+    }
+  }
   createEffect(() => {
+    const data = widget?.getDataList()[widget.getDataList().length - 1];
+    if (data) {
+      lastTimestamp = data.timestamp;
+      lastClose = data.close;
+      updateCountdown(lastTimestamp, lastClose);
+    }
     let baseInterval = 1000;
     const candleStickInterval = getCandleStickInterval(period(), baseInterval);
     // Set up an interval to run this effect every second
@@ -648,114 +678,166 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         candleStickInterval - (now % candleStickInterval)
       );
 
-      // Override overlay to show time left
-      widget?.overrideOverlay({
-        name: "customOverlayCustomFigure",
-        extendData: `${timeLeft}`,
-      });
-    }, 500); // Run every 500ms (0.5 second)
+      // const countdownDiv = document.getElementById("countdown");
+      if (countdownRef) {
+        countdownRef.innerHTML = timeLeft;
+      }
+    }, 1000); // Run every 500ms (0.5 second)
 
     // Clean up the interval when the component is destroyed
     onCleanup(() => {
       clearInterval(intervalId);
     });
+  });
+  // Store the latest timestamp and close values
+  let lastTimestamp: number | null = null;
+  let lastClose: number | null = null;
+  let animationFrameId: number | null = null;
 
-    // 1. Register countdown rectangle figure
-    registerFigure({
-      name: "countdownRectangle",
-      draw: (ctx, attrs, styles) => {
-        const { x, y, width, height, remainingSeconds, offsetX } = attrs;
-        const { baseColor, warningColor, textColor, borderRadius } = styles;
-        const color = remainingSeconds <= 10 ? warningColor : baseColor;
-        const adjustedX = x + offsetX;
+  // Update the countdown position continuously
+  createEffect(() => {
+    // Set up a high-frequency interval to update position
+    const updatePositionLoop = () => {
+      if (lastTimestamp && lastClose) {
+        updateCountdown(lastTimestamp, lastClose);
+      }
+      // Request next frame
+      animationFrameId = requestAnimationFrame(updatePositionLoop);
+    };
+    animationFrameId = requestAnimationFrame(updatePositionLoop);
 
-        const left = adjustedX - width / 2;
-        const top = y - height / 2;
-        const radius = borderRadius;
-
-        ctx.beginPath();
-        ctx.moveTo(left + radius, top);
-        ctx.lineTo(left + width - radius, top);
-        ctx.quadraticCurveTo(left + width, top, left + width, top + radius);
-        ctx.lineTo(left + width, top + height - radius);
-        ctx.quadraticCurveTo(
-          left + width,
-          top + height,
-          left + width - radius,
-          top + height
-        );
-        ctx.lineTo(left + radius, top + height);
-        ctx.quadraticCurveTo(left, top + height, left, top + height - radius);
-        ctx.lineTo(left, top + radius);
-        ctx.quadraticCurveTo(left, top, left + radius, top);
-        ctx.closePath();
-        ctx.fillStyle = color;
-        ctx.fill();
-
-        ctx.fillStyle = textColor || "#ffffff";
-        ctx.font = "11px sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(remainingSeconds.toString(), adjustedX, y);
-      },
-      checkEventOn: (coordinate, attrs) => {
-        const { x, y } = coordinate;
-        const adjustedX = attrs.x + attrs.offsetX;
-        const left = adjustedX - attrs.width / 2;
-        const top = attrs.y - attrs.height / 2;
-        return (
-          x >= left &&
-          x <= left + attrs.width &&
-          y >= top &&
-          y <= top + attrs.height
-        );
-      },
+    // Clean up when component is destroyed
+    onCleanup(() => {
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
     });
+  });
 
-    // 2. Register overlay
-    registerOverlay({
-      name: "customOverlayCustomFigure",
-      totalStep: 2,
-      createPointFigures: ({ coordinates, overlay, xAxis }) => {
-        const elapsed = Math.floor(
-          (Date.now() - overlay.extendData.startTime) / 1000
-        );
-        const remaining = overlay.extendData;
+  // createEffect(() => {
 
-        const barSpacing = 3; // default bar space if not provided
-        const offsetX = barSpacing * 25; // move 6 bars to the right
+  //
+  // });
 
-        return {
-          type: "countdownRectangle",
-          attrs: {
-            x: coordinates[0].x,
-            y: coordinates[0].y,
-            width: 50,
-            height: 20,
-            remainingSeconds: remaining,
-            offsetX: offsetX,
-          },
-          styles: {
-            baseColor: "#1d2da8",
-            warningColor: "#e53935",
-            textColor: "#ffffff",
-            borderRadius: 3,
-          },
-        };
-      },
-    });
-    // Create the overlay
-    widget?.createOverlay({
-      name: "customOverlayCustomFigure",
-      points: [{ timestamp: new Date().getTime(), value: 0 }],
-      lock: true,
-      onRightClick: () => {
-        return true;
-      },
-      visible: false,
-      extendData: 5,
-    });
-  }, [symbol().name, period().text]);
+  // Old Timer Logic
+  // createEffect(() => {
+  //   let baseInterval = 1000;
+  //   const candleStickInterval = getCandleStickInterval(period(), baseInterval);
+  //   // Set up an interval to run this effect every second
+  //   const intervalId = setInterval(() => {
+  //     const now = Date.now();
+  //     const timeLeft = formatTimerText(
+  //       candleStickInterval - (now % candleStickInterval)
+  //     );
+
+  //     // Override overlay to show time left
+  //     widget?.overrideOverlay({
+  //       name: "customOverlayCustomFigure",
+  //       extendData: `${timeLeft}`,
+  //     });
+  //   }, 500); // Run every 500ms (0.5 second)
+
+  //   // Clean up the interval when the component is destroyed
+  //   onCleanup(() => {
+  //     clearInterval(intervalId);
+  //   });
+
+  //   // 1. Register countdown rectangle figure
+  //   registerFigure({
+  //     name: "countdownRectangle",
+  //     draw: (ctx, attrs, styles) => {
+  //       const { x, y, width, height, remainingSeconds, offsetX } = attrs;
+  //       const { baseColor, warningColor, textColor, borderRadius } = styles;
+  //       const color = remainingSeconds <= 10 ? warningColor : baseColor;
+  //       const adjustedX = x + offsetX;
+
+  //       const left = adjustedX - width / 2;
+  //       const top = y - height / 2;
+  //       const radius = borderRadius;
+
+  //       ctx.beginPath();
+  //       ctx.moveTo(left + radius, top);
+  //       ctx.lineTo(left + width - radius, top);
+  //       ctx.quadraticCurveTo(left + width, top, left + width, top + radius);
+  //       ctx.lineTo(left + width, top + height - radius);
+  //       ctx.quadraticCurveTo(
+  //         left + width,
+  //         top + height,
+  //         left + width - radius,
+  //         top + height
+  //       );
+  //       ctx.lineTo(left + radius, top + height);
+  //       ctx.quadraticCurveTo(left, top + height, left, top + height - radius);
+  //       ctx.lineTo(left, top + radius);
+  //       ctx.quadraticCurveTo(left, top, left + radius, top);
+  //       ctx.closePath();
+  //       ctx.fillStyle = color;
+  //       ctx.fill();
+
+  //       ctx.fillStyle = textColor || "#ffffff";
+  //       ctx.font = "11px sans-serif";
+  //       ctx.textAlign = "center";
+  //       ctx.textBaseline = "middle";
+  //       ctx.fillText(remainingSeconds.toString(), adjustedX, y);
+  //     },
+  //     checkEventOn: (coordinate, attrs) => {
+  //       const { x, y } = coordinate;
+  //       const adjustedX = attrs.x + attrs.offsetX;
+  //       const left = adjustedX - attrs.width / 2;
+  //       const top = attrs.y - attrs.height / 2;
+  //       return (
+  //         x >= left &&
+  //         x <= left + attrs.width &&
+  //         y >= top &&
+  //         y <= top + attrs.height
+  //       );
+  //     },
+  //   });
+
+  //   // 2. Register overlay
+  //   registerOverlay({
+  //     name: "customOverlayCustomFigure",
+  //     totalStep: 2,
+  //     createPointFigures: ({ coordinates, overlay, xAxis }) => {
+  //       const elapsed = Math.floor(
+  //         (Date.now() - overlay.extendData.startTime) / 1000
+  //       );
+  //       const remaining = overlay.extendData;
+
+  //       const barSpacing = 3; // default bar space if not provided
+  //       const offsetX = barSpacing * 25; // move 6 bars to the right
+
+  //       return {
+  //         type: "countdownRectangle",
+  //         attrs: {
+  //           x: coordinates[0].x,
+  //           y: coordinates[0].y,
+  //           width: 50,
+  //           height: 20,
+  //           remainingSeconds: remaining,
+  //           offsetX: offsetX,
+  //         },
+  //         styles: {
+  //           baseColor: "#1d2da8",
+  //           warningColor: "#e53935",
+  //           textColor: "#ffffff",
+  //           borderRadius: 3,
+  //         },
+  //       };
+  //     },
+  //   });
+  //   // Create the overlay
+  //   widget?.createOverlay({
+  //     name: "customOverlayCustomFigure",
+  //     points: [{ timestamp: new Date().getTime(), value: 0 }],
+  //     lock: true,
+  //     onRightClick: () => {
+  //       return true;
+  //     },
+  //     visible: false,
+  //     extendData: 5,
+  //   });
+  // }, [symbol().name, period().text]);
 
   createEffect(() => {
     widget?.setLocale(locale());
@@ -963,10 +1045,31 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     <>
       <i class="icon-close klinecharts-pro-load-icon" />
       <div
+        id="countdown"
+        ref={(el) => (countdownRef = el)}
+        style={{
+          position: "absolute",
+          color: "white",
+          "font-family": "Helvetica Neue",
+          "font-size": "11px",
+          "pointer-events": "none",
+          "background-color": "#1d2da8",
+          padding: "3px 6px",
+          "font-weight": "bold",
+          width: "54px",
+          "text-align": "center",
+          "border-radius": "4px",
+          display: "inline-block",
+          "z-index": "10",
+        }}
+      >
+        00:00
+      </div>
+      <div
         class="custom-button"
         onClick={() => {
           widget?.scrollToRealTime();
-          widget?.setOffsetRightDistance(100);
+          widget?.setOffsetRightDistance(90);
         }}
       >
         →
