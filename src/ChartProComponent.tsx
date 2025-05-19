@@ -646,10 +646,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       },
     });
   });
-  let countdownRef: HTMLDivElement | undefined;
+  // let countdownRef: HTMLDivElement | undefined;
   function updateCountdown(timestamp: number, close: number) {
-    // const countdownDiv = document.getElementById("countdown");
-    if (countdownRef && timestamp && close) {
+    const countdownDiv = document.getElementById("countdown");
+    if (countdownDiv && timestamp && close) {
       const coord: any = widget?.convertToPixel(
         {
           timestamp: timestamp,
@@ -662,8 +662,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         const containerWidth = container?.clientWidth;
         const paddingRight = 58;
         if (containerWidth) {
-          countdownRef.style.left = `${containerWidth - paddingRight}px`;
-          countdownRef.style.top = `${coord.y + 48}px`;
+          countdownDiv.style.left = `${containerWidth - paddingRight}px`;
+          countdownDiv.style.top = `${coord.y + 48}px`;
         }
       }
     }
@@ -683,9 +683,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         candleStickInterval - (now % candleStickInterval)
       );
 
-      // const countdownDiv = document.getElementById("countdown");
-      if (countdownRef) {
-        countdownRef.innerHTML = timeLeft;
+      const countdownDiv = document.getElementById("countdown");
+      if (countdownDiv) {
+        countdownDiv.innerHTML = timeLeft;
       }
     }, 1000); // Run every 500ms (0.5 second)
 
@@ -1045,14 +1045,14 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       clearInterval(intervalId);
     });
   };
-  let id = "1";
-  let tradeDirection = "up";
+
   return (
     <>
       <i class="icon-close klinecharts-pro-load-icon" />
       <div
         id="countdown"
-        ref={(el) => (countdownRef = el)}
+        class="countdown"
+        // ref={(el) => (countdownRef = el)}
         style={{
           position: "absolute",
           color: "white",
@@ -1079,34 +1079,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         }}
       >
         →
-      </div>
-      <div
-        class="custom-button"
-        style={{ right: "150px" }}
-        onClick={() => {
-          createTrade({
-            ticketNo: id,
-            accountNo: "asdf",
-            symbol: "BABA",
-            currency: "USD",
-            tradeDirection: tradeDirection,
-            amountInvested: 100,
-            openingPrice:
-              widget?.getDataList()[widget.getDataList().length - 1].close ||
-              143.8,
-            closingPrice: null,
-            openingTime: new Date().toISOString(),
-            payout: 100,
-            // closing timeshould be 20 seconds after opening time
-            closingTime: new Date(Date.now() + 60000).toISOString(),
-            isComplete: false,
-            pnlValue: null,
-          });
-          id = id + "1";
-          tradeDirection = tradeDirection === "up" ? "down" : "up";
-        }}
-      >
-        trade
       </div>
       <Show when={symbolSearchModalVisible()}>
         <SymbolSearchModal
@@ -1312,6 +1284,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         <div
           ref={widgetRef}
           class="klinecharts-pro-widget"
+          id="chart-container"
           data-drawing-bar-visible={drawingBarVisible()}
         />
       </div>
