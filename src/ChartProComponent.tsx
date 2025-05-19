@@ -646,10 +646,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       },
     });
   });
-  let countdownRef: HTMLDivElement | undefined;
+  // let countdownRef: HTMLDivElement | undefined;
   function updateCountdown(timestamp: number, close: number) {
-    // const countdownDiv = document.getElementById("countdown");
-    if (countdownRef && timestamp && close) {
+    const countdownDiv = document.getElementById("countdown");
+    if (countdownDiv && timestamp && close) {
       const coord: any = widget?.convertToPixel(
         {
           timestamp: timestamp,
@@ -662,8 +662,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         const containerWidth = container?.clientWidth;
         const paddingRight = 58;
         if (containerWidth) {
-          countdownRef.style.left = `${containerWidth - paddingRight}px`;
-          countdownRef.style.top = `${coord.y + 48}px`;
+          countdownDiv.style.left = `${containerWidth - paddingRight}px`;
+          countdownDiv.style.top = `${coord.y + 48}px`;
         }
       }
     }
@@ -683,9 +683,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         candleStickInterval - (now % candleStickInterval)
       );
 
-      // const countdownDiv = document.getElementById("countdown");
-      if (countdownRef) {
-        countdownRef.innerHTML = timeLeft;
+      const countdownDiv = document.getElementById("countdown");
+      if (countdownDiv) {
+        countdownDiv.innerHTML = timeLeft;
       }
     }, 1000); // Run every 500ms (0.5 second)
 
@@ -1051,7 +1051,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       <i class="icon-close klinecharts-pro-load-icon" />
       <div
         id="countdown"
-        ref={(el) => (countdownRef = el)}
+        class="countdown"
+        // ref={(el) => (countdownRef = el)}
         style={{
           position: "absolute",
           color: "white",
@@ -1283,6 +1284,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         <div
           ref={widgetRef}
           class="klinecharts-pro-widget"
+          id="chart-container"
           data-drawing-bar-visible={drawingBarVisible()}
         />
       </div>
