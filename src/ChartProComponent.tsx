@@ -132,6 +132,12 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
   const [symbol, setSymbol] = createSignal(props.symbol);
   const [period, setPeriod] = createSignal(props.period);
+
+  const [lastDataPoint, setLastDataPoint] = createSignal({
+    timestamp: 0,
+    close: 0,
+  });
+
   const [indicatorModalVisible, setIndicatorModalVisible] = createSignal(false);
   const [mainIndicators, setMainIndicators] = createSignal([
     ...props.mainIndicators!,
@@ -508,8 +514,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
         props.datafeed.subscribe(s, p, (data) => {
           if (data) {
-            lastTimestamp = data.timestamp;
-            lastClose = data.close;
+            console.log("data", data);
+            setLastDataPoint({ timestamp: data.timestamp, close: data.close });
             updateCountdown(data.timestamp, data.close);
             // widget?.overrideOverlay({
             //   name: "customOverlayCustomFigure",
@@ -665,9 +671,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   createEffect(() => {
     const data = widget?.getDataList()[widget.getDataList().length - 1];
     if (data) {
-      lastTimestamp = data.timestamp;
-      lastClose = data.close;
-      updateCountdown(lastTimestamp, lastClose);
+      setLastDataPoint({ timestamp: data.timestamp, close: data.close });
+      updateCountdown(data.timestamp, data.close);
     }
     let baseInterval = 1000;
     const candleStickInterval = getCandleStickInterval(period(), baseInterval);
@@ -688,18 +693,18 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     onCleanup(() => {
       clearInterval(intervalId);
     });
-  });
+  }, [period().text, symbol().name]);
   // Store the latest timestamp and close values
-  let lastTimestamp: number | null = null;
-  let lastClose: number | null = null;
+
   let animationFrameId: number | null = null;
 
   // Update the countdown position continuously
   createEffect(() => {
     // Set up a high-frequency interval to update position
     const updatePositionLoop = () => {
-      if (lastTimestamp && lastClose) {
-        updateCountdown(lastTimestamp, lastClose);
+      const { timestamp, close } = lastDataPoint();
+      if (timestamp && close) {
+        updateCountdown(timestamp, close);
       }
       // Request next frame
       animationFrameId = requestAnimationFrame(updatePositionLoop);
