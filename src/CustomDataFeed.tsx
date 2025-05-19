@@ -7,8 +7,8 @@ import {
 } from "./types";
 import API from "./utils/API";
 import { aggregateData, NATIVE_MULTIPLIERS, Timespan, UNIT_MS } from "./helper";
-const SERVER_IP = "binary-trading-app-be.onrender.com";
-const WEBSOCKET_PROTOCOL = "wss";
+const SERVER_IP = "localhost:8081";
+const WEBSOCKET_PROTOCOL = "ws";
 const socketUrl = `${WEBSOCKET_PROTOCOL}://${SERVER_IP}`;
 
 export default class CustomDatafeed implements Datafeed {
@@ -91,6 +91,7 @@ export default class CustomDatafeed implements Datafeed {
             action: "subscribe",
             symbol: symbol.shortName || "USD-JPY",
             userId: sessionStorage.getItem("id") || "681252f8b04287fdfbe9890d",
+            token: "2903alksdjf",
           })
         );
       };
