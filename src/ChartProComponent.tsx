@@ -133,10 +133,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   const [symbol, setSymbol] = createSignal(props.symbol);
   const [period, setPeriod] = createSignal(props.period);
 
-  const [lastDataPoint, setLastDataPoint] = createSignal({
-    timestamp: 0,
-    close: 0,
-  });
+  // const [lastDataPoint, setLastDataPoint] = createSignal({
+  //   timestamp: 0,
+  //   close: 0,
+  // });
 
   const [indicatorModalVisible, setIndicatorModalVisible] = createSignal(false);
   const [mainIndicators, setMainIndicators] = createSignal([
@@ -910,9 +910,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
         // text
         ctx.fillStyle = textColor;
-        ctx.font = "11px sans-serif";
+        ctx.font = "10px sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+
         ctx.fillText(remainingSeconds.toString(), adjustedX, y);
       },
       checkEventOn: (coord: any, attrs: any) => {
@@ -929,24 +930,39 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       },
     });
 
-    // 2) Horizontal line figure — make sure its name matches the overlay below!
     registerFigure({
       name: `infiniteRightLine-${trade.ticketNo}`,
       draw: (ctx, attrs: any, styles: any) => {
-        const { x, offsetX } = attrs;
+        const { x, offsetX, y } = attrs;
         const { color = "#2DC08E", lineWidth = 2 } = styles;
 
-        // Compute the start X, then extend to the full canvas width
         const startX = x + offsetX;
         const endX = ctx.canvas.width;
 
         ctx.save();
+
+        // Draw the horizontal line
         ctx.beginPath();
         ctx.strokeStyle = color;
         ctx.lineWidth = lineWidth;
-        ctx.moveTo(startX, attrs.y);
-        ctx.lineTo(endX, attrs.y);
+        ctx.moveTo(startX, y);
+        ctx.lineTo(endX, y);
         ctx.stroke();
+
+        // Draw outer circle (same color as line)
+        const outerRadius = 6;
+        ctx.beginPath();
+        ctx.fillStyle = color;
+        ctx.arc(startX, y, outerRadius, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Draw inner circle (white)
+        const innerRadius = 3;
+        ctx.beginPath();
+        ctx.fillStyle = "#ffffff";
+        ctx.arc(startX, y, innerRadius, 0, 2 * Math.PI);
+        ctx.fill();
+
         ctx.restore();
       },
       checkEventOn: () => false,
@@ -960,7 +976,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         const baseX = coordinates[0].x;
         const baseY = coordinates[0].y;
         const barSpacing = 18;
-        const barsRight = -2;
+        const barsRight = -5;
         const offsetX = barSpacing * barsRight;
 
         // overlay.extendData should be an object like:
@@ -976,7 +992,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             attrs: {
               x: baseX,
               y: baseY,
-              width: 95,
+              width: 85,
               height: 25,
               remainingSeconds: remaining,
               offsetX,
@@ -1024,7 +1040,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         return true;
       },
       extendData: {
-        text: `$ ${trade.openingPrice}  `,
+        text: `$${trade.openingPrice} `,
         countdown: "00:00",
       },
     });
@@ -1037,7 +1053,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       widget?.overrideOverlay({
         name: `tradeOverlay-${trade.ticketNo}`,
         extendData: {
-          text: `$ ${trade.openingPrice}  `,
+          text: `$${trade.openingPrice} `,
           countdown: timeLeft,
         },
       });
