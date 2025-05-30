@@ -1052,7 +1052,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         return true;
       },
       extendData: {
-        text: `$${trade.openingPrice} `,
+        text: `$${trade.openingPrice?.toFixed(4)} `,
         countdown: "00:00",
       },
     });
@@ -1065,7 +1065,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       widget?.overrideOverlay({
         name: `tradeOverlay-${trade.ticketNo}`,
         extendData: {
-          text: `$${trade.openingPrice} `,
+          text: `$${trade.openingPrice?.toFixed(4)} `,
           countdown: timeLeft,
         },
       });
