@@ -531,15 +531,19 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             });
           }
           if (!currentCandle || currentCandle.timestamp !== data.timestamp) {
-            const ohlcData = {
-              open: data.open,
-              high: data.open,
-              low: data.open,
-              close: data.open,
-              timestamp: data.timestamp,
-              volume: data.volume,
-            };
-            currentCandle = { ...ohlcData };
+            let data2 = data;
+            if (currentCandle) {
+              data2 = {
+                open: currentCandle.close,
+                high: currentCandle.close,
+                low: currentCandle.close,
+                close: currentCandle.close,
+                volume: data.volume,
+                timestamp: data.timestamp,
+              };
+            }
+            currentCandle = { ...data2 };
+
             widget?.updateData(currentCandle);
           } else {
             // Same candle period, update the existing candle

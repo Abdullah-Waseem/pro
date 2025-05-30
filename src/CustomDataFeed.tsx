@@ -101,7 +101,8 @@ export default class CustomDatafeed implements Datafeed {
 
         if (data.symbol && data.price) {
           // Create a KLineData object from the received price data
-          const timestamp = Date.now();
+          const timestamp = data.time;
+
           // Align the timestamp to the current period boundary
           const alignedTimestamp = this.alignTimestampToPeriodBoundary(
             timestamp,
