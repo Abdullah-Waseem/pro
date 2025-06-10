@@ -1,6 +1,6 @@
 export const formatTimerText = (remainingMs: number): string => {
   // Ensure we don't have negative time.
-  const remaining = Math.max(0, remainingMs + 1000);
+  const remaining = Math.max(0, remainingMs);
   const hours = Math.floor(remaining / 3600000);
   const minutes = Math.floor((remaining % 3600000) / 60000);
   const seconds = Math.floor((remaining % 60000) / 1000);
