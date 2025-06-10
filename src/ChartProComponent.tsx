@@ -393,7 +393,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       };
       get();
     });
-    widget?.subscribeAction(ActionType.OnTooltipIconClick, (data) => {
+    widget?.subscribeAction(ActionType.OnTooltipIconClick, (data: any) => {
       if (data.indicatorName) {
         switch (data.iconId) {
           case "visible": {
@@ -411,10 +411,13 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             break;
           }
           case "setting": {
-            const indicator = widget?.getIndicatorByPaneId(
-              data.paneId,
-              data.indicatorName
-            ) as Indicator;
+            const indicator = widget?.getIndicators({
+              paneId: data.paneId,
+              name: data.indicatorName,
+            });
+            if (!indicator) {
+              break;
+            }
             setIndicatorSettingModalParams({
               visible: true,
               indicatorName: data.indicatorName,
@@ -438,7 +441,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               setMainIndicators(newMainIndicators);
             } else {
               const newIndicators = { ...subIndicators() };
-              widget?.removeIndicator(data.paneId, data.indicatorName);
+              widget?.removeIndicator({
+                paneId: data.paneId,
+                name: data.indicatorName,
+              });
               // @ts-expect-error
               delete newIndicators[data.indicatorName];
               const names = Object.keys(newIndicators);
@@ -465,10 +471,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       priceUnitDom.style.display = "none";
     }
 
-    widget?.setPriceVolumePrecision(
-      s?.pricePrecision ?? 2,
-      s?.volumePrecision ?? 0
-    );
+    widget?.setPrecision({
+      price: s?.pricePrecision ?? 2,
+      volume: s?.volumePrecision ?? 0,
+    });
   });
 
   createEffect((prev?: PrevSymbolPeriod) => {
@@ -821,9 +827,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       name: "customOverlayCustomFigure",
       totalStep: 2,
       createPointFigures: ({ coordinates, overlay, xAxis }) => {
-        const elapsed = Math.floor(
-          (Date.now() - overlay.extendData.startTime) / 1000
-        );
         const remaining = overlay.extendData;
 
         const barSpacing = 3; // default bar space if not provided
@@ -1033,7 +1036,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       },
     });
     // const arrowText = trade.tradeDirection === "up" ? "⇡" : "⇣";
-    console.log(new Date(trade.openingTime));
     // 1. Register countdown rectangle figure
     const datapoint = widget?.getDataList()[widget.getDataList().length - 1];
     // Create the overlay
@@ -1125,8 +1127,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             amountInvested: 100,
             openingPrice: 144.497,
             closingPrice: null,
-            openingTime: new Date().getTime(),
-            closingTime: new Date().getTime() + 10000,
+            openingTime: (new Date().getTime() - 10000).toString(),
+            closingTime: (new Date().getTime() + 10000).toString(),
             isComplete: false,
             pnlValue: 0,
             accountNo: "12345",
@@ -1172,7 +1174,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               }
               newMainIndicators.push(data.name);
             } else {
-              widget?.removeIndicator("candle_pane", data.name);
+              widget?.removeIndicator({
+                paneId: "candle_pane",
+                name: data.name,
+              });
               newMainIndicators.splice(newMainIndicators.indexOf(data.name), 1);
             }
             localStorage.setItem(
@@ -1191,7 +1196,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               }
             } else {
               if (data.paneId) {
-                widget?.removeIndicator(data.paneId, data.name);
+                widget?.removeIndicator({
+                  paneId: data.paneId,
+                  name: data.name,
+                });
                 // @ts-expect-error
                 delete newSubIndicators[data.name];
               }
