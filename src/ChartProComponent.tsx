@@ -747,7 +747,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     const candleStickInterval = getCandleStickInterval(period(), baseInterval);
     // Set up an interval to run this effect every second
     const intervalId = setInterval(() => {
-      const now = Date.now();
+      const now = Date.now() - 500;
       const timeLeft = formatTimerText(
         candleStickInterval - (now % candleStickInterval)
       );
@@ -757,7 +757,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         name: "customOverlayCustomFigure",
         extendData: `${timeLeft}`,
       });
-    }, 500); // Run every 500ms (0.5 second)
+    }, 200); // Run every 500ms (0.5 second)
 
     // Clean up the interval when the component is destroyed
     onCleanup(() => {
