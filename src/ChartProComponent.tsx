@@ -41,6 +41,7 @@ import {
   registerFigure,
   TooltipFeaturePosition,
   IndicatorTooltipData,
+  TooltipFeatureType,
 } from "klinecharts";
 import { ActionType } from "klinecharts";
 import lodashSet from "lodash/set";
@@ -174,11 +175,11 @@ function createIndicator(
                 // ▼ fill in these required properties ▼
 
                 // 1) type: either "path" or "iconFont"
-                type: "path",
+                type: "path" as TooltipFeatureType,
 
                 // 2) path: SVG‑path definition + drawing style
                 path: {
-                  // stroke (outline) or fill
+                  // @ts-expect-error
                   style: "stroke",
                   // the "eye" icon from the docs as an example
                   path: "M1 5 C1 2.5 3 0 6 0 C9 0 11 2.5 11 5 C11 7.5 9 10 6 10 C3 10 1 7.5 1 5 Z M6 3 C4.3 3 3 4.3 3 6 C3 7.7 4.3 9 6 9 C7.7 9 9 7.7 9 6 C9 4.3 7.7 3 6 3 Z",
@@ -209,8 +210,9 @@ function createIndicator(
                 activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
                 borderRadius: 4,
 
-                // type: 'path',
+                type: "path" as TooltipFeatureType,
                 path: {
+                  // @ts-expect-error
                   style: "stroke",
                   // simple "eye‑slash" example
                   path: "M0 0 L12 12 M12 0 L0 12",
@@ -239,8 +241,9 @@ function createIndicator(
                 activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
                 borderRadius: 4,
 
-                type: "path",
+                type: "path" as TooltipFeatureType,
                 path: {
+                  // @ts-expect-error
                   style: "stroke",
                   // gear‑shaped icon path (example)
                   path: "M6 1 L7 3 L9 3 L8 5 L9 7 L7 7 L6 9 L5 7 L3 7 L4 5 L3 3 L5 3 Z",
@@ -269,8 +272,9 @@ function createIndicator(
                 activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
                 borderRadius: 4,
 
-                type: "path",
+                type: "path" as TooltipFeatureType,
                 path: {
+                  // @ts-expect-error
                   style: "stroke",
                   // simple "X" icon path
                   path: "M2 2 L10 10 M10 2 L2 10",
