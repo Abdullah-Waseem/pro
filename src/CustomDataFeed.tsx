@@ -7,7 +7,7 @@ import {
 } from "./types";
 import API from "./utils/API";
 import { aggregateData, NATIVE_MULTIPLIERS, Timespan, UNIT_MS } from "./helper";
-const SERVER_IP = "localhost:8081";
+const SERVER_IP = "192.168.1.5:8081";
 const WEBSOCKET_PROTOCOL = "ws";
 const socketUrl = `${WEBSOCKET_PROTOCOL}://${SERVER_IP}`;
 

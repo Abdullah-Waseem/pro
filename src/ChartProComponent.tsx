@@ -31,7 +31,7 @@ import {
   Chart,
   OverlayMode,
   Styles,
-  TooltipIconPosition,
+  // TooltipIconPosition,
   ActionType,
   PaneOptions,
   Indicator,
@@ -90,7 +90,7 @@ function createIndicator(
 ): Nullable<string> {
   paneOptions = { height: 180, ...paneOptions };
   if (indicatorName === "VOL") {
-    paneOptions = { gap: { bottom: 2 }, ...paneOptions };
+    paneOptions = { axis: { gap: { bottom: 2 } }, ...paneOptions };
   }
   return (
     widget?.createIndicator(
@@ -270,11 +270,19 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     widget = init(widgetRef!, {
       customApi: {
         formatDate: (
-          dateTimeFormat: Intl.DateTimeFormat,
+          // dateTimeFormat: Intl.DateTimeFormat,
           timestamp,
           format: string,
           type: FormatDateType
         ) => {
+          const dateTimeFormat = new Intl.DateTimeFormat(locale(), {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          });
           const p = period();
           switch (p.timespan) {
             case "second": {
@@ -376,31 +384,49 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       }
     });
     setSubIndicators(subIndicatorMap);
-    widget?.loadMore((timestamp) => {
+    widget?.setLoadMoreDataCallback(({ type, data, callback }) => {
+      if (loading || type !== "backward") return;
       loading = true;
+
       const get = async () => {
         const p = period();
-        const [to] = adjustFromTo(p, timestamp!, 1);
+        if (!data) {
+          loading = false;
+          return;
+        }
+        const earliestTimestamp = data.timestamp;
+        if (!earliestTimestamp) {
+          loading = false;
+          return;
+        }
+
+        // Your original range logic
+        const [to] = adjustFromTo(p, earliestTimestamp, 1);
         const [from] = adjustFromTo(p, to, 100);
+
         const kLineDataList = await props.datafeed.getHistoryKLineData(
           symbol(),
           p,
           from,
           to
         );
-        widget?.applyMoreData(kLineDataList, kLineDataList.length > 0);
+
+        callback(kLineDataList); // ⬅️ Send new data back to the chart
         loading = false;
       };
+
       get();
     });
-    widget?.subscribeAction(ActionType.OnTooltipIconClick, (data: any) => {
+
+    widget?.subscribeAction(ActionType, (data: any) => {
       if (data.indicatorName) {
         switch (data.iconId) {
           case "visible": {
-            widget?.overrideIndicator(
-              { name: data.indicatorName, visible: true },
-              data.paneId
-            );
+            widget?.overrideIndicator({
+              name: data.indicatorName,
+              visible: true,
+              paneId: data.paneId,
+            });
             break;
           }
           case "invisible": {
@@ -429,7 +455,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           case "close": {
             if (data.paneId === "candle_pane") {
               const newMainIndicators = [...mainIndicators()];
-              widget?.removeIndicator("candle_pane", data.indicatorName);
+              widget?.removeIndicator({
+                paneId: "candle_pane",
+                name: data.indicatorName,
+              });
               newMainIndicators.splice(
                 newMainIndicators.indexOf(data.indicatorName),
                 1
@@ -773,7 +802,23 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     // 1. Register countdown rectangle figure
     registerFigure({
       name: "countdownRectangle",
-      draw: (ctx, attrs, styles) => {
+      draw: (
+        ctx,
+        attrs: {
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+          remainingSeconds: number;
+          offsetX: number;
+        },
+        styles: {
+          baseColor: string;
+          warningColor: string;
+          textColor: string;
+          borderRadius: number;
+        }
+      ) => {
         const { x, y, width, height, remainingSeconds, offsetX } = attrs;
         const { baseColor, warningColor, textColor, borderRadius } = styles;
         const color = remainingSeconds <= 10 ? warningColor : baseColor;
@@ -1267,10 +1312,11 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           }}
           onConfirm={(params) => {
             const modalParams = indicatorSettingModalParams();
-            widget?.overrideIndicator(
-              { name: modalParams.indicatorName, calcParams: params },
-              modalParams.paneId
-            );
+            widget?.overrideIndicator({
+              name: modalParams.indicatorName,
+              calcParams: params,
+              paneId: modalParams.paneId,
+            });
           }}
         />
       </Show>
