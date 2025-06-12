@@ -1,6 +1,6 @@
 // src/utils/apiClient.ts
 import axios from "axios";
-const SERVER_IP = "localhost:8081";
+const SERVER_IP = "192.168.1.5:8081";
 const HTTP_PROTOCOL = "http";
 
 const API = axios.create({
