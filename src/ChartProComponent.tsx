@@ -31,16 +31,19 @@ import {
   Chart,
   OverlayMode,
   Styles,
-  TooltipIconPosition,
-  ActionType,
+  // TooltipIconPosition,
+  // ActionType,
   PaneOptions,
   Indicator,
   DomPosition,
   FormatDateType,
   registerOverlay,
   registerFigure,
+  TooltipFeaturePosition,
+  IndicatorTooltipData,
+  TooltipFeatureType,
 } from "klinecharts";
-
+import { ActionType } from "klinecharts";
 import lodashSet from "lodash/set";
 import lodashClone from "lodash/cloneDeep";
 
@@ -79,43 +82,6 @@ export interface ChartProComponentProps
 interface PrevSymbolPeriod {
   symbol: SymbolInfo;
   period: Period;
-}
-
-function createIndicator(
-  widget: Nullable<Chart>,
-  indicatorName: string,
-  isStack?: boolean,
-  paneOptions?: PaneOptions,
-  calcParams?: number[]
-): Nullable<string> {
-  paneOptions = { height: 180, ...paneOptions };
-  if (indicatorName === "VOL") {
-    paneOptions = { gap: { bottom: 2 }, ...paneOptions };
-  }
-  return (
-    widget?.createIndicator(
-      {
-        name: indicatorName,
-        calcParams: calcParams,
-        // @ts-expect-error
-        createTooltipDataSource: ({ indicator, defaultStyles }) => {
-          const icons = [];
-          if (indicator.visible) {
-            icons.push(defaultStyles.tooltip.icons[1]);
-            icons.push(defaultStyles.tooltip.icons[2]);
-            icons.push(defaultStyles.tooltip.icons[3]);
-          } else {
-            icons.push(defaultStyles.tooltip.icons[0]);
-            icons.push(defaultStyles.tooltip.icons[2]);
-            icons.push(defaultStyles.tooltip.icons[3]);
-          }
-          return { icons };
-        },
-      },
-      isStack,
-      paneOptions
-    ) ?? null
-  );
 }
 
 const ChartProComponent: Component<ChartProComponentProps> = (props) => {
@@ -167,6 +133,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   const [indicatorSettingModalParams, setIndicatorSettingModalParams] =
     createSignal({
       visible: false,
+      id: "",
       indicatorName: "",
       paneId: "",
       calcParams: [] as Array<any>,
@@ -264,17 +231,232 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     }
     return [from, to];
   };
+  function createIndicator(
+    widget: Nullable<Chart>,
+    indicatorName: string,
+    isStack?: boolean,
+    paneOptions?: PaneOptions,
+    calcParams?: number[]
+  ): Nullable<string> {
+    if (!paneOptions || !paneOptions.id) {
+      paneOptions = { height: 280, ...paneOptions };
+    }
+    if (indicatorName === "VOL") {
+      paneOptions = { axis: { gap: { bottom: 2 } }, ...paneOptions };
+    }
 
+    return (
+      widget?.createIndicator(
+        {
+          name: indicatorName,
+          calcParams,
+
+          onClick: ({ target, chart, indicator, feature }) => {
+            if (target === "feature") {
+              // @ts-expect-error
+              switch (feature.id) {
+                case "close":
+                  chart.removeIndicator({
+                    paneId: indicator.paneId,
+                    id: indicator.id,
+                    name: indicator.name,
+                  });
+                  break;
+                case "setting":
+                  setIndicatorSettingModalParams({
+                    visible: true,
+                    indicatorName: indicator.name,
+                    id: indicator.id,
+                    paneId: indicator.paneId,
+                    calcParams: indicator.calcParams,
+                  });
+                  break;
+                case "visible":
+                  chart.overrideIndicator({
+                    paneId: indicator.paneId,
+                    name: indicator.name,
+                    visible: false,
+                  });
+                  break;
+                case "invisible":
+                  chart.overrideIndicator({
+                    paneId: indicator.paneId,
+                    name: indicator.name,
+                    visible: true,
+                  });
+                  break;
+              }
+            }
+          },
+
+          createTooltipDataSource: ({ indicator }): IndicatorTooltipData => {
+            return {
+              name: indicator.name,
+              calcParamsText: indicator.calcParams
+                ? `(${indicator.calcParams.join(", ")})`
+                : "",
+              legends: [], // optional: you can add legends here
+              features: [
+                // {
+                //   id: "visible",
+                //   position: TooltipFeaturePosition.Middle,
+                //   // box model
+                //   marginLeft: 8,
+                //   marginTop: 3,
+                //   marginRight: 0,
+                //   marginBottom: 0,
+                //   paddingLeft: 0,
+                //   paddingTop: 0,
+                //   paddingRight: 0,
+                //   paddingBottom: 0,
+                //   // sizing & colors
+                //   size: 14,
+                //   color: "#76808F",
+                //   activeColor: "#76808F",
+                //   backgroundColor: "transparent",
+                //   activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+                //   borderRadius: 4,
+
+                //   // ▼ fill in these required properties ▼
+
+                //   // 1) type: either "path" or "iconFont"
+                //   type: "path" as TooltipFeatureType,
+
+                //   // 2) path: SVG‑path definition + drawing style
+                //   path: {
+                //     // @ts-expect-error
+                //     style: "stroke",
+                //     // the "eye" icon from the docs as an example
+                //     path: "M1 5 C1 2.5 3 0 6 0 C9 0 11 2.5 11 5 C11 7.5 9 10 6 10 C3 10 1 7.5 1 5 Z M6 3 C4.3 3 3 4.3 3 6 C3 7.7 4.3 9 6 9 C7.7 9 9 7.7 9 6 C9 4.3 7.7 3 6 3 Z",
+                //     lineWidth: 1,
+                //   },
+
+                //   // 3) iconFont: only used if you set type: 'iconFont'
+                //   iconFont: {
+                //     content: "\ue900", // your icon glyph
+                //     family: "my-iconfont", // the @font‑face family name
+                //   },
+                // },
+                // {
+                //   id: "invisible",
+                //   position: TooltipFeaturePosition.Middle,
+                //   marginLeft: 8,
+                //   marginTop: 3,
+                //   marginRight: 0,
+                //   marginBottom: 0,
+                //   paddingLeft: 0,
+                //   paddingTop: 0,
+                //   paddingRight: 0,
+                //   paddingBottom: 0,
+                //   size: 14,
+                //   color: "#76808F",
+                //   activeColor: "#76808F",
+                //   backgroundColor: "transparent",
+                //   activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+                //   borderRadius: 4,
+
+                //   type: "path" as TooltipFeatureType,
+                //   path: {
+                //     // @ts-expect-error
+                //     style: "stroke",
+                //     // simple "eye‑slash" example
+                //     path: "M0 0 L12 12 M12 0 L0 12",
+                //     lineWidth: 1,
+                //   },
+                //   iconFont: {
+                //     content: "\ue901",
+                //     family: "my-iconfont",
+                //   },
+                // },
+                {
+                  id: "setting",
+                  position: TooltipFeaturePosition.Middle,
+                  marginLeft: 3,
+                  marginTop: 3,
+                  marginRight: 0,
+                  marginBottom: 0,
+                  paddingLeft: 0,
+                  paddingTop: 0,
+                  paddingRight: 0,
+                  paddingBottom: 0,
+                  size: 14,
+                  color: "#76808F",
+                  activeColor: "#76808F",
+                  backgroundColor: "transparent",
+                  activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+                  borderRadius: 4,
+
+                  type: "path" as TooltipFeatureType,
+                  path: {
+                    // @ts-expect-error
+                    style: "stroke",
+                    // gear‑shaped icon path (example)
+                    path: "M6 1 L7 3 L9 3 L8 5 L9 7 L7 7 L6 9 L5 7 L3 7 L4 5 L3 3 L5 3 Z",
+                    lineWidth: 1,
+                  },
+                  iconFont: {
+                    content: "\ue902",
+                    family: "my-iconfont",
+                  },
+                },
+                {
+                  id: "close",
+                  position: TooltipFeaturePosition.Middle,
+                  marginLeft: 6,
+                  marginTop: 3,
+                  marginRight: 0,
+                  marginBottom: 0,
+                  paddingLeft: 0,
+                  paddingTop: 0,
+                  paddingRight: 0,
+                  paddingBottom: 0,
+                  size: 14,
+                  color: "#76808F",
+                  activeColor: "#76808F",
+                  backgroundColor: "transparent",
+                  activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+                  borderRadius: 4,
+
+                  type: "path" as TooltipFeatureType,
+                  path: {
+                    // @ts-expect-error
+                    style: "stroke",
+                    // simple "X" icon path
+                    path: "M2 2 L10 10 M10 2 L2 10",
+                    lineWidth: 1,
+                  },
+                  iconFont: {
+                    content: "\ue903",
+                    family: "my-iconfont",
+                  },
+                },
+              ],
+            };
+          },
+        },
+        isStack,
+        paneOptions
+      ) ?? null
+    );
+  }
   onMount(() => {
     window.addEventListener("resize", documentResize);
     widget = init(widgetRef!, {
       customApi: {
         formatDate: (
-          dateTimeFormat: Intl.DateTimeFormat,
+          // dateTimeFormat: Intl.DateTimeFormat,
           timestamp,
           format: string,
           type: FormatDateType
         ) => {
+          const dateTimeFormat = new Intl.DateTimeFormat(locale(), {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          });
           const p = period();
           switch (p.timespan) {
             case "second": {
@@ -376,79 +558,117 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       }
     });
     setSubIndicators(subIndicatorMap);
-    widget?.loadMore((timestamp) => {
+    widget?.setLoadMoreDataCallback(({ type, data, callback }) => {
+      // Type = Backward on websocket message  and Forward on panning
+      // console.log("load more data", type, data);
+      if (!data || loading == true || type == "backward") {
+        callback([], true); // ✅ tell the chart there’s nothing more to load
+        return;
+      }
+      console.log("Lower Timestamp", new Date(data.timestamp));
       loading = true;
+
       const get = async () => {
         const p = period();
-        const [to] = adjustFromTo(p, timestamp!, 1);
-        const [from] = adjustFromTo(p, to, 100);
+        const earliestTimestamp = data.timestamp;
+        if (!earliestTimestamp) {
+          callback([], true); // ✅ still respond
+          loading = false;
+          return;
+        }
+
+        const [to] = adjustFromTo(p, earliestTimestamp, 1);
+        const [from] = adjustFromTo(p, to, 60);
+
         const kLineDataList = await props.datafeed.getHistoryKLineData(
           symbol(),
           p,
           from,
           to
         );
-        widget?.applyMoreData(kLineDataList, kLineDataList.length > 0);
+        if (kLineDataList.length === 0) {
+          callback([], true); // ✅ still respond
+          loading = false;
+          return;
+        }
+        callback(kLineDataList, true); // ⬅️ Send new data back to the chart
         loading = false;
       };
+
       get();
     });
-    widget?.subscribeAction(ActionType.OnTooltipIconClick, (data) => {
-      if (data.indicatorName) {
-        switch (data.iconId) {
-          case "visible": {
-            widget?.overrideIndicator(
-              { name: data.indicatorName, visible: true },
-              data.paneId
-            );
-            break;
-          }
-          case "invisible": {
-            widget?.overrideIndicator(
-              { name: data.indicatorName, visible: false },
-              data.paneId
-            );
-            break;
-          }
-          case "setting": {
-            const indicator = widget?.getIndicatorByPaneId(
-              data.paneId,
-              data.indicatorName
-            ) as Indicator;
-            setIndicatorSettingModalParams({
-              visible: true,
-              indicatorName: data.indicatorName,
-              paneId: data.paneId,
-              calcParams: indicator.calcParams,
-            });
-            break;
-          }
-          case "close": {
-            if (data.paneId === "candle_pane") {
-              const newMainIndicators = [...mainIndicators()];
-              widget?.removeIndicator("candle_pane", data.indicatorName);
-              newMainIndicators.splice(
-                newMainIndicators.indexOf(data.indicatorName),
-                1
-              );
-              localStorage.setItem(
-                "mainIndicators",
-                JSON.stringify(newMainIndicators)
-              );
-              setMainIndicators(newMainIndicators);
-            } else {
-              const newIndicators = { ...subIndicators() };
-              widget?.removeIndicator(data.paneId, data.indicatorName);
-              // @ts-expect-error
-              delete newIndicators[data.indicatorName];
-              const names = Object.keys(newIndicators);
-              localStorage.setItem("subIndicators", JSON.stringify(names));
-              setSubIndicators(newIndicators);
-            }
-          }
-        }
-      }
-    });
+    // Indicator Tool Tip functions
+    // widget?.subscribeAction(
+    //   ActionType.OnCandleTooltipFeatureClick,
+    //   (data: any) => {
+    //     console.log("OnCandleTooltipFeatureClick", data);
+    //     if (data.indicatorName) {
+    //       switch (data.iconId) {
+    //         case "visible": {
+    //           widget?.overrideIndicator({
+    //             name: data.indicatorName,
+    //             visible: true,
+    //             paneId: data.paneId,
+    //           });
+    //           break;
+    //         }
+    //         case "invisible": {
+    //           widget?.overrideIndicator({
+    //             name: data.indicatorName,
+    //             visible: false,
+    //             paneId: data.paneId,
+    //           });
+    //           break;
+    //         }
+    //         case "setting": {
+    //           const indicator = widget?.getIndicators({
+    //             paneId: data.paneId,
+    //             name: data.indicatorName,
+    //           });
+    //           if (!indicator) {
+    //             break;
+    //           }
+    //           setIndicatorSettingModalParams({
+    //             visible: true,
+    //             indicatorName: data.indicatorName,
+    //             paneId: data.paneId,
+    //             calcParams: indicator[0].calcParams,
+    //           });
+    //           break;
+    //         }
+    //         case "close": {
+    //           if (data.paneId === "candle_pane") {
+    //             const newMainIndicators = [...mainIndicators()];
+    //             widget?.removeIndicator({
+    //               paneId: "candle_pane",
+    //               name: data.indicatorName,
+    //             });
+    //             newMainIndicators.splice(
+    //               newMainIndicators.indexOf(data.indicatorName),
+    //               1
+    //             );
+    //             localStorage.setItem(
+    //               "mainIndicators",
+    //               JSON.stringify(newMainIndicators)
+    //             );
+    //             setMainIndicators(newMainIndicators);
+    //           } else {
+    //             const newIndicators = { ...subIndicators() };
+    //             widget?.removeIndicator({
+    //               paneId: data.paneId,
+    //               name: data.indicatorName,
+    //             });
+    //             // @ts-expect-error
+    //             delete newIndicators[data.indicatorName];
+    //             const names = Object.keys(newIndicators);
+    //             localStorage.setItem("subIndicators", JSON.stringify(names));
+    //             setSubIndicators(newIndicators);
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // );
   });
 
   onCleanup(() => {
@@ -465,10 +685,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       priceUnitDom.style.display = "none";
     }
 
-    widget?.setPriceVolumePrecision(
-      s?.pricePrecision ?? 2,
-      s?.volumePrecision ?? 0
-    );
+    widget?.setPrecision({
+      price: s?.pricePrecision ?? 2,
+      volume: s?.volumePrecision ?? 0,
+    });
   });
 
   createEffect((prev?: PrevSymbolPeriod) => {
@@ -518,17 +738,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             // console.log("data", data);
             // setLastDataPoint({ timestamp: data.timestamp, close: data.close });
             // updateCountdown(data.timestamp, data.close);
-
-            // For countdown timer for latest candle stick location with spacing
-            widget?.overrideOverlay({
-              name: "customOverlayCustomFigure",
-              points: [
-                {
-                  timestamp: data?.timestamp,
-                  value: data?.close,
-                },
-              ],
-            });
           }
           if (!currentCandle || currentCandle.timestamp !== data.timestamp) {
             let data2 = data;
@@ -543,7 +752,19 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               };
             }
             currentCandle = { ...data2 };
-
+            // // For countdown timer for latest candle stick location with spacing
+            // widget?.overrideOverlay({
+            //   name: "customOverlayCustomFigure",
+            //   points: [
+            //     {
+            //       timestamp: data?.timestamp,
+            //       value: data?.close,
+            //     },
+            //   ],
+            //   extendData: `${formatTimerText(
+            //     getCandleStickInterval(period(), 1000)
+            //   )}`,
+            // });
             widget?.updateData(currentCandle);
           } else {
             // Same candle period, update the existing candle
@@ -557,7 +778,16 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               currentCandle.volume =
                 (currentCandle.volume || 0) + (data.volume || 0);
             }
-
+            // For countdown timer for latest candle stick location with spacing
+            widget?.overrideOverlay({
+              name: "customOverlayCustomFigure",
+              points: [
+                {
+                  timestamp: data?.timestamp,
+                  value: data?.close,
+                },
+              ],
+            });
             widget?.updateData(currentCandle);
           }
         });
@@ -579,84 +809,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     widget?.setStyles({
       indicator: {
         tooltip: {
-          icons: [
-            {
-              id: "visible",
-              position: TooltipIconPosition.Middle,
-              marginLeft: 8,
-              marginTop: 3,
-              marginRight: 0,
-              marginBottom: 0,
-              paddingLeft: 0,
-              paddingTop: 0,
-              paddingRight: 0,
-              paddingBottom: 0,
-              icon: "\ue903",
-              fontFamily: "icomoon",
-              size: 14,
-              color: color,
-              activeColor: color,
-              backgroundColor: "transparent",
-              activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
-            },
-            {
-              id: "invisible",
-              position: TooltipIconPosition.Middle,
-              marginLeft: 8,
-              marginTop: 3,
-              marginRight: 0,
-              marginBottom: 0,
-              paddingLeft: 0,
-              paddingTop: 0,
-              paddingRight: 0,
-              paddingBottom: 0,
-              icon: "\ue901",
-              fontFamily: "icomoon",
-              size: 14,
-              color: color,
-              activeColor: color,
-              backgroundColor: "transparent",
-              activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
-            },
-            {
-              id: "setting",
-              position: TooltipIconPosition.Middle,
-              marginLeft: 6,
-              marginTop: 3,
-              marginBottom: 0,
-              marginRight: 0,
-              paddingLeft: 0,
-              paddingTop: 0,
-              paddingRight: 0,
-              paddingBottom: 0,
-              icon: "\ue902",
-              fontFamily: "icomoon",
-              size: 14,
-              color: color,
-              activeColor: color,
-              backgroundColor: "transparent",
-              activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
-            },
-            {
-              id: "close",
-              position: TooltipIconPosition.Middle,
-              marginLeft: 6,
-              marginTop: 3,
-              marginRight: 0,
-              marginBottom: 0,
-              paddingLeft: 0,
-              paddingTop: 0,
-              paddingRight: 0,
-              paddingBottom: 0,
-              icon: "\ue900",
-              fontFamily: "icomoon",
-              size: 14,
-              color: color,
-              activeColor: color,
-              backgroundColor: "transparent",
-              activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
-            },
-          ],
+          showName: true,
+          showParams: true,
         },
       },
     });
@@ -757,7 +911,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         name: "customOverlayCustomFigure",
         extendData: `${timeLeft}`,
       });
-    }, 200); // Run every 500ms (0.5 second)
+    }, 500); // Run every 500ms (0.5 second)
 
     // Clean up the interval when the component is destroyed
     onCleanup(() => {
@@ -767,7 +921,23 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     // 1. Register countdown rectangle figure
     registerFigure({
       name: "countdownRectangle",
-      draw: (ctx, attrs, styles) => {
+      draw: (
+        ctx,
+        attrs: {
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+          remainingSeconds: number;
+          offsetX: number;
+        },
+        styles: {
+          baseColor: string;
+          warningColor: string;
+          textColor: string;
+          borderRadius: number;
+        }
+      ) => {
         const { x, y, width, height, remainingSeconds, offsetX } = attrs;
         const { baseColor, warningColor, textColor, borderRadius } = styles;
         const color = remainingSeconds <= 10 ? warningColor : baseColor;
@@ -821,9 +991,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       name: "customOverlayCustomFigure",
       totalStep: 2,
       createPointFigures: ({ coordinates, overlay, xAxis }) => {
-        const elapsed = Math.floor(
-          (Date.now() - overlay.extendData.startTime) / 1000
-        );
         const remaining = overlay.extendData;
 
         const barSpacing = 3; // default bar space if not provided
@@ -993,7 +1160,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
         // overlay.extendData should be an object like:
         // { text: "Trade Time", countdown: "00:30" }
-        const { text, countdown } = overlay.extendData as any;
+
+        // @ts-expect-error
+        const { text, countdown } = overlay.extendData;
 
         // Combine text + countdown into one string if you wish:
         const remaining = `${text} ${countdown}`;
@@ -1033,9 +1202,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       },
     });
     // const arrowText = trade.tradeDirection === "up" ? "⇡" : "⇣";
-    console.log(new Date(trade.openingTime));
     // 1. Register countdown rectangle figure
     const datapoint = widget?.getDataList()[widget.getDataList().length - 1];
+    console.log("datapoint", datapoint);
     // Create the overlay
     widget?.createOverlay({
       name: `tradeOverlay-${trade.ticketNo}`,
@@ -1048,20 +1217,26 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         },
       ],
       lock: true,
+
       onRightClick: () => {
         return true;
       },
       extendData: {
-        text: `$${trade.openingPrice?.toFixed(4)} `,
-        countdown: "00:00",
+        text: `$${trade.openingPrice} `,
+        countdown: formatTimerText(
+          new Date(Number(trade.closingTime)).getTime() - Date.now()
+        ),
       },
     });
 
     const intervalId = setInterval(() => {
       const now = Date.now();
       const timeLeft = formatTimerText(
-        new Date(trade.closingTime).getTime() - now
+        new Date(Number(trade.closingTime)).getTime() - now
       );
+      console.log("Now", now);
+      console.log("Closingtime", trade.closingTime);
+      // console.log("timeLeft", timeLeft);
       widget?.overrideOverlay({
         name: `tradeOverlay-${trade.ticketNo}`,
         extendData: {
@@ -1113,6 +1288,29 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       >
         →
       </div>
+      <div
+        class="custom-button"
+        style={{ right: "0" }}
+        onClick={() => {
+          createTrade({
+            ticketNo: "12345",
+            symbol: "AAPL",
+            currency: "USD",
+            tradeDirection: "up",
+            amountInvested: 100,
+            openingPrice: 144.497,
+            closingPrice: null,
+            openingTime: (new Date().getTime() - 10000).toString(),
+            closingTime: (new Date().getTime() + 10000).toString(),
+            isComplete: false,
+            pnlValue: 0,
+            accountNo: "12345",
+            payout: 1.5,
+          });
+        }}
+      >
+        trade
+      </div>
       <Show when={symbolSearchModalVisible()}>
         <SymbolSearchModal
           locale={props.locale}
@@ -1149,7 +1347,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               }
               newMainIndicators.push(data.name);
             } else {
-              widget?.removeIndicator("candle_pane", data.name);
+              widget?.removeIndicator({
+                paneId: "candle_pane",
+                name: data.name,
+              });
               newMainIndicators.splice(newMainIndicators.indexOf(data.name), 1);
             }
             localStorage.setItem(
@@ -1168,7 +1369,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               }
             } else {
               if (data.paneId) {
-                widget?.removeIndicator(data.paneId, data.name);
+                widget?.removeIndicator({
+                  paneId: data.paneId,
+                  name: data.name,
+                });
                 // @ts-expect-error
                 delete newSubIndicators[data.name];
               }
@@ -1230,16 +1434,19 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             setIndicatorSettingModalParams({
               visible: false,
               indicatorName: "",
+              id: "",
               paneId: "",
               calcParams: [],
             });
           }}
           onConfirm={(params) => {
             const modalParams = indicatorSettingModalParams();
-            widget?.overrideIndicator(
-              { name: modalParams.indicatorName, calcParams: params },
-              modalParams.paneId
-            );
+            widget?.overrideIndicator({
+              name: modalParams.indicatorName,
+              id: modalParams.id,
+              calcParams: params,
+              paneId: modalParams.paneId,
+            });
           }}
         />
       </Show>
