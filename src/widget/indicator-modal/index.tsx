@@ -12,79 +12,99 @@
  * limitations under the License.
  */
 
-import { Component, createMemo } from 'solid-js'
+import { Component, createMemo } from "solid-js";
 
-import { Modal, List, Checkbox } from '../../component'
+import { Modal, List, Checkbox } from "../../component";
 
-import i18n from '../../i18n'
+import i18n from "../../i18n";
 
-type OnIndicatorChange = (
-  params: {
-    name: string
-    paneId: string
-    added: boolean
-  }
-) => void
+type OnIndicatorChange = (params: {
+  name: string;
+  paneId: string;
+  added: boolean;
+}) => void;
 
 export interface IndicatorModalProps {
-  locale: string
-  mainIndicators: string[]
-  subIndicators: object
-  onMainIndicatorChange: OnIndicatorChange
-  onSubIndicatorChange: OnIndicatorChange
-  onClose: () => void
+  locale: string;
+  mainIndicators: string[];
+  subIndicators: object;
+  onMainIndicatorChange: OnIndicatorChange;
+  onSubIndicatorChange: OnIndicatorChange;
+  onClose: () => void;
 }
 
-const IndicatorModal: Component<IndicatorModalProps> = props => {
-
+const IndicatorModal: Component<IndicatorModalProps> = (props) => {
   return (
     <Modal
-      title={i18n('indicator', props.locale)}
+      title={i18n("indicator", props.locale)}
       width={400}
-      onClose={props.onClose}>
-      <List
-        class="klinecharts-pro-indicator-modal-list">
-        <li class="title">{i18n('main_indicator', props.locale)}</li>
-        {
-          [
-            'MA', 'EMA', 'BOLL', 'SAR', 'BBI'
-          ].map(name => {
-            const checked = props.mainIndicators.includes(name)
-            return (
-              <li
-                class="row"
-                onClick={_ => {
-                  props.onMainIndicatorChange({ name, paneId: 'candle_pane', added: !checked })
-                }}>
-                <Checkbox checked={checked} label={i18n(name.toLowerCase(), props.locale)}/>
-              </li>
-            )
-          })
-        }
-        <li class="title">{i18n('sub_indicator', props.locale)}</li>
-        {
-          [
-             'VOL', 'MACD', 'KDJ',
-            'RSI', 'BIAS', 'BRAR', 'CCI', 'DMI',
-            'CR', 'PSY', 'DMA', 'TRIX', 'OBV',
-            'VR', 'WR', 'MTM', 'EMV', 'ROC', 'PVT', 'AO'
-          ].map(name => {
-            const checked = name in props.subIndicators
-            return (
-              <li
-                class="row"
-                onClick={_ => {
-                  // @ts-expect-error
-                  props.onSubIndicatorChange({ name, paneId: props.subIndicators[name] ?? '', added: !checked });
-                }}>
-                <Checkbox checked={checked} label={i18n(name.toLowerCase(), props.locale)}/>
-              </li>
-            )
-          })
-        }
+      onClose={props.onClose}
+    >
+      <List class="klinecharts-pro-indicator-modal-list">
+        <li class="title">Main Indicators</li>
+        {["MA", "EMA", "BOLL", "SAR", "BBI"].map((name) => {
+          const alreadyAdded = props.mainIndicators.includes(name);
+          return (
+            <li
+              class={`row ${alreadyAdded ? "added" : ""}`}
+              onClick={() => {
+                props.onMainIndicatorChange({
+                  name,
+                  paneId: "candle_pane",
+                  added: true, // Always add
+                });
+              }}
+            >
+              <span class="indicator-button">
+                {i18n(name.toLowerCase(), props.locale)}
+              </span>
+            </li>
+          );
+        })}
+        <li class="title">Sub Indicators</li>
+        {[
+          "VOL",
+          "MACD",
+          "KDJ",
+          "RSI",
+          "BIAS",
+          "BRAR",
+          "CCI",
+          "DMI",
+          "CR",
+          "PSY",
+          "DMA",
+          "TRIX",
+          "OBV",
+          "VR",
+          "WR",
+          "MTM",
+          "EMV",
+          "ROC",
+          "PVT",
+          "AO",
+        ].map((name) => {
+          const alreadyAdded = name in props.subIndicators;
+          return (
+            <li
+              class={`row ${alreadyAdded ? "added" : ""}`}
+              onClick={() => {
+                props.onSubIndicatorChange({
+                  name,
+                  paneId: "", // Let onSubIndicatorChange handle paneId assignment
+                  added: true, // Always add
+                });
+              }}
+            >
+              <span class="indicator-button">
+                {i18n(name.toLowerCase(), props.locale)}
+              </span>
+            </li>
+          );
+        })}
       </List>
     </Modal>
-  )
-}
+  );
+};
 
-export default IndicatorModal
+export default IndicatorModal;
