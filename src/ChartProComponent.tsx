@@ -1248,13 +1248,15 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     const datapoint = widget?.getDataList()[widget.getDataList().length - 1];
     // console.log("datapoint", datapoint);
     // Create the overlay
+    const closingTime = new Date(trade.closingTime).getTime();
+    const openingTime = new Date(trade.openingTime).getTime();
     widget?.createOverlay({
       name: `tradeOverlay-${trade.ticketNo}`,
       points: [
         {
           timestamp: datapoint?.timestamp
             ? datapoint.timestamp
-            : new Date(trade.openingTime).getTime(),
+            : new Date(openingTime).getTime(),
           value: trade.openingPrice!,
         },
       ],
@@ -1264,25 +1266,22 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         return true;
       },
       extendData: {
-        text: `$${trade.openingPrice} `,
+        text: `$${Number(trade.openingPrice).toFixed(2)} `,
         countdown: formatTimerText(
-          new Date(Number(trade.closingTime)).getTime() - Date.now()
+          new Date(closingTime).getTime() - Date.now()
         ),
       },
     });
 
     const intervalId = setInterval(() => {
       const now = Date.now();
-      const timeLeft = formatTimerText(
-        new Date(Number(trade.closingTime)).getTime() - now
-      );
+      const timeLeft = formatTimerText(new Date(closingTime).getTime() - now);
       console.log("Now", now);
-      console.log("Closingtime", trade.closingTime);
       // console.log("timeLeft", timeLeft);
       widget?.overrideOverlay({
         name: `tradeOverlay-${trade.ticketNo}`,
         extendData: {
-          text: `$${trade.openingPrice?.toFixed(4)} `,
+          text: `$${trade.openingPrice?.toFixed(2)} `,
           countdown: timeLeft,
         },
       });
