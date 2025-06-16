@@ -587,7 +587,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           to
         );
         if (kLineDataList.length === 0) {
-          callback([], true); // ✅ still respond
+          callback([]); // ✅ still respond
           loading = false;
           return;
         }
@@ -778,17 +778,23 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               currentCandle.volume =
                 (currentCandle.volume || 0) + (data.volume || 0);
             }
-            // For countdown timer for latest candle stick location with spacing
-            widget?.overrideOverlay({
-              name: "customOverlayCustomFigure",
-              points: [
-                {
-                  timestamp: data?.timestamp,
-                  value: data?.close,
-                },
-              ],
-            });
+            // console.log("currentCandle", currentCandle);
             widget?.updateData(currentCandle);
+
+            // For countdown timer for latest candle stick location with spacing
+            try {
+              widget?.overrideOverlay({
+                name: "customOverlayCustomFigure",
+                points: [
+                  {
+                    timestamp: data?.timestamp,
+                    value: data?.close,
+                  },
+                ],
+              });
+            } catch (error) {
+              // console.log("Custom Overlay Error in Data Feed", error);
+            }
           }
         });
 
@@ -900,18 +906,26 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     let baseInterval = 1000;
     const candleStickInterval = getCandleStickInterval(period(), baseInterval);
     // Set up an interval to run this effect every second
+    let prevTimeLeft = "";
     const intervalId = setInterval(() => {
       const now = Date.now() - 500;
       const timeLeft = formatTimerText(
         candleStickInterval - (now % candleStickInterval)
       );
+      // Only update when the displayed value has changed
+      if (prevTimeLeft !== timeLeft) {
+        prevTimeLeft = timeLeft;
+        try {
+          widget?.overrideOverlay({
+            name: "customOverlayCustomFigure",
 
-      // Override overlay to show time left
-      widget?.overrideOverlay({
-        name: "customOverlayCustomFigure",
-        extendData: `${timeLeft}`,
-      });
-    }, 500); // Run every 500ms (0.5 second)
+            extendData: timeLeft, // a simple string
+          });
+        } catch (error) {
+          // console.log("Custom Overlay Error", error);
+        }
+      }
+    }, 100); // Run every 500ms (0.5 second)
 
     // Clean up the interval when the component is destroyed
     onCleanup(() => {
@@ -1018,13 +1032,18 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     // Create the overlay
     widget?.createOverlay({
       name: "customOverlayCustomFigure",
-      points: [{ timestamp: new Date().getTime(), value: 0 }],
+      points: [
+        {
+          timestamp: new Date().getTime(),
+          value: 0,
+        },
+      ],
       lock: true,
       onRightClick: () => {
         return true;
       },
       visible: false,
-      extendData: 5,
+      extendData: "00:00",
     });
   }, [symbol().name, period().text]);
 
@@ -1204,7 +1223,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     // const arrowText = trade.tradeDirection === "up" ? "⇡" : "⇣";
     // 1. Register countdown rectangle figure
     const datapoint = widget?.getDataList()[widget.getDataList().length - 1];
-    console.log("datapoint", datapoint);
+    // console.log("datapoint", datapoint);
     // Create the overlay
     widget?.createOverlay({
       name: `tradeOverlay-${trade.ticketNo}`,

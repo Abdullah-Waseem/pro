@@ -68,6 +68,7 @@ export default class KLineChartPro implements ChartPro {
               { multiplier: 30, timespan: "second", text: "30s" },
               { multiplier: 60, timespan: "second", text: "1m" },
               { multiplier: 5, timespan: "minute", text: "5m" },
+              { multiplier: 10, timespan: "minute", text: "10m" },
               { multiplier: 15, timespan: "minute", text: "15m" },
               { multiplier: 30, timespan: "minute", text: "30m" },
               { multiplier: 1, timespan: "hour", text: "1H" },
