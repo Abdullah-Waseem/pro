@@ -7,8 +7,8 @@ import {
 } from "./types";
 import API from "./utils/API";
 import { aggregateData, NATIVE_MULTIPLIERS, Timespan, UNIT_MS } from "./helper";
-const SERVER_IP = "binary-trading-app-be.onrender.com";
-const WEBSOCKET_PROTOCOL = "wss";
+const SERVER_IP = "localhost:8081";
+const WEBSOCKET_PROTOCOL = "ws";
 const socketUrl = `${WEBSOCKET_PROTOCOL}://${SERVER_IP}`;
 
 export default class CustomDatafeed implements Datafeed {
@@ -43,33 +43,37 @@ export default class CustomDatafeed implements Datafeed {
   ): Promise<KLineData[]> {
     const ts = period.timespan as Timespan;
     const nativeMult = NATIVE_MULTIPLIERS[ts];
+    try {
+      // fetch the finest-grained bars from the backend
+      const rawData: any[] = (
+        await API.getTradingDataWithParams(
+          symbol.shortName as string,
+          ts,
+          from,
+          to
+        )
+      ).data;
 
-    // fetch the finest-grained bars from the backend
-    const rawData: any[] = (
-      await API.getTradingDataWithParams(
-        symbol.shortName as string,
-        ts,
-        from,
-        to
-      )
-    ).data;
+      // if backend already gives your requested period, just pass through
+      if (period.multiplier === nativeMult) {
+        return rawData.map((d) => ({
+          timestamp: d.date,
+          open: d.open,
+          high: d.high,
+          low: d.low,
+          close: d.close,
+          volume: d.volume,
+        }));
+      }
 
-    // if backend already gives your requested period, just pass through
-    if (period.multiplier === nativeMult) {
-      return rawData.map((d) => ({
-        timestamp: d.date,
-        open: d.open,
-        high: d.high,
-        low: d.low,
-        close: d.close,
-        volume: d.volume,
-      }));
+      const data = aggregateData(rawData, period, from, ts);
+
+      // otherwise aggregate
+      return data;
+    } catch (error) {
+      console.error("Error fetching historical data:", error);
+      return [];
     }
-
-    const data = aggregateData(rawData, period, from, ts);
-
-    // otherwise aggregate
-    return data;
   }
 
   subscribe(

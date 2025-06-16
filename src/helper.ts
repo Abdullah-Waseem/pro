@@ -8,7 +8,7 @@ export type Timespan = "second" | "minute" | "hour" | "day";
 
 export const NATIVE_MULTIPLIERS: Record<Timespan, number> = {
   second: 5, // backend gives 5-second bars
-  minute: 1, // backend gives 1-minute bars
+  minute: 5, // backend gives 1-minute bars
   hour: 1, // backend gives 1-hour bars
   day: 1, // backend gives 1-day bars
 };
