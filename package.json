@@ -1,6 +1,6 @@
 {
   "name": "@abdullah-waseem/klinecharts-pro",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Financial chart built out of the box based on KLineChart. Edited by Abdullah-Waseem",
   "type": "module",
   "main": "./dist/klinecharts-pro.umd.js",
