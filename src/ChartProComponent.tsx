@@ -261,6 +261,29 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                     id: indicator.id,
                     name: indicator.name,
                   });
+                  if (indicator.paneId == "candle_pane") {
+                    const newMainIndicators = [...mainIndicators()];
+                    newMainIndicators.splice(
+                      newMainIndicators.indexOf(indicator.name),
+                      1
+                    );
+                    localStorage.setItem(
+                      "mainIndicators",
+                      JSON.stringify(newMainIndicators)
+                    );
+                    setMainIndicators(newMainIndicators);
+                  } else {
+                    const newSubIndicators = { ...subIndicators() };
+                    // @ts-expect-error
+                    delete newSubIndicators[indicator.name];
+                    const names = Object.keys(newSubIndicators);
+                    localStorage.setItem(
+                      "subIndicators",
+                      JSON.stringify(names)
+                    );
+                    setSubIndicators(newSubIndicators);
+                  }
+
                   break;
                 case "setting":
                   setIndicatorSettingModalParams({
@@ -1370,7 +1393,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                 paneId: "candle_pane",
                 name: data.name,
               });
+              console.log("newMainIndicators before splice", newMainIndicators);
               newMainIndicators.splice(newMainIndicators.indexOf(data.name), 1);
+              console.log("newMainIndicators after splice", newMainIndicators);
             }
             localStorage.setItem(
               "mainIndicators",
