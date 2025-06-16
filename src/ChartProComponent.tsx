@@ -542,6 +542,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     });
 
     if (widget) {
+      // Used for inital chart zoom on load
+      widget.setBarSpace(30);
+
       const watermarkContainer = widget.getDom("candle_pane", DomPosition.Main);
       if (watermarkContainer) {
         let watermark = document.createElement("div");
