@@ -35,7 +35,7 @@ export interface SymbolSearchModalProps {
 
 const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
   const [value, setValue] = createSignal("");
-
+  const [cateory, setCategory] = createSignal("forex");
   const [symbolList, { refetch }] = createResource(
     value,
     props.datafeed.searchSymbols.bind(props.datafeed)
@@ -44,7 +44,13 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
   // whenever the resource loads, sync it into the store
   createEffect(() => {
     const data = symbolList();
-    if (data) setLocalSymbols(data);
+    if (data) {
+      if (cateory() === "all") {
+        setLocalSymbols(data);
+        return;
+      }
+      setLocalSymbols(data.filter((s) => s.market === cateory()));
+    }
   });
 
   return (
@@ -67,6 +73,36 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
           setValue(va);
         }}
       />
+      <div class="klinecharts-pro-symbol-search-modal-category">
+        <span
+          class={cateory() === "all" ? "active" : ""}
+          onClick={() => {
+            setCategory("all");
+            refetch();
+          }}
+        >
+          All
+        </span>
+        <span
+          class={cateory() === "forex" ? "active" : ""}
+          onClick={() => {
+            setCategory("forex");
+            refetch();
+          }}
+        >
+          Forex
+        </span>
+        <span
+          class={cateory() === "crypto" ? "active" : ""}
+          onClick={() => {
+            setCategory("crypto");
+            refetch();
+          }}
+        >
+          Crypto
+        </span>
+      </div>
+
       <List
         class="klinecharts-pro-symbol-search-modal-list"
         loading={symbolList.loading}
