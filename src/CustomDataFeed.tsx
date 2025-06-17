@@ -7,8 +7,8 @@ import {
 } from "./types";
 import API from "./utils/API";
 import { aggregateData, NATIVE_MULTIPLIERS, Timespan, UNIT_MS } from "./helper";
-const SERVER_IP = "localhost:8081";
-const WEBSOCKET_PROTOCOL = "ws";
+const SERVER_IP = "binary-trading-app-be.onrender.com";
+const WEBSOCKET_PROTOCOL = "wss";
 const socketUrl = `${WEBSOCKET_PROTOCOL}://${SERVER_IP}`;
 
 export default class CustomDatafeed implements Datafeed {
