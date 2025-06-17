@@ -40,8 +40,8 @@ import {
   registerOverlay,
   registerFigure,
   TooltipFeaturePosition,
-  IndicatorTooltipData,
   TooltipFeatureType,
+  IndicatorTooltipData,
 } from "klinecharts";
 import { ActionType } from "klinecharts";
 import lodashSet from "lodash/set";
@@ -542,6 +542,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     });
 
     if (widget) {
+      // Used for inital chart zoom on load
+      widget.setBarSpace(30);
+
       const watermarkContainer = widget.getDom("candle_pane", DomPosition.Main);
       if (watermarkContainer) {
         let watermark = document.createElement("div");
@@ -601,7 +604,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         }
 
         const [to] = adjustFromTo(p, earliestTimestamp, 1);
-        const [from] = adjustFromTo(p, to, 100);
+        const [from] = adjustFromTo(p, to, 60);
 
         const kLineDataList = await props.datafeed.getHistoryKLineData(
           symbol(),
@@ -1088,7 +1091,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   const createTrade = (trade: TradesData) => {
     console.log(trade);
     // 1. Register countdown rectangle figure
-
+    const closingTime = new Date(trade.closingTime).getTime();
+    const openingTime = new Date(trade.openingTime).getTime();
     // 1) Rectangle countdown (unchanged)
     registerFigure({
       name: `tradeRectangle-${trade.ticketNo}`,
@@ -1248,8 +1252,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     const datapoint = widget?.getDataList()[widget.getDataList().length - 1];
     // console.log("datapoint", datapoint);
     // Create the overlay
-    const closingTime = new Date(trade.closingTime).getTime();
-    const openingTime = new Date(trade.openingTime).getTime();
+    console.log(
+      "Remaining time:",
+      new Date(closingTime).getTime() - Date.now()
+    );
     widget?.createOverlay({
       name: `tradeOverlay-${trade.ticketNo}`,
       points: [
@@ -1276,7 +1282,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     const intervalId = setInterval(() => {
       const now = Date.now();
       const timeLeft = formatTimerText(new Date(closingTime).getTime() - now);
-      console.log("Now", now);
+
       // console.log("timeLeft", timeLeft);
       widget?.overrideOverlay({
         name: `tradeOverlay-${trade.ticketNo}`,
