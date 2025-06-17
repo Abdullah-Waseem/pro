@@ -760,10 +760,19 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
         props.datafeed.subscribe(s, p, (data) => {
           if (data) {
-            // For Countdown timer for price line location
-            // console.log("data", data);
-            // setLastDataPoint({ timestamp: data.timestamp, close: data.close });
-            // updateCountdown(data.timestamp, data.close);
+            try {
+              widget?.overrideOverlay({
+                name: "customOverlayCustomFigure",
+                points: [
+                  {
+                    timestamp: data?.timestamp,
+                    value: data?.close,
+                  },
+                ],
+              });
+            } catch (error) {
+              // console.log("Custom Overlay Error in Data Feed", error);
+            }
           }
           if (!currentCandle || currentCandle.timestamp !== data.timestamp) {
             let data2 = data;
@@ -808,19 +817,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             widget?.updateData(currentCandle);
 
             // For countdown timer for latest candle stick location with spacing
-            try {
-              widget?.overrideOverlay({
-                name: "customOverlayCustomFigure",
-                points: [
-                  {
-                    timestamp: data?.timestamp,
-                    value: data?.close,
-                  },
-                ],
-              });
-            } catch (error) {
-              // console.log("Custom Overlay Error in Data Feed", error);
-            }
           }
         });
 
@@ -951,7 +947,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           // console.log("Custom Overlay Error", error);
         }
       }
-    }, 100); // Run every 500ms (0.5 second)
+    }, 500); // Run every 500ms (0.5 second)
 
     // Clean up the interval when the component is destroyed
     onCleanup(() => {
@@ -1329,7 +1325,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       <div
         class="custom-button"
         onClick={() => {
-          widget?.scrollToRealTime();
+          widget?.scrollToRealTime(200);
           widget?.setOffsetRightDistance(90);
         }}
       >
