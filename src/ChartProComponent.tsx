@@ -588,7 +588,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         callback([], true); // ✅ tell the chart there’s nothing more to load
         return;
       }
-      console.log("Lower Timestamp", new Date(data.timestamp));
+
       loading = true;
 
       const get = async () => {
@@ -601,7 +601,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         }
 
         const [to] = adjustFromTo(p, earliestTimestamp, 1);
-        const [from] = adjustFromTo(p, to, 60);
+        const [from] = adjustFromTo(p, to, 100);
 
         const kLineDataList = await props.datafeed.getHistoryKLineData(
           symbol(),
@@ -1392,7 +1392,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                 paneId: "candle_pane",
                 name: data.name,
               });
-              console.log("newMainIndicators before splice", newMainIndicators);
               newMainIndicators.splice(newMainIndicators.indexOf(data.name), 1);
               console.log("newMainIndicators after splice", newMainIndicators);
             }
