@@ -138,6 +138,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       paneId: "",
       calcParams: [] as Array<any>,
       styles: { lines: [{ color: "" }] },
+      figures: [] as Array<{ title: string; key: string }>,
     });
 
   props.ref({
@@ -295,6 +296,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
                   break;
                 case "setting":
+                  console.log("Indicator settings", indicator);
                   setIndicatorSettingModalParams({
                     visible: true,
                     indicatorName: indicator.name,
@@ -302,6 +304,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                     paneId: indicator.paneId,
                     calcParams: indicator.calcParams,
                     styles: indicator.styles as { lines: { color: string }[] },
+                    figures: indicator.figures as Array<{
+                      title: string;
+                      key: string;
+                    }>,
                   });
                   break;
                 case "visible":
@@ -1469,6 +1475,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               paneId: "",
               calcParams: [],
               styles: { lines: [{ color: "" }] },
+              figures: [],
             });
           }}
           onConfirm={(params) => {
