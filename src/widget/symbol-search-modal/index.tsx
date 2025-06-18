@@ -129,11 +129,16 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
                       if (!ok) return;
                       // flip locally
                       setLocalSymbols(
-                        localSymbols().map((s) =>
-                          s._id === symbol._id
-                            ? { ...s, isFavorite: !s.isFavorite }
-                            : s
-                        )
+                        localSymbols()
+                          .map((s) =>
+                            s._id === symbol._id
+                              ? { ...s, isFavorite: !s.isFavorite }
+                              : s
+                          )
+                          .sort(
+                            (a, b) =>
+                              (b.isFavorite ? 1 : 0) - (a.isFavorite ? 1 : 0)
+                          )
                       );
                     }
                   }}
