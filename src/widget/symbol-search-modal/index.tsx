@@ -35,7 +35,7 @@ export interface SymbolSearchModalProps {
 
 const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
   const [value, setValue] = createSignal("");
-  const [cateory, setCategory] = createSignal("forex");
+  const [cateory, setCategory] = createSignal("all");
   const [symbolList, { refetch }] = createResource(
     value,
     props.datafeed.searchSymbols.bind(props.datafeed)

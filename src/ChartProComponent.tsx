@@ -137,6 +137,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       indicatorName: "",
       paneId: "",
       calcParams: [] as Array<any>,
+      styles: { lines: [{ color: "" }] },
     });
 
   props.ref({
@@ -250,7 +251,15 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         {
           name: indicatorName,
           calcParams,
-
+          styles: {
+            lines: [
+              { color: "#FB9800" },
+              { color: "#925EB8" },
+              { color: "#1B75FA" },
+              { color: "#E12070" },
+              { color: "#00C5C1" },
+            ],
+          },
           onClick: ({ target, chart, indicator, feature }) => {
             if (target === "feature") {
               // @ts-expect-error
@@ -292,6 +301,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                     id: indicator.id,
                     paneId: indicator.paneId,
                     calcParams: indicator.calcParams,
+                    styles: indicator.styles as { lines: { color: string }[] },
                   });
                   break;
                 case "visible":
@@ -318,7 +328,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               calcParamsText: indicator.calcParams
                 ? `(${indicator.calcParams.join(", ")})`
                 : "",
-              legends: [], // optional: you can add legends here
+
               features: [
                 // {
                 //   id: "visible",
@@ -1406,19 +1416,16 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           onSubIndicatorChange={(data) => {
             const newSubIndicators = { ...subIndicators() };
             if (data.added) {
-              const paneId = createIndicator(widget, data.name);
+              const paneId = createIndicator(
+                widget,
+                data.name,
+                true,
+                undefined,
+                data.calcParams
+              );
               if (paneId) {
                 // @ts-expect-error
                 newSubIndicators[data.name] = paneId;
-              }
-            } else {
-              if (data.paneId) {
-                widget?.removeIndicator({
-                  paneId: data.paneId,
-                  name: data.name,
-                });
-                // @ts-expect-error
-                delete newSubIndicators[data.name];
               }
             }
             const names = Object.keys(newSubIndicators);
@@ -1481,6 +1488,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               id: "",
               paneId: "",
               calcParams: [],
+              styles: { lines: [{ color: "" }] },
             });
           }}
           onConfirm={(params) => {
@@ -1488,7 +1496,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             widget?.overrideIndicator({
               name: modalParams.indicatorName,
               id: modalParams.id,
-              calcParams: params,
+              calcParams: params.calcParams,
+              styles: params.styles,
               paneId: modalParams.paneId,
             });
           }}
