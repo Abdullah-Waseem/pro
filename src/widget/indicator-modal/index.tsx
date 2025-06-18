@@ -22,6 +22,8 @@ type OnIndicatorChange = (params: {
   name: string;
   paneId: string;
   added: boolean;
+  calcParams?: number[];
+  styles?: object;
 }) => void;
 
 export interface IndicatorModalProps {
@@ -32,6 +34,85 @@ export interface IndicatorModalProps {
   onSubIndicatorChange: OnIndicatorChange;
   onClose: () => void;
 }
+// Sub Indicators with Calc Params
+const subIndicators = [
+  {
+    name: "MACD",
+    calcParams: [12, 26, 9],
+  },
+  {
+    name: "KDJ",
+    calcParams: [9, 3, 3],
+  },
+  {
+    name: "RSI",
+    calcParams: [14, 6, 12, 24, 30],
+  },
+  {
+    name: "BIAS",
+    calcParams: [6, 12, 24],
+  },
+  {
+    name: "BRAR",
+    calcParams: [26],
+  },
+  {
+    name: "CCI",
+    calcParams: [14],
+  },
+  {
+    name: "DMI",
+    calcParams: [14, 6],
+  },
+  {
+    name: "CR",
+    calcParams: [26, 10, 20, 40, 60],
+  },
+  {
+    name: "PSY",
+    calcParams: [12, 6],
+  },
+  {
+    name: "DMA",
+    calcParams: [10, 50, 10],
+  },
+  {
+    name: "TRIX",
+    calcParams: [12, 7],
+  },
+  {
+    name: "OBV",
+    calcParams: [30],
+  },
+  {
+    name: "VR",
+    calcParams: [26, 6],
+  },
+  {
+    name: "WR",
+    calcParams: [10, 6, 12, 24, 30],
+  },
+  {
+    name: "MTM",
+    calcParams: [12, 6],
+  },
+  {
+    name: "EMV",
+    calcParams: [14, 9],
+  },
+  {
+    name: "ROC",
+    calcParams: [12, 6],
+  },
+  {
+    name: "PVT",
+    calcParams: [],
+  },
+  {
+    name: "AO",
+    calcParams: [5, 34],
+  },
+];
 
 const IndicatorModal: Component<IndicatorModalProps> = (props) => {
   return (
@@ -62,42 +143,22 @@ const IndicatorModal: Component<IndicatorModalProps> = (props) => {
           );
         })}
         <li class="title">Sub Indicators</li>
-        {[
-          "VOL",
-          "MACD",
-          "KDJ",
-          "RSI",
-          "BIAS",
-          "BRAR",
-          "CCI",
-          "DMI",
-          "CR",
-          "PSY",
-          "DMA",
-          "TRIX",
-          "OBV",
-          "VR",
-          "WR",
-          "MTM",
-          "EMV",
-          "ROC",
-          "PVT",
-          "AO",
-        ].map((name) => {
-          const alreadyAdded = name in props.subIndicators;
+        {subIndicators.map((subInd) => {
+          const alreadyAdded = subInd.name in props.subIndicators;
           return (
             <li
               class={`row ${alreadyAdded ? "added" : ""}`}
               onClick={() => {
                 props.onSubIndicatorChange({
-                  name,
+                  name: subInd.name,
                   paneId: "", // Let onSubIndicatorChange handle paneId assignment
                   added: true, // Always add
+                  calcParams: subInd.calcParams,
                 });
               }}
             >
               <span class="indicator-button">
-                {i18n(name.toLowerCase(), props.locale)}
+                {i18n(subInd.name.toLowerCase(), props.locale)}
               </span>
             </li>
           );
