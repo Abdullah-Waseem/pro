@@ -12,17 +12,15 @@
  * limitations under the License.
  */
 
-import Button from './button'
-import Checkbox from './checkbox'
-import List from './list'
-import Modal from './modal'
-import Select, { SelectDataSourceItem } from './select'
-import Input from './input'
-import Loading from './loading'
-import Switch from './switch'
+import Button from "./button";
+import Checkbox from "./checkbox";
+import List from "./list";
+import Modal from "./modal";
+import Select, { SelectDataSourceItem } from "./select";
+import Input from "./input";
+import Loading from "./loading";
+import Switch from "./switch";
+import Tabs from "./tabs";
+export { Button, Checkbox, List, Modal, Select, Input, Loading, Switch, Tabs };
 
-export {
-  Button, Checkbox, List, Modal, Select, Input, Loading, Switch
-}
-
-export type { SelectDataSourceItem }
+export type { SelectDataSourceItem };

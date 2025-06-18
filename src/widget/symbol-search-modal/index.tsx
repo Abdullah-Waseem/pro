@@ -20,7 +20,8 @@ import {
   createEffect,
 } from "solid-js";
 
-import { Modal, List, Input } from "../../component";
+import { Modal, List, Input, Tabs } from "../../component";
+import { TabItem } from "../../component/tabs";
 
 import i18n from "../../i18n";
 
@@ -35,23 +36,45 @@ export interface SymbolSearchModalProps {
 
 const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
   const [value, setValue] = createSignal("");
-  const [cateory, setCategory] = createSignal("all");
+  const [category, setCategory] = createSignal("all");
   const [symbolList, { refetch }] = createResource(
     value,
     props.datafeed.searchSymbols.bind(props.datafeed)
   );
   const [localSymbols, setLocalSymbols] = createSignal<SymbolInfo[]>([]);
+
+  // Category tabs configuration
+  const categoryTabs: TabItem[] = [
+    {
+      key: "all",
+      label: "All",
+    },
+    {
+      key: "forex",
+      label: "Forex",
+    },
+    {
+      key: "crypto",
+      label: "Crypto",
+    },
+  ];
+
   // whenever the resource loads, sync it into the store
   createEffect(() => {
     const data = symbolList();
     if (data) {
-      if (cateory() === "all") {
+      if (category() === "all") {
         setLocalSymbols(data);
         return;
       }
-      setLocalSymbols(data.filter((s) => s.market === cateory()));
+      setLocalSymbols(data.filter((s) => s.market === category()));
     }
   });
+
+  const handleCategoryChange = (activeKey: string) => {
+    setCategory(activeKey);
+    refetch();
+  };
 
   return (
     <Modal
@@ -73,35 +96,13 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
           setValue(va);
         }}
       />
-      <div class="klinecharts-pro-symbol-search-modal-category">
-        <span
-          class={cateory() === "all" ? "active" : ""}
-          onClick={() => {
-            setCategory("all");
-            refetch();
-          }}
-        >
-          All
-        </span>
-        <span
-          class={cateory() === "forex" ? "active" : ""}
-          onClick={() => {
-            setCategory("forex");
-            refetch();
-          }}
-        >
-          Forex
-        </span>
-        <span
-          class={cateory() === "crypto" ? "active" : ""}
-          onClick={() => {
-            setCategory("crypto");
-            refetch();
-          }}
-        >
-          Crypto
-        </span>
-      </div>
+
+      <Tabs
+        class="klinecharts-pro-symbol-search-modal-tabs"
+        items={categoryTabs}
+        defaultActiveKey="all"
+        onChange={handleCategoryChange}
+      />
 
       <List
         class="klinecharts-pro-symbol-search-modal-list"
