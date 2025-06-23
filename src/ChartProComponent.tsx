@@ -1503,6 +1503,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         period={period()}
         periods={props.periods}
         currentStyles={props.styles}
+        onSymbolSelected={(symbol) => {
+          setSymbol(symbol);
+        }}
         onChartStyleChange={(style) => {
           widget?.setStyles(style);
         }}
