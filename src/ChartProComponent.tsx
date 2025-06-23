@@ -1494,6 +1494,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       <PeriodBar
         locale={props.locale}
         symbol={symbol()}
+        datafeed={props.datafeed}
         spread={drawingBarVisible()}
         period={period()}
         periods={props.periods}

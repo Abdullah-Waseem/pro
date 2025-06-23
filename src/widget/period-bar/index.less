@@ -93,4 +93,65 @@
     border-left: solid 1px var(--klinecharts-pro-border-color);
     margin-left: 8px;
   }
+  .favorite-symbols {
+    // margin-top: 8px;
+    margin-left: 8px;
+    overflow-x: auto;
+  }
+  .symbol-list {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+  .symbol-item {
+    display: flex;
+    align-items: center;
+    border: 1px solid #5a5a5a;
+    background: var(--klinecharts-pro-background-color);
+    border-radius: 6px;
+    padding: 2px 10px;
+    gap: 6px;
+    min-width: 0;
+    transition: box-shadow 0.2s;
+  }
+  .symbol-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  }
+  .symbol-text {
+    font-size: 11px;
+    font-weight: 1000;
+    // color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+  }
+  .star {
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+    color: #fbbf24;
+    transition: color 0.2s;
+  }
+
+  .cross {
+    color: #ffffff;
+    margin-left: 4px;
+    cursor: pointer;
+    font-size: 8px;
+    user-select: none;
+    transition: color 0.2s;
+  }
+  .star:hover {
+    color: #f59e42;
+  }
+  .cross:hover {
+    color: #b71c1c;
+  }
+
+  @media screen and (max-width: 960px) {
+    .favorite-symbols {
+      display: none;
+    }
+  }
 }
