@@ -38,6 +38,7 @@ export interface PeriodBarProps {
   period: Period;
   periods: Period[];
   currentStyles: DeepPartial<Styles>;
+  onSymbolSelected: (symbol: SymbolInfo) => void;
   onChartStyleChange: (style: DeepPartial<Styles>) => void;
   onMenuClick: () => void;
   onSymbolClick: () => void;
@@ -204,6 +205,9 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
             <div
               class="symbol-item"
               title={symbol.shortName ?? symbol.name ?? symbol.ticker}
+              onClick={() => {
+                props.onSymbolSelected(symbol);
+              }}
             >
               <span
                 class="star"
@@ -222,7 +226,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
                   }
                 }}
               >
-                ★
+                ✮
               </span>
               <span class="symbol-text">
                 {symbol.shortName ?? symbol.name ?? symbol.ticker}
