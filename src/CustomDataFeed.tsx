@@ -29,10 +29,11 @@ export default class CustomDatafeed implements Datafeed {
   async searchSymbols(query?: string): Promise<SymbolInfo[]> {
     const all = (await API.getSymbols(sessionStorage.getItem("token") || ""))
       .data;
-
+    console.log("all", all);
     // 2) (Optional) filter by query
     const ticker = query ? formatToSymbolFormat(query) : "";
     const q = query ? query.toLowerCase() : "";
+    console.log("q", q);
     const filtered =
       q === ""
         ? all
@@ -42,9 +43,17 @@ export default class CustomDatafeed implements Datafeed {
               s.name.toLowerCase().includes(ticker) ||
               (s.description || "").toLowerCase().includes(q)
           );
-
+    console.log("filtered", filtered);
+    const no = Math.floor(Math.random() * (53 - 0) + 0);
+    const few = filtered.slice(no - 5, no);
+    const favorites = few.map((s) => ({
+      ...s,
+      isFavorite: true,
+    }));
+    const combined = [...favorites, ...few];
+    console.log("combined", combined);
     // 3) Map to SymbolInfo (and drop isFavorite if you don’t need it downstream)
-    return filtered.map<SymbolInfo>((s) => ({
+    return combined.map<SymbolInfo>((s) => ({
       _id: s._id,
       payout: s.payout || 0,
       ticker: s.ticker,
