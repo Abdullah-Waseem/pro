@@ -19,9 +19,11 @@ import {
   onMount,
   onCleanup,
   createMemo,
+  createResource,
+  createEffect,
 } from "solid-js";
 
-import { SymbolInfo, Period } from "../../types";
+import { SymbolInfo, Period, Datafeed } from "../../types";
 import lodashSet from "lodash/set";
 
 import i18n from "../../i18n";
@@ -32,6 +34,7 @@ export interface PeriodBarProps {
   locale: string;
   spread: boolean;
   symbol: SymbolInfo;
+  datafeed: Datafeed;
   period: Period;
   periods: Period[];
   currentStyles: DeepPartial<Styles>;
@@ -49,6 +52,20 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
   let ref: Node;
   const candleOption = createMemo(() => getCandleTypes(props.locale));
   const [styles, setStyles] = createSignal(props.currentStyles);
+  // Fetch symbols once
+  const [symbolsList, { refetch }] = createResource(() =>
+    props.datafeed.searchSymbols()
+  );
+  const [localFavoriteSymbols, setLocalFavoriteSymbols] = createSignal<
+    SymbolInfo[]
+  >([]);
+  console.log(symbolsList());
+  createEffect(() => {
+    const symbols = symbolsList();
+    if (!symbols) return;
+    setLocalFavoriteSymbols(symbols.filter((s) => s.isFavorite));
+    console.log("localSymbols", localFavoriteSymbols());
+  });
 
   const update = (option: SelectDataSourceItem, newValue: any) => {
     const style = {};
@@ -81,6 +98,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
   const mapCandleToIcon = (candleType: string) => {
     return candleOption().dataSource.find((d) => d.key === candleType)?.icon;
   };
+
   return (
     <div
       ref={(el) => {
@@ -175,6 +193,56 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
           </span>
         </div>
       </Show>
+      <div class="favorite-symbols">
+        <div class="symbol-list">
+          {localFavoriteSymbols()?.map((symbol) => (
+            <div
+              class="symbol-item"
+              title={symbol.shortName ?? symbol.name ?? symbol.ticker}
+            >
+              <span
+                class="star"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (props.datafeed.addOrRemoveFavorite) {
+                    const ok = await props.datafeed.addOrRemoveFavorite(symbol);
+                    if (!ok) return;
+                    // flip locally
+                    const updatedSymbols = localFavoriteSymbols().filter(
+                      (s) => s._id !== symbol._id
+                    );
+                    console.log("updatedSymbols", updatedSymbols);
+                    setLocalFavoriteSymbols(updatedSymbols);
+                  }
+                }}
+              >
+                ★
+              </span>
+              <span class="symbol-text">
+                {symbol.shortName ?? symbol.name ?? symbol.ticker}
+              </span>
+              <span
+                class="cross"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (props.datafeed.addOrRemoveFavorite) {
+                    const ok = await props.datafeed.addOrRemoveFavorite(symbol);
+                    if (!ok) return;
+                    // flip locally
+                    const updatedSymbols = localFavoriteSymbols().filter(
+                      (s) => s._id !== symbol._id
+                    );
+                    console.log("updatedSymbols", updatedSymbols);
+                    setLocalFavoriteSymbols(updatedSymbols);
+                  }
+                }}
+              >
+                ✕
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
       {/* <div
         class='item tools'
         onClick={props.onScreenshotClick}>
