@@ -125,6 +125,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     props.drawingBarVisible
   );
 
+  const [favoriteUpdateCount, setFavoriteUpdateCount] = createSignal(0);
+
   const [symbolSearchModalVisible, setSymbolSearchModalVisible] =
     createSignal(false);
 
@@ -1352,6 +1354,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       <Show when={symbolSearchModalVisible()}>
         <SymbolSearchModal
           locale={props.locale}
+          onFavoriteChange={() => setFavoriteUpdateCount((c) => c + 1)}
           datafeed={props.datafeed}
           onSymbolSelected={(symbol) => {
             setSymbol(symbol);
@@ -1494,6 +1497,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       <PeriodBar
         locale={props.locale}
         symbol={symbol()}
+        favoriteUpdateCount={favoriteUpdateCount()}
         datafeed={props.datafeed}
         spread={drawingBarVisible()}
         period={period()}

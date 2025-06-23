@@ -45,6 +45,7 @@ export interface PeriodBarProps {
   onIndicatorClick: () => void;
   onTimezoneClick: () => void;
   onSettingClick: () => void;
+  favoriteUpdateCount: number;
   // onScreenshotClick: () => void;
 }
 
@@ -98,7 +99,11 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
   const mapCandleToIcon = (candleType: string) => {
     return candleOption().dataSource.find((d) => d.key === candleType)?.icon;
   };
-
+  createEffect(() => {
+    props.favoriteUpdateCount; // dependency
+    console.log("favoriteUpdateCount", props.favoriteUpdateCount);
+    refetch();
+  });
   return (
     <div
       ref={(el) => {
