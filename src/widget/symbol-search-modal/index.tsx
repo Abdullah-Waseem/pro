@@ -32,6 +32,7 @@ export interface SymbolSearchModalProps {
   datafeed: Datafeed;
   onSymbolSelected: (symbol: SymbolInfo) => void;
   onClose: () => void;
+  onFavoriteChange: () => void;
 }
 
 const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
@@ -141,6 +142,8 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
                               (b.isFavorite ? 1 : 0) - (a.isFavorite ? 1 : 0)
                           )
                       );
+                      props.onFavoriteChange();
+                      console.log("Props onFavoriteChange");
                     }
                   }}
                 >
