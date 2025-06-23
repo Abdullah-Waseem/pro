@@ -213,6 +213,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
                     );
                     console.log("updatedSymbols", updatedSymbols);
                     setLocalFavoriteSymbols(updatedSymbols);
+                    refetch();
                   }
                 }}
               >
@@ -234,6 +235,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
                     );
                     console.log("updatedSymbols", updatedSymbols);
                     setLocalFavoriteSymbols(updatedSymbols);
+                    refetch();
                   }
                 }}
               >
