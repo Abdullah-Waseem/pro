@@ -622,7 +622,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         }
 
         const [to] = adjustFromTo(p, earliestTimestamp, 1);
-        const [from] = adjustFromTo(p, to, 60);
+        const [from] = adjustFromTo(p, to, 100);
 
         const kLineDataList = await props.datafeed.getHistoryKLineData(
           symbol(),
