@@ -47,7 +47,15 @@ import { ActionType } from "klinecharts";
 import lodashSet from "lodash/set";
 import lodashClone from "lodash/cloneDeep";
 
-import { SelectDataSourceItem, Loading, Button } from "./component";
+import {
+  SelectDataSourceItem,
+  Loading,
+  Button,
+  ContextMenu,
+  ContextMenuProps,
+  ContextMenuItem,
+} from "./component";
+import i18n from "./i18n";
 
 import {
   PeriodBar,
@@ -58,6 +66,7 @@ import {
   ScreenshotModal,
   IndicatorSettingModal,
   SymbolSearchModal,
+  DrawingSettingsModal,
 } from "./widget";
 
 import { translateTimezone } from "./widget/timezone-modal/data";
@@ -143,6 +152,19 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       figures: [] as Array<{ title: string; key: string }>,
     });
 
+  const [contextMenu, setContextMenu] = createSignal({
+    visible: false,
+    x: 0,
+    y: 0,
+    overlayId: "",
+  });
+
+  const [drawingSettingsModal, setDrawingSettingsModal] = createSignal({
+    visible: false,
+    overlayId: "",
+    styles: { color: "#000000", size: 2 }, // default values
+  });
+
   props.ref({
     setTheme,
     getTheme: () => theme(),
@@ -183,6 +205,21 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         console.log(o);
         widget?.createOverlay({
           ...o,
+          onRightClick: ({ overlay, pageX, pageY, x, y }) => {
+            if (!x || !y || !pageX || !pageY) return false;
+            // Get cursor position
+            const menuProperties = {
+              visible: true,
+              x: pageX,
+              y: pageY,
+              overlayId: overlay.id,
+            };
+            // Show context menu at cursor position
+            setContextMenu(menuProperties);
+
+            // Prevent default browser context menu
+            return true;
+          },
           onDrawEnd: ({ overlay }) => {
             // @ts-expect-error
             setOverlays([...overlays(), overlay]);
@@ -1582,6 +1619,55 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         />
       </Show>
 
+      <Show when={drawingSettingsModal().visible}>
+        <DrawingSettingsModal
+          visible={drawingSettingsModal().visible}
+          styles={drawingSettingsModal().styles}
+          onClose={() =>
+            setDrawingSettingsModal({
+              ...drawingSettingsModal(),
+              visible: false,
+            })
+          }
+          onSave={(newStyles) => {
+            console.log("newStyles", newStyles);
+            // Apply the new styles to the overlay
+            widget?.overrideOverlay({
+              id: drawingSettingsModal().overlayId,
+              styles: {
+                line: {
+                  color: newStyles.color,
+                  size: newStyles.size,
+                },
+              },
+            });
+
+            setDrawingSettingsModal({
+              ...drawingSettingsModal(),
+              visible: false,
+            });
+
+            // Optionally update overlays state/localStorage here
+            const updatedOverlays = overlays().map((o: any) => {
+              if (o.id == drawingSettingsModal().overlayId) {
+                return {
+                  ...o,
+                  styles: {
+                    line: {
+                      color: newStyles.color,
+                      size: newStyles.size,
+                    },
+                  },
+                };
+              }
+              return o;
+            });
+            setOverlays(updatedOverlays as any);
+            localStorage.setItem("overlays", JSON.stringify(updatedOverlays));
+          }}
+        />
+      </Show>
+
       <PeriodBar
         locale={props.locale}
         symbol={symbol()}
@@ -1643,9 +1729,21 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             onDrawingItemClick={(overlay) => {
               const overlayId = widget?.createOverlay({
                 ...overlay,
-                // onRightClick: () => {
-                //   return true;
-                // },
+                onRightClick: ({ overlay, pageX, pageY, x, y }) => {
+                  if (!x || !y || !pageX || !pageY) return false;
+                  // Get cursor position
+                  const menuProperties = {
+                    visible: true,
+                    x: pageX,
+                    y: pageY,
+                    overlayId: overlay.id,
+                  };
+                  // Show context menu at cursor position
+                  setContextMenu(menuProperties);
+
+                  // Prevent default browser context menu
+                  return true;
+                },
                 onDrawEnd: ({ overlay }) => {
                   // @ts-expect-error
                   setOverlays([...overlays(), overlay]);
@@ -1697,8 +1795,76 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           class="klinecharts-pro-widget"
           id="chart-container"
           data-drawing-bar-visible={drawingBarVisible()}
+          onContextMenu={(e) => {
+            // Only prevent default if we're not handling it elsewhere
+            if (!contextMenu().visible) {
+              e.preventDefault();
+              return false;
+            }
+          }}
+          // onMouseDown={() => {
+          //   // Close context menu when user starts interacting with chart
+          //   if (contextMenu().visible) {
+          //     setContextMenu({ ...contextMenu(), visible: false });
+          //   }
+          // }}
         />
       </div>
+      <Show when={contextMenu().visible}>
+        {/* Invisible overlay to capture clicks outside the menu */}
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            "z-index": 999, // Lower than menu but higher than chart
+          }}
+          onClick={() => setContextMenu({ ...contextMenu(), visible: false })}
+          onContextMenu={(e) => {
+            e.preventDefault(); // Prevent browser's default context menu
+            e.stopPropagation(); // Stop event propagation
+            setContextMenu({ ...contextMenu(), visible: false });
+            return false;
+          }}
+        />
+
+        <ContextMenu
+          x={contextMenu().x}
+          y={contextMenu().y}
+          items={[
+            {
+              label: "Settings",
+              onClick: () => {
+                const overlayId = contextMenu().overlayId;
+                // Find the overlay's current styles
+                const overlay = overlays().find((o: any) => o.id === overlayId);
+                console.log("overlay", overlay);
+                setDrawingSettingsModal({
+                  visible: true,
+                  overlayId,
+                  styles: overlay?.styles?.line || {
+                    color: "#1677FF",
+                    size: 1,
+                  },
+                });
+                setContextMenu({ ...contextMenu(), visible: false });
+              },
+            },
+            {
+              label: "Remove",
+              onClick: () => {
+                // Remove this overlay
+                if (contextMenu().overlayId) {
+                  widget?.removeOverlay({ id: contextMenu().overlayId });
+                }
+              },
+            },
+          ]}
+          onClose={() => setContextMenu({ ...contextMenu(), visible: false })}
+        />
+      </Show>
     </>
   );
 };

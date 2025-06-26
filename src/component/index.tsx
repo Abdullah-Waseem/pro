@@ -21,6 +21,20 @@ import Input from "./input";
 import Loading from "./loading";
 import Switch from "./switch";
 import Tabs from "./tabs";
-export { Button, Checkbox, List, Modal, Select, Input, Loading, Switch, Tabs };
+import ContextMenu from "./context-menu";
+import { ContextMenuItem } from "./context-menu";
+import { ContextMenuProps } from "./context-menu";
+export {
+  Button,
+  Checkbox,
+  List,
+  Modal,
+  Select,
+  Input,
+  Loading,
+  Switch,
+  Tabs,
+  ContextMenu,
+};
 
-export type { SelectDataSourceItem };
+export type { SelectDataSourceItem, ContextMenuItem, ContextMenuProps };
