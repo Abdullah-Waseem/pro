@@ -1399,6 +1399,24 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       >
         →
       </div>
+      <div class="custom-button" style={{ right: "140px" }}>
+        <button
+          onClick={() => {
+            saveOverlays();
+          }}
+        >
+          Save
+        </button>
+      </div>
+      <div class="custom-button" style={{ right: "200px" }}>
+        <button
+          onClick={() => {
+            reapplyOverlays();
+          }}
+        >
+          reapply
+        </button>
+      </div>
       <div
         class="custom-button"
         style={{ right: "0" }}
