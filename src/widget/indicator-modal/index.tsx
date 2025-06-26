@@ -37,6 +37,10 @@ export interface IndicatorModalProps {
 // Sub Indicators with Calc Params
 const subIndicators = [
   {
+    name: "VOL",
+    calcParams: [],
+  },
+  {
     name: "MACD",
     calcParams: [12, 26, 9],
   },

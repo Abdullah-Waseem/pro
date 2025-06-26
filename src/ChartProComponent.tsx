@@ -172,7 +172,56 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   const documentResize = () => {
     widget?.resize();
   };
+  const [overlays, setOverlays] = createSignal([]);
+  const reapplyOverlays = () => {
+    const overlaysLocal = localStorage.getItem("overlays");
 
+    if (overlaysLocal) {
+      const parsed = JSON.parse(overlaysLocal);
+      setOverlays(parsed as any);
+      parsed.forEach((o: any) => {
+        console.log(o);
+        widget?.createOverlay({
+          ...o,
+          onDrawEnd: ({ overlay }) => {
+            // @ts-expect-error
+            setOverlays([...overlays(), overlay]);
+            localStorage.setItem("overlays", JSON.stringify(overlays));
+            return true;
+          },
+          onPressedMoveEnd: ({ overlay }) => {
+            const updatedOverlays = overlays().map((o: any) => {
+              if (o.id == overlay.id) {
+                return overlay;
+              }
+              return o;
+            });
+            console.log("updated overlays", updatedOverlays);
+            console.log("overlays", overlays());
+            setOverlays(updatedOverlays as any);
+            localStorage.setItem("overlays", JSON.stringify(updatedOverlays));
+            return true;
+          },
+          onRemoved: ({ overlay }) => {
+            const updatedOverlays = overlays().filter(
+              (o: any) => o.id != overlay.id
+            );
+            setOverlays(updatedOverlays as any);
+            console.log("overlays", overlays());
+            localStorage.setItem("overlays", JSON.stringify(updatedOverlays));
+            return true;
+          },
+        });
+      });
+    }
+  };
+  const saveOverlays = () => {
+    const overlays = widget?.getOverlays();
+    const filtered = overlays?.filter((o) => o.groupId == "drawing_tools");
+    if (filtered) {
+      setOverlays(filtered as any);
+    }
+  };
   const adjustFromTo = (period: Period, toTimestamp: number, count: number) => {
     let to = toTimestamp;
     let from = to;
@@ -842,6 +891,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         setLoadingVisible(false);
       };
       get();
+      reapplyOverlays();
       return { symbol: s, period: p };
     }
     return prev;
@@ -1573,7 +1623,42 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           <DrawingBar
             locale={props.locale}
             onDrawingItemClick={(overlay) => {
-              widget?.createOverlay(overlay);
+              const overlayId = widget?.createOverlay({
+                ...overlay,
+                // onRightClick: () => {
+                //   return true;
+                // },
+                onDrawEnd: ({ overlay }) => {
+                  // @ts-expect-error
+                  setOverlays([...overlays(), overlay]);
+                  localStorage.setItem("overlays", JSON.stringify(overlays()));
+                  return true;
+                },
+                onPressedMoveEnd: ({ overlay }) => {
+                  const updatedOverlays = overlays().map((o: any) => {
+                    if (o.id == overlay.id) {
+                      return overlay;
+                    }
+                    return o;
+                  });
+                  setOverlays(updatedOverlays as any);
+                  localStorage.setItem(
+                    "overlays",
+                    JSON.stringify(updatedOverlays)
+                  );
+                  return true;
+                },
+                onRemoved: ({ overlay }) => {
+                  const updatedOverlays = overlays().filter(
+                    (o: any) => o.id != overlay.id
+                  );
+                  setOverlays(updatedOverlays as any);
+                  console.log("overlays", overlays());
+                  localStorage.setItem("overlays", JSON.stringify(overlays()));
+                  return true;
+                },
+              });
+              console.log("overlayInfo", overlayId);
             }}
             onModeChange={(mode) => {
               widget?.overrideOverlay({ mode: mode as OverlayMode });
