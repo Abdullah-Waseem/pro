@@ -53,7 +53,7 @@ export default class CustomDatafeed implements Datafeed {
     const combined = [...favorites, ...few];
     console.log("combined", combined);
     // 3) Map to SymbolInfo (and drop isFavorite if you don’t need it downstream)
-    return combined.map<SymbolInfo>((s) => ({
+    return filtered.map<SymbolInfo>((s) => ({
       _id: s._id,
       payout: s.payout || 0,
       ticker: s.ticker,
