@@ -198,58 +198,62 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   const reapplyOverlays = () => {
     const overlaysLocal = localStorage.getItem("overlays");
 
-    if (overlaysLocal) {
-      const parsed = JSON.parse(overlaysLocal);
-      setOverlays(parsed as any);
-      parsed.forEach((o: any) => {
-        console.log(o);
-        widget?.createOverlay({
-          ...o,
-          onRightClick: ({ overlay, pageX, pageY, x, y }) => {
-            if (!x || !y || !pageX || !pageY) return false;
-            // Get cursor position
-            const menuProperties = {
-              visible: true,
-              x: pageX,
-              y: pageY,
-              overlayId: overlay.id,
-            };
-            // Show context menu at cursor position
-            setContextMenu(menuProperties);
+    try {
+      if (overlaysLocal) {
+        const parsed = JSON.parse(overlaysLocal);
+        setOverlays(parsed as any);
+        parsed.forEach((o: any) => {
+          console.log(o);
+          widget?.createOverlay({
+            ...o,
+            onRightClick: ({ overlay, pageX, pageY, x, y }) => {
+              if (!x || !y || !pageX || !pageY) return false;
+              // Get cursor position
+              const menuProperties = {
+                visible: true,
+                x: pageX,
+                y: pageY,
+                overlayId: overlay.id,
+              };
+              // Show context menu at cursor position
+              setContextMenu(menuProperties);
 
-            // Prevent default browser context menu
-            return true;
-          },
-          onDrawEnd: ({ overlay }) => {
-            // @ts-expect-error
-            setOverlays([...overlays(), overlay]);
-            localStorage.setItem("overlays", JSON.stringify(overlays));
-            return true;
-          },
-          onPressedMoveEnd: ({ overlay }) => {
-            const updatedOverlays = overlays().map((o: any) => {
-              if (o.id == overlay.id) {
-                return overlay;
-              }
-              return o;
-            });
-            console.log("updated overlays", updatedOverlays);
-            console.log("overlays", overlays());
-            setOverlays(updatedOverlays as any);
-            localStorage.setItem("overlays", JSON.stringify(updatedOverlays));
-            return true;
-          },
-          onRemoved: ({ overlay }) => {
-            const updatedOverlays = overlays().filter(
-              (o: any) => o.id != overlay.id
-            );
-            setOverlays(updatedOverlays as any);
-            console.log("overlays", overlays());
-            localStorage.setItem("overlays", JSON.stringify(updatedOverlays));
-            return true;
-          },
+              // Prevent default browser context menu
+              return true;
+            },
+            onDrawEnd: ({ overlay }) => {
+              // @ts-expect-error
+              setOverlays([...overlays(), overlay]);
+              localStorage.setItem("overlays", JSON.stringify(overlays));
+              return true;
+            },
+            onPressedMoveEnd: ({ overlay }) => {
+              const updatedOverlays = overlays().map((o: any) => {
+                if (o.id == overlay.id) {
+                  return overlay;
+                }
+                return o;
+              });
+              console.log("updated overlays", updatedOverlays);
+              console.log("overlays", overlays());
+              setOverlays(updatedOverlays as any);
+              localStorage.setItem("overlays", JSON.stringify(updatedOverlays));
+              return true;
+            },
+            onRemoved: ({ overlay }) => {
+              const updatedOverlays = overlays().filter(
+                (o: any) => o.id != overlay.id
+              );
+              setOverlays(updatedOverlays as any);
+              console.log("overlays", overlays());
+              localStorage.setItem("overlays", JSON.stringify(updatedOverlays));
+              return true;
+            },
+          });
         });
-      });
+      }
+    } catch (error) {
+      console.error("Error parsing overlays:", error);
     }
   };
   const saveOverlays = () => {
