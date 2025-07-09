@@ -1349,7 +1349,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
     const intervalId = setInterval(() => {
       const now = Date.now();
-      console.log("Remaining time:", new Date(closingTime).getTime() - now);
       const timeLeft = formatTimerText(new Date(closingTime).getTime() - now);
 
       // console.log("timeLeft", timeLeft);
@@ -1361,7 +1360,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         },
       });
       if (timeLeft === "00:00") {
-        widget?.removeOverlay({ name: `tradeOverlay-${trade.ticketNo}` });
+        const delay = 600;
+        setTimeout(() => {
+          widget?.removeOverlay({ name: `tradeOverlay-${trade.ticketNo}` });
+        }, delay);
         clearInterval(intervalId);
       }
     }, 1000);
