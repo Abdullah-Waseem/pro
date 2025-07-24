@@ -40,7 +40,6 @@ import {
   registerOverlay,
   registerFigure,
   TooltipFeaturePosition,
-  TooltipFeatureType,
   IndicatorTooltipData,
 } from "klinecharts";
 import { ActionType } from "klinecharts";
@@ -353,217 +352,151 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               { color: "#00C5C1" },
             ],
           },
-          onClick: ({ target, chart, indicator, feature }) => {
-            if (target === "feature") {
-              // @ts-expect-error
-              switch (feature.id) {
-                case "close":
-                  chart.removeIndicator({
-                    paneId: indicator.paneId,
-                    id: indicator.id,
-                    name: indicator.name,
-                  });
-                  if (indicator.paneId == "candle_pane") {
-                    const newMainIndicators = [...mainIndicators()];
-                    newMainIndicators.splice(
-                      newMainIndicators.indexOf(indicator.name),
-                      1
-                    );
-                    localStorage.setItem(
-                      "mainIndicators",
-                      JSON.stringify(newMainIndicators)
-                    );
-                    setMainIndicators(newMainIndicators);
-                  } else {
-                    const newSubIndicators = { ...subIndicators() };
-                    // @ts-expect-error
-                    delete newSubIndicators[indicator.name];
-                    const names = Object.keys(newSubIndicators);
-                    localStorage.setItem(
-                      "subIndicators",
-                      JSON.stringify(names)
-                    );
-                    setSubIndicators(newSubIndicators);
-                  }
 
-                  break;
-                case "setting":
-                  console.log("Indicator settings", indicator);
-                  setIndicatorSettingModalParams({
-                    visible: true,
-                    indicatorName: indicator.name,
-                    id: indicator.id,
-                    paneId: indicator.paneId,
-                    calcParams: indicator.calcParams,
-                    styles: indicator.styles as { lines: { color: string }[] },
-                    figures: indicator.figures as Array<{
-                      title: string;
-                      key: string;
-                    }>,
-                  });
-                  break;
-                case "visible":
-                  chart.overrideIndicator({
-                    paneId: indicator.paneId,
-                    name: indicator.name,
-                    visible: false,
-                  });
-                  break;
-                case "invisible":
-                  chart.overrideIndicator({
-                    paneId: indicator.paneId,
-                    name: indicator.name,
-                    visible: true,
-                  });
-                  break;
-              }
-            }
-          },
+          // createTooltipDataSource: ({ indicator }): IndicatorTooltipData => {
+          //   return {
+          //     name: indicator.name,
+          //     calcParamsText: indicator.calcParams
+          //       ? `(${indicator.calcParams.join(", ")})`
+          //       : "",
 
-          createTooltipDataSource: ({ indicator }): IndicatorTooltipData => {
-            return {
-              name: indicator.name,
-              calcParamsText: indicator.calcParams
-                ? `(${indicator.calcParams.join(", ")})`
-                : "",
+          //     features: [
+          //       // {
+          //       //   id: "visible",
+          //       //   position: TooltipFeaturePosition.Middle,
+          //       //   // box model
+          //       //   marginLeft: 8,
+          //       //   marginTop: 3,
+          //       //   marginRight: 0,
+          //       //   marginBottom: 0,
+          //       //   paddingLeft: 0,
+          //       //   paddingTop: 0,
+          //       //   paddingRight: 0,
+          //       //   paddingBottom: 0,
+          //       //   // sizing & colors
+          //       //   size: 14,
+          //       //   color: "#76808F",
+          //       //   activeColor: "#76808F",
+          //       //   backgroundColor: "transparent",
+          //       //   activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+          //       //   borderRadius: 4,
 
-              features: [
-                // {
-                //   id: "visible",
-                //   position: TooltipFeaturePosition.Middle,
-                //   // box model
-                //   marginLeft: 8,
-                //   marginTop: 3,
-                //   marginRight: 0,
-                //   marginBottom: 0,
-                //   paddingLeft: 0,
-                //   paddingTop: 0,
-                //   paddingRight: 0,
-                //   paddingBottom: 0,
-                //   // sizing & colors
-                //   size: 14,
-                //   color: "#76808F",
-                //   activeColor: "#76808F",
-                //   backgroundColor: "transparent",
-                //   activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
-                //   borderRadius: 4,
+          //       //   // ▼ fill in these required properties ▼
 
-                //   // ▼ fill in these required properties ▼
+          //       //   // 1) type: either "path" or "iconFont"
+          //       //   type: "path" as TooltipFeatureType,
 
-                //   // 1) type: either "path" or "iconFont"
-                //   type: "path" as TooltipFeatureType,
+          //       //   // 2) path: SVG‑path definition + drawing style
+          //       //   path: {
+          //       //     // @ts-expect-error
+          //       //     style: "stroke",
+          //       //     // the "eye" icon from the docs as an example
+          //       //     path: "M1 5 C1 2.5 3 0 6 0 C9 0 11 2.5 11 5 C11 7.5 9 10 6 10 C3 10 1 7.5 1 5 Z M6 3 C4.3 3 3 4.3 3 6 C3 7.7 4.3 9 6 9 C7.7 9 9 7.7 9 6 C9 4.3 7.7 3 6 3 Z",
+          //       //     lineWidth: 1,
+          //       //   },
 
-                //   // 2) path: SVG‑path definition + drawing style
-                //   path: {
-                //     // @ts-expect-error
-                //     style: "stroke",
-                //     // the "eye" icon from the docs as an example
-                //     path: "M1 5 C1 2.5 3 0 6 0 C9 0 11 2.5 11 5 C11 7.5 9 10 6 10 C3 10 1 7.5 1 5 Z M6 3 C4.3 3 3 4.3 3 6 C3 7.7 4.3 9 6 9 C7.7 9 9 7.7 9 6 C9 4.3 7.7 3 6 3 Z",
-                //     lineWidth: 1,
-                //   },
+          //       //   // 3) iconFont: only used if you set type: 'iconFont'
+          //       //   iconFont: {
+          //       //     content: "\ue900", // your icon glyph
+          //       //     family: "my-iconfont", // the @font‑face family name
+          //       //   },
+          //       // },
+          //       // {
+          //       //   id: "invisible",
+          //       //   position: TooltipFeaturePosition.Middle,
+          //       //   marginLeft: 8,
+          //       //   marginTop: 3,
+          //       //   marginRight: 0,
+          //       //   marginBottom: 0,
+          //       //   paddingLeft: 0,
+          //       //   paddingTop: 0,
+          //       //   paddingRight: 0,
+          //       //   paddingBottom: 0,
+          //       //   size: 14,
+          //       //   color: "#76808F",
+          //       //   activeColor: "#76808F",
+          //       //   backgroundColor: "transparent",
+          //       //   activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+          //       //   borderRadius: 4,
 
-                //   // 3) iconFont: only used if you set type: 'iconFont'
-                //   iconFont: {
-                //     content: "\ue900", // your icon glyph
-                //     family: "my-iconfont", // the @font‑face family name
-                //   },
-                // },
-                // {
-                //   id: "invisible",
-                //   position: TooltipFeaturePosition.Middle,
-                //   marginLeft: 8,
-                //   marginTop: 3,
-                //   marginRight: 0,
-                //   marginBottom: 0,
-                //   paddingLeft: 0,
-                //   paddingTop: 0,
-                //   paddingRight: 0,
-                //   paddingBottom: 0,
-                //   size: 14,
-                //   color: "#76808F",
-                //   activeColor: "#76808F",
-                //   backgroundColor: "transparent",
-                //   activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
-                //   borderRadius: 4,
+          //       //   type: "path" as TooltipFeatureType,
+          //       //   path: {
+          //       //     // @ts-expect-error
+          //       //     style: "stroke",
+          //       //     // simple "eye‑slash" example
+          //       //     path: "M0 0 L12 12 M12 0 L0 12",
+          //       //     lineWidth: 1,
+          //       //   },
+          //       //   iconFont: {
+          //       //     content: "\ue901",
+          //       //     family: "my-iconfont",
+          //       //   },
+          //       // },
+          //       {
+          //         id: "setting",
+          //         position: TooltipFeaturePosition.Middle,
+          //         marginLeft: 3,
+          //         marginTop: 3,
+          //         marginRight: 0,
+          //         marginBottom: 0,
+          //         paddingLeft: 0,
+          //         paddingTop: 0,
+          //         paddingRight: 0,
+          //         paddingBottom: 0,
+          //         size: 14,
+          //         color: "#76808F",
+          //         activeColor: "#76808F",
+          //         backgroundColor: "transparent",
+          //         activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+          //         borderRadius: 4,
 
-                //   type: "path" as TooltipFeatureType,
-                //   path: {
-                //     // @ts-expect-error
-                //     style: "stroke",
-                //     // simple "eye‑slash" example
-                //     path: "M0 0 L12 12 M12 0 L0 12",
-                //     lineWidth: 1,
-                //   },
-                //   iconFont: {
-                //     content: "\ue901",
-                //     family: "my-iconfont",
-                //   },
-                // },
-                {
-                  id: "setting",
-                  position: TooltipFeaturePosition.Middle,
-                  marginLeft: 3,
-                  marginTop: 3,
-                  marginRight: 0,
-                  marginBottom: 0,
-                  paddingLeft: 0,
-                  paddingTop: 0,
-                  paddingRight: 0,
-                  paddingBottom: 0,
-                  size: 14,
-                  color: "#76808F",
-                  activeColor: "#76808F",
-                  backgroundColor: "transparent",
-                  activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
-                  borderRadius: 4,
+          //         type: "path" as TooltipFeatureType,
+          //         path: {
+          //           // @ts-expect-error
+          //           style: "stroke",
+          //           // gear‑shaped icon path (example)
+          //           path: "M6 1 L7 3 L9 3 L8 5 L9 7 L7 7 L6 9 L5 7 L3 7 L4 5 L3 3 L5 3 Z",
+          //           lineWidth: 1,
+          //         },
+          //         iconFont: {
+          //           content: "\ue902",
+          //           family: "my-iconfont",
+          //         },
+          //       },
+          //       {
+          //         id: "close",
+          //         position: TooltipFeaturePosition.Middle,
+          //         marginLeft: 6,
+          //         marginTop: 3,
+          //         marginRight: 0,
+          //         marginBottom: 0,
+          //         paddingLeft: 0,
+          //         paddingTop: 0,
+          //         paddingRight: 0,
+          //         paddingBottom: 0,
+          //         size: 14,
+          //         color: "#76808F",
+          //         activeColor: "#76808F",
+          //         backgroundColor: "transparent",
+          //         activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+          //         borderRadius: 4,
 
-                  type: "path" as TooltipFeatureType,
-                  path: {
-                    // @ts-expect-error
-                    style: "stroke",
-                    // gear‑shaped icon path (example)
-                    path: "M6 1 L7 3 L9 3 L8 5 L9 7 L7 7 L6 9 L5 7 L3 7 L4 5 L3 3 L5 3 Z",
-                    lineWidth: 1,
-                  },
-                  iconFont: {
-                    content: "\ue902",
-                    family: "my-iconfont",
-                  },
-                },
-                {
-                  id: "close",
-                  position: TooltipFeaturePosition.Middle,
-                  marginLeft: 6,
-                  marginTop: 3,
-                  marginRight: 0,
-                  marginBottom: 0,
-                  paddingLeft: 0,
-                  paddingTop: 0,
-                  paddingRight: 0,
-                  paddingBottom: 0,
-                  size: 14,
-                  color: "#76808F",
-                  activeColor: "#76808F",
-                  backgroundColor: "transparent",
-                  activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
-                  borderRadius: 4,
-
-                  type: "path" as TooltipFeatureType,
-                  path: {
-                    // @ts-expect-error
-                    style: "stroke",
-                    // simple "X" icon path
-                    path: "M2 2 L10 10 M10 2 L2 10",
-                    lineWidth: 1,
-                  },
-                  iconFont: {
-                    content: "\ue903",
-                    family: "my-iconfont",
-                  },
-                },
-              ],
-            };
-          },
+          //         type: "path" as TooltipFeatureType,
+          //         path: {
+          //           // @ts-expect-error
+          //           style: "stroke",
+          //           // simple "X" icon path
+          //           path: "M2 2 L10 10 M10 2 L2 10",
+          //           lineWidth: 1,
+          //         },
+          //         iconFont: {
+          //           content: "\ue903",
+          //           family: "my-iconfont",
+          //         },
+          //       },
+          //     ],
+          //   };
+          // },
         },
         isStack,
         paneOptions
@@ -573,12 +506,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   onMount(() => {
     window.addEventListener("resize", documentResize);
     widget = init(widgetRef!, {
-      customApi: {
+      formatter: {
         formatDate: (
           // dateTimeFormat: Intl.DateTimeFormat,
-          timestamp,
-          format: string,
-          type: FormatDateType
+          { timestamp, type }
         ) => {
           const dateTimeFormat = new Intl.DateTimeFormat(locale(), {
             year: "numeric",
@@ -591,7 +522,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           const p = period();
           switch (p.timespan) {
             case "second": {
-              if (type === FormatDateType.XAxis) {
+              if (type === "xAxis") {
                 return utils.formatDate(dateTimeFormat, timestamp, "HH:mm:ss");
               }
               return utils.formatDate(
@@ -601,7 +532,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               );
             }
             case "minute": {
-              if (type === FormatDateType.XAxis) {
+              if (type === "xAxis") {
                 return utils.formatDate(dateTimeFormat, timestamp, "HH:mm");
               }
               return utils.formatDate(
@@ -611,7 +542,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               );
             }
             case "hour": {
-              if (type === FormatDateType.XAxis) {
+              if (type === "xAxis") {
                 return utils.formatDate(
                   dateTimeFormat,
                   timestamp,
@@ -628,13 +559,13 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             case "week":
               return utils.formatDate(dateTimeFormat, timestamp, "YYYY-MM-DD");
             case "month": {
-              if (type === FormatDateType.XAxis) {
+              if (type === "xAxis") {
                 return utils.formatDate(dateTimeFormat, timestamp, "YYYY-MM");
               }
               return utils.formatDate(dateTimeFormat, timestamp, "YYYY-MM-DD");
             }
             case "year": {
-              if (type === FormatDateType.XAxis) {
+              if (type === "xAxis") {
                 return utils.formatDate(dateTimeFormat, timestamp, "YYYY");
               }
               return utils.formatDate(dateTimeFormat, timestamp, "YYYY-MM-DD");
@@ -653,7 +584,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       // Used for inital chart zoom on load
       widget.setBarSpace(30);
 
-      const watermarkContainer = widget.getDom("candle_pane", DomPosition.Main);
+      const watermarkContainer = widget.getDom("candle_pane", "main");
       if (watermarkContainer) {
         let watermark = document.createElement("div");
         watermark.className = "klinecharts-pro-watermark";
@@ -666,10 +597,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         watermarkContainer.appendChild(watermark);
       }
 
-      const priceUnitContainer = widget.getDom(
-        "candle_pane",
-        DomPosition.YAxis
-      );
+      const priceUnitContainer = widget.getDom("candle_pane", "yAxis");
 
       priceUnitDom = document.createElement("span");
       priceUnitDom.className = "klinecharts-pro-price-unit";
@@ -732,77 +660,76 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       get();
     });
     // Indicator Tool Tip functions
-    // widget?.subscribeAction(
-    //   ActionType.OnCandleTooltipFeatureClick,
-    //   (data: any) => {
-    //     console.log("OnCandleTooltipFeatureClick", data);
-    //     if (data.indicatorName) {
-    //       switch (data.iconId) {
-    //         case "visible": {
-    //           widget?.overrideIndicator({
-    //             name: data.indicatorName,
-    //             visible: true,
-    //             paneId: data.paneId,
-    //           });
-    //           break;
-    //         }
-    //         case "invisible": {
-    //           widget?.overrideIndicator({
-    //             name: data.indicatorName,
-    //             visible: false,
-    //             paneId: data.paneId,
-    //           });
-    //           break;
-    //         }
-    //         case "setting": {
-    //           const indicator = widget?.getIndicators({
-    //             paneId: data.paneId,
-    //             name: data.indicatorName,
-    //           });
-    //           if (!indicator) {
-    //             break;
-    //           }
-    //           setIndicatorSettingModalParams({
-    //             visible: true,
-    //             indicatorName: data.indicatorName,
-    //             paneId: data.paneId,
-    //             calcParams: indicator[0].calcParams,
-    //           });
-    //           break;
-    //         }
-    //         case "close": {
-    //           if (data.paneId === "candle_pane") {
-    //             const newMainIndicators = [...mainIndicators()];
-    //             widget?.removeIndicator({
-    //               paneId: "candle_pane",
-    //               name: data.indicatorName,
-    //             });
-    //             newMainIndicators.splice(
-    //               newMainIndicators.indexOf(data.indicatorName),
-    //               1
-    //             );
-    //             localStorage.setItem(
-    //               "mainIndicators",
-    //               JSON.stringify(newMainIndicators)
-    //             );
-    //             setMainIndicators(newMainIndicators);
-    //           } else {
-    //             const newIndicators = { ...subIndicators() };
-    //             widget?.removeIndicator({
-    //               paneId: data.paneId,
-    //               name: data.indicatorName,
-    //             });
-    //             // @ts-expect-error
-    //             delete newIndicators[data.indicatorName];
-    //             const names = Object.keys(newIndicators);
-    //             localStorage.setItem("subIndicators", JSON.stringify(names));
-    //             setSubIndicators(newIndicators);
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    // );
+    widget?.subscribeAction("onIndicatorTooltipFeatureClick", (data: any) => {
+      if (data.indicatorName) {
+        switch (data.iconId) {
+          case "visible": {
+            widget?.overrideIndicator({
+              name: data.indicatorName,
+              visible: true,
+              paneId: data.paneId,
+            });
+            break;
+          }
+          case "invisible": {
+            widget?.overrideIndicator({
+              name: data.indicatorName,
+              visible: false,
+              paneId: data.paneId,
+            });
+            break;
+          }
+          case "setting": {
+            const indicator = widget?.getIndicators({
+              paneId: data.paneId,
+              name: data.indicatorName,
+            });
+            if (!indicator) {
+              break;
+            }
+            // setIndicatorSettingModalParams({
+            //   visible: true,
+            //   id: indicator[0].id,
+            //   indicatorName: data.indicatorName,
+            //   paneId: data.paneId,
+            //   styles: indicator[0].styles,
+            //   calcParams: indicator[0].calcParams,
+            //   figures: indicator[0].figures,
+            // });
+            break;
+          }
+          case "close": {
+            if (data.paneId === "candle_pane") {
+              const newMainIndicators = [...mainIndicators()];
+              widget?.removeIndicator({
+                paneId: "candle_pane",
+                name: data.indicatorName,
+              });
+              newMainIndicators.splice(
+                newMainIndicators.indexOf(data.indicatorName),
+                1
+              );
+              localStorage.setItem(
+                "mainIndicators",
+                JSON.stringify(newMainIndicators)
+              );
+              setMainIndicators(newMainIndicators);
+            } else {
+              const newIndicators = { ...subIndicators() };
+              widget?.removeIndicator({
+                paneId: data.paneId,
+                name: data.indicatorName,
+              });
+              // @ts-expect-error
+              delete newIndicators[data.indicatorName];
+              const names = Object.keys(newIndicators);
+              localStorage.setItem("subIndicators", JSON.stringify(names));
+              setSubIndicators(newIndicators);
+            }
+          }
+        }
+      }
+    });
   });
 
   onCleanup(() => {
@@ -819,10 +746,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       priceUnitDom.style.display = "none";
     }
 
-    widget?.setPrecision({
-      price: s?.pricePrecision ?? 2,
-      volume: s?.volumePrecision ?? 0,
-    });
+    // widget?.setPrecision({
+    //   price: s?.pricePrecision ?? 2,
+    //   volume: s?.volumePrecision ?? 0,
+    // });
   });
 
   createEffect((prev?: PrevSymbolPeriod) => {
@@ -946,8 +873,96 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     widget?.setStyles({
       indicator: {
         tooltip: {
-          showName: true,
-          showParams: true,
+          features: [
+            {
+              id: "visible",
+              position: "middle",
+              marginLeft: 8,
+              marginTop: 3,
+              marginRight: 0,
+              marginBottom: 0,
+              paddingLeft: 0,
+              paddingTop: 0,
+              paddingRight: 0,
+              paddingBottom: 0,
+              type: "icon_font",
+              content: {
+                family: "icomoon",
+                code: "\ue903",
+              },
+              size: 14,
+              color: color,
+              activeColor: color,
+              backgroundColor: "transparent",
+              activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+            },
+            {
+              id: "invisible",
+              position: "middle",
+              marginLeft: 8,
+              marginTop: 3,
+              marginRight: 0,
+              marginBottom: 0,
+              paddingLeft: 0,
+              paddingTop: 0,
+              paddingRight: 0,
+              paddingBottom: 0,
+              type: "icon_font",
+              content: {
+                family: "icomoon",
+                code: "\ue901",
+              },
+              size: 14,
+              color: color,
+              activeColor: color,
+              backgroundColor: "transparent",
+              activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+            },
+            {
+              id: "setting",
+              position: "middle",
+              marginLeft: 8,
+              marginTop: 3,
+              marginRight: 0,
+              marginBottom: 0,
+              paddingLeft: 0,
+              paddingTop: 0,
+              paddingRight: 0,
+              paddingBottom: 0,
+              type: "icon_font",
+              content: {
+                family: "icomoon",
+                code: "\ue902",
+              },
+              size: 14,
+              color: color,
+              activeColor: color,
+              backgroundColor: "transparent",
+              activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+            },
+            {
+              id: "close",
+              position: "middle",
+              marginLeft: 8,
+              marginTop: 3,
+              marginRight: 0,
+              marginBottom: 0,
+              paddingLeft: 0,
+              paddingTop: 0,
+              paddingRight: 0,
+              paddingBottom: 0,
+              type: "icon_font",
+              content: {
+                family: "icomoon",
+                code: "\ue900",
+              },
+              size: 14,
+              color: color,
+              activeColor: color,
+              backgroundColor: "transparent",
+              activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+            },
+          ],
         },
       },
     });
@@ -1843,7 +1858,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               onClick: () => {
                 const overlayId = contextMenu().overlayId;
                 // Find the overlay's current styles
-                const overlay = overlays().find((o: any) => o.id === overlayId);
+                const overlay = overlays().find(
+                  (o: any) => o.id === overlayId
+                ) as any;
                 console.log("overlay", overlay);
                 setDrawingSettingsModal({
                   visible: true,
