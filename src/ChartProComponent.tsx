@@ -34,14 +34,14 @@ import {
   // TooltipIconPosition,
   // ActionType,
   PaneOptions,
-  Indicator,
+  // Indicator,
   DomPosition,
   FormatDateType,
   registerOverlay,
   registerFigure,
   TooltipFeaturePosition,
   IndicatorTooltipData,
-  TooltipFeatureType,
+  PeriodType,
 } from "klinecharts";
 import { ActionType } from "klinecharts";
 import lodashSet from "lodash/set";
@@ -316,217 +316,151 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               { color: "#00C5C1" },
             ],
           },
-          onClick: ({ target, chart, indicator, feature }) => {
-            if (target === "feature") {
-              // @ts-expect-error
-              switch (feature.id) {
-                case "close":
-                  chart.removeIndicator({
-                    paneId: indicator.paneId,
-                    id: indicator.id,
-                    name: indicator.name,
-                  });
-                  if (indicator.paneId == "candle_pane") {
-                    const newMainIndicators = [...mainIndicators()];
-                    newMainIndicators.splice(
-                      newMainIndicators.indexOf(indicator.name),
-                      1
-                    );
-                    localStorage.setItem(
-                      "mainIndicators",
-                      JSON.stringify(newMainIndicators)
-                    );
-                    setMainIndicators(newMainIndicators);
-                  } else {
-                    const newSubIndicators = { ...subIndicators() };
-                    // @ts-expect-error
-                    delete newSubIndicators[indicator.name];
-                    const names = Object.keys(newSubIndicators);
-                    localStorage.setItem(
-                      "subIndicators",
-                      JSON.stringify(names)
-                    );
-                    setSubIndicators(newSubIndicators);
-                  }
 
-                  break;
-                case "setting":
-                  console.log("Indicator settings", indicator);
-                  setIndicatorSettingModalParams({
-                    visible: true,
-                    indicatorName: indicator.name,
-                    id: indicator.id,
-                    paneId: indicator.paneId,
-                    calcParams: indicator.calcParams,
-                    styles: indicator.styles as { lines: { color: string }[] },
-                    figures: indicator.figures as Array<{
-                      title: string;
-                      key: string;
-                    }>,
-                  });
-                  break;
-                case "visible":
-                  chart.overrideIndicator({
-                    paneId: indicator.paneId,
-                    name: indicator.name,
-                    visible: false,
-                  });
-                  break;
-                case "invisible":
-                  chart.overrideIndicator({
-                    paneId: indicator.paneId,
-                    name: indicator.name,
-                    visible: true,
-                  });
-                  break;
-              }
-            }
-          },
+          // createTooltipDataSource: ({ indicator }): IndicatorTooltipData => {
+          //   return {
+          //     name: indicator.name,
+          //     calcParamsText: indicator.calcParams
+          //       ? `(${indicator.calcParams.join(", ")})`
+          //       : "",
 
-          createTooltipDataSource: ({ indicator }): IndicatorTooltipData => {
-            return {
-              name: indicator.name,
-              calcParamsText: indicator.calcParams
-                ? `(${indicator.calcParams.join(", ")})`
-                : "",
+          //     features: [
+          //       // {
+          //       //   id: "visible",
+          //       //   position: TooltipFeaturePosition.Middle,
+          //       //   // box model
+          //       //   marginLeft: 8,
+          //       //   marginTop: 3,
+          //       //   marginRight: 0,
+          //       //   marginBottom: 0,
+          //       //   paddingLeft: 0,
+          //       //   paddingTop: 0,
+          //       //   paddingRight: 0,
+          //       //   paddingBottom: 0,
+          //       //   // sizing & colors
+          //       //   size: 14,
+          //       //   color: "#76808F",
+          //       //   activeColor: "#76808F",
+          //       //   backgroundColor: "transparent",
+          //       //   activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+          //       //   borderRadius: 4,
 
-              features: [
-                // {
-                //   id: "visible",
-                //   position: TooltipFeaturePosition.Middle,
-                //   // box model
-                //   marginLeft: 8,
-                //   marginTop: 3,
-                //   marginRight: 0,
-                //   marginBottom: 0,
-                //   paddingLeft: 0,
-                //   paddingTop: 0,
-                //   paddingRight: 0,
-                //   paddingBottom: 0,
-                //   // sizing & colors
-                //   size: 14,
-                //   color: "#76808F",
-                //   activeColor: "#76808F",
-                //   backgroundColor: "transparent",
-                //   activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
-                //   borderRadius: 4,
+          //       //   // ▼ fill in these required properties ▼
 
-                //   // ▼ fill in these required properties ▼
+          //       //   // 1) type: either "path" or "iconFont"
+          //       //   type: "path" as TooltipFeatureType,
 
-                //   // 1) type: either "path" or "iconFont"
-                //   type: "path" as TooltipFeatureType,
+          //       //   // 2) path: SVG‑path definition + drawing style
+          //       //   path: {
+          //       //     // @ts-expect-error
+          //       //     style: "stroke",
+          //       //     // the "eye" icon from the docs as an example
+          //       //     path: "M1 5 C1 2.5 3 0 6 0 C9 0 11 2.5 11 5 C11 7.5 9 10 6 10 C3 10 1 7.5 1 5 Z M6 3 C4.3 3 3 4.3 3 6 C3 7.7 4.3 9 6 9 C7.7 9 9 7.7 9 6 C9 4.3 7.7 3 6 3 Z",
+          //       //     lineWidth: 1,
+          //       //   },
 
-                //   // 2) path: SVG‑path definition + drawing style
-                //   path: {
-                //     // @ts-expect-error
-                //     style: "stroke",
-                //     // the "eye" icon from the docs as an example
-                //     path: "M1 5 C1 2.5 3 0 6 0 C9 0 11 2.5 11 5 C11 7.5 9 10 6 10 C3 10 1 7.5 1 5 Z M6 3 C4.3 3 3 4.3 3 6 C3 7.7 4.3 9 6 9 C7.7 9 9 7.7 9 6 C9 4.3 7.7 3 6 3 Z",
-                //     lineWidth: 1,
-                //   },
+          //       //   // 3) iconFont: only used if you set type: 'iconFont'
+          //       //   iconFont: {
+          //       //     content: "\ue900", // your icon glyph
+          //       //     family: "my-iconfont", // the @font‑face family name
+          //       //   },
+          //       // },
+          //       // {
+          //       //   id: "invisible",
+          //       //   position: TooltipFeaturePosition.Middle,
+          //       //   marginLeft: 8,
+          //       //   marginTop: 3,
+          //       //   marginRight: 0,
+          //       //   marginBottom: 0,
+          //       //   paddingLeft: 0,
+          //       //   paddingTop: 0,
+          //       //   paddingRight: 0,
+          //       //   paddingBottom: 0,
+          //       //   size: 14,
+          //       //   color: "#76808F",
+          //       //   activeColor: "#76808F",
+          //       //   backgroundColor: "transparent",
+          //       //   activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+          //       //   borderRadius: 4,
 
-                //   // 3) iconFont: only used if you set type: 'iconFont'
-                //   iconFont: {
-                //     content: "\ue900", // your icon glyph
-                //     family: "my-iconfont", // the @font‑face family name
-                //   },
-                // },
-                // {
-                //   id: "invisible",
-                //   position: TooltipFeaturePosition.Middle,
-                //   marginLeft: 8,
-                //   marginTop: 3,
-                //   marginRight: 0,
-                //   marginBottom: 0,
-                //   paddingLeft: 0,
-                //   paddingTop: 0,
-                //   paddingRight: 0,
-                //   paddingBottom: 0,
-                //   size: 14,
-                //   color: "#76808F",
-                //   activeColor: "#76808F",
-                //   backgroundColor: "transparent",
-                //   activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
-                //   borderRadius: 4,
+          //       //   type: "path" as TooltipFeatureType,
+          //       //   path: {
+          //       //     // @ts-expect-error
+          //       //     style: "stroke",
+          //       //     // simple "eye‑slash" example
+          //       //     path: "M0 0 L12 12 M12 0 L0 12",
+          //       //     lineWidth: 1,
+          //       //   },
+          //       //   iconFont: {
+          //       //     content: "\ue901",
+          //       //     family: "my-iconfont",
+          //       //   },
+          //       // },
+          //       {
+          //         id: "setting",
+          //         position: TooltipFeaturePosition.Middle,
+          //         marginLeft: 3,
+          //         marginTop: 3,
+          //         marginRight: 0,
+          //         marginBottom: 0,
+          //         paddingLeft: 0,
+          //         paddingTop: 0,
+          //         paddingRight: 0,
+          //         paddingBottom: 0,
+          //         size: 14,
+          //         color: "#76808F",
+          //         activeColor: "#76808F",
+          //         backgroundColor: "transparent",
+          //         activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+          //         borderRadius: 4,
 
-                //   type: "path" as TooltipFeatureType,
-                //   path: {
-                //     // @ts-expect-error
-                //     style: "stroke",
-                //     // simple "eye‑slash" example
-                //     path: "M0 0 L12 12 M12 0 L0 12",
-                //     lineWidth: 1,
-                //   },
-                //   iconFont: {
-                //     content: "\ue901",
-                //     family: "my-iconfont",
-                //   },
-                // },
-                {
-                  id: "setting",
-                  position: TooltipFeaturePosition.Middle,
-                  marginLeft: 3,
-                  marginTop: 3,
-                  marginRight: 0,
-                  marginBottom: 0,
-                  paddingLeft: 0,
-                  paddingTop: 0,
-                  paddingRight: 0,
-                  paddingBottom: 0,
-                  size: 14,
-                  color: "#76808F",
-                  activeColor: "#76808F",
-                  backgroundColor: "transparent",
-                  activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
-                  borderRadius: 4,
+          //         type: "path" as TooltipFeatureType,
+          //         path: {
+          //           // @ts-expect-error
+          //           style: "stroke",
+          //           // gear‑shaped icon path (example)
+          //           path: "M6 1 L7 3 L9 3 L8 5 L9 7 L7 7 L6 9 L5 7 L3 7 L4 5 L3 3 L5 3 Z",
+          //           lineWidth: 1,
+          //         },
+          //         iconFont: {
+          //           content: "\ue902",
+          //           family: "my-iconfont",
+          //         },
+          //       },
+          //       {
+          //         id: "close",
+          //         position: TooltipFeaturePosition.Middle,
+          //         marginLeft: 6,
+          //         marginTop: 3,
+          //         marginRight: 0,
+          //         marginBottom: 0,
+          //         paddingLeft: 0,
+          //         paddingTop: 0,
+          //         paddingRight: 0,
+          //         paddingBottom: 0,
+          //         size: 14,
+          //         color: "#76808F",
+          //         activeColor: "#76808F",
+          //         backgroundColor: "transparent",
+          //         activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+          //         borderRadius: 4,
 
-                  type: "path" as TooltipFeatureType,
-                  path: {
-                    // @ts-expect-error
-                    style: "stroke",
-                    // gear‑shaped icon path (example)
-                    path: "M6 1 L7 3 L9 3 L8 5 L9 7 L7 7 L6 9 L5 7 L3 7 L4 5 L3 3 L5 3 Z",
-                    lineWidth: 1,
-                  },
-                  iconFont: {
-                    content: "\ue902",
-                    family: "my-iconfont",
-                  },
-                },
-                {
-                  id: "close",
-                  position: TooltipFeaturePosition.Middle,
-                  marginLeft: 6,
-                  marginTop: 3,
-                  marginRight: 0,
-                  marginBottom: 0,
-                  paddingLeft: 0,
-                  paddingTop: 0,
-                  paddingRight: 0,
-                  paddingBottom: 0,
-                  size: 14,
-                  color: "#76808F",
-                  activeColor: "#76808F",
-                  backgroundColor: "transparent",
-                  activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
-                  borderRadius: 4,
-
-                  type: "path" as TooltipFeatureType,
-                  path: {
-                    // @ts-expect-error
-                    style: "stroke",
-                    // simple "X" icon path
-                    path: "M2 2 L10 10 M10 2 L2 10",
-                    lineWidth: 1,
-                  },
-                  iconFont: {
-                    content: "\ue903",
-                    family: "my-iconfont",
-                  },
-                },
-              ],
-            };
-          },
+          //         type: "path" as TooltipFeatureType,
+          //         path: {
+          //           // @ts-expect-error
+          //           style: "stroke",
+          //           // simple "X" icon path
+          //           path: "M2 2 L10 10 M10 2 L2 10",
+          //           lineWidth: 1,
+          //         },
+          //         iconFont: {
+          //           content: "\ue903",
+          //           family: "my-iconfont",
+          //         },
+          //       },
+          //     ],
+          //   };
+          // },
         },
         isStack,
         paneOptions
@@ -536,12 +470,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   onMount(() => {
     window.addEventListener("resize", documentResize);
     widget = init(widgetRef!, {
-      customApi: {
+      formatter: {
         formatDate: (
           // dateTimeFormat: Intl.DateTimeFormat,
-          timestamp,
-          format: string,
-          type: FormatDateType
+          { timestamp, type }
         ) => {
           const dateTimeFormat = new Intl.DateTimeFormat(locale(), {
             year: "numeric",
@@ -554,7 +486,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           const p = period();
           switch (p.timespan) {
             case "second": {
-              if (type === FormatDateType.XAxis) {
+              if (type === "xAxis") {
                 return utils.formatDate(dateTimeFormat, timestamp, "HH:mm:ss");
               }
               return utils.formatDate(
@@ -564,7 +496,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               );
             }
             case "minute": {
-              if (type === FormatDateType.XAxis) {
+              if (type === "xAxis") {
                 return utils.formatDate(dateTimeFormat, timestamp, "HH:mm");
               }
               return utils.formatDate(
@@ -574,7 +506,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               );
             }
             case "hour": {
-              if (type === FormatDateType.XAxis) {
+              if (type === "xAxis") {
                 return utils.formatDate(
                   dateTimeFormat,
                   timestamp,
@@ -591,13 +523,13 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             case "week":
               return utils.formatDate(dateTimeFormat, timestamp, "YYYY-MM-DD");
             case "month": {
-              if (type === FormatDateType.XAxis) {
+              if (type === "xAxis") {
                 return utils.formatDate(dateTimeFormat, timestamp, "YYYY-MM");
               }
               return utils.formatDate(dateTimeFormat, timestamp, "YYYY-MM-DD");
             }
             case "year": {
-              if (type === FormatDateType.XAxis) {
+              if (type === "xAxis") {
                 return utils.formatDate(dateTimeFormat, timestamp, "YYYY");
               }
               return utils.formatDate(dateTimeFormat, timestamp, "YYYY-MM-DD");
@@ -616,7 +548,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       // Used for inital chart zoom on load
       widget.setBarSpace(30);
 
-      const watermarkContainer = widget.getDom("candle_pane", DomPosition.Main);
+      const watermarkContainer = widget.getDom("candle_pane", "main");
       if (watermarkContainer) {
         let watermark = document.createElement("div");
         watermark.className = "klinecharts-pro-watermark";
@@ -629,10 +561,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         watermarkContainer.appendChild(watermark);
       }
 
-      const priceUnitContainer = widget.getDom(
-        "candle_pane",
-        DomPosition.YAxis
-      );
+      const priceUnitContainer = widget.getDom("candle_pane", "yAxis");
 
       priceUnitDom = document.createElement("span");
       priceUnitDom.className = "klinecharts-pro-price-unit";
@@ -655,117 +584,250 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       }
     });
     setSubIndicators(subIndicatorMap);
-    widget?.setLoadMoreDataCallback(({ type, data, callback }) => {
-      // Type = Backward on websocket message  and Forward on panning
-      // console.log("load more data", type, data);
-      if (!data || loading == true || type == "backward") {
-        callback([], true); // ✅ tell the chart there’s nothing more to load
-        return;
-      }
-      console.log("Lower Timestamp", new Date(data.timestamp));
-      loading = true;
 
-      const get = async () => {
-        const p = period();
-        const earliestTimestamp = data.timestamp;
-        if (!earliestTimestamp) {
-          callback([], true); // ✅ still respond
-          loading = false;
-          return;
-        }
+    if (widget) {
+      widget?.setDataLoader({
+        getBars: async ({ type, timestamp, callback }) => {
+          // if (timestamp == null) return;
+          try {
+            const s = symbol();
+            const p = period();
 
-        const [to] = adjustFromTo(p, earliestTimestamp, 1);
-        const [from] = adjustFromTo(p, to, 60);
+            let [from, to]: number[] = [0, 0];
+            let updateTimer = false;
+            if (type === "init") {
+              // Initial load - get recent data
+              [from, to] = adjustFromTo(p, new Date().getTime(), 100);
+              updateTimer = true;
+            } else if (type === "forward") {
+              if (timestamp == null) return;
+              // Load more recent data (right side)
+              [from] = adjustFromTo(p, timestamp, 100);
+              [, to] = adjustFromTo(p, timestamp, 10);
+            } else if (type === "backward") {
+              callback([], true);
+              return;
+            }
+            if (from == 0 && to == 0) {
+              callback([], true); // ✅ still respond
+              return;
+            }
 
-        const kLineDataList = await props.datafeed.getHistoryKLineData(
-          symbol(),
-          p,
-          from,
-          to
-        );
-        if (kLineDataList.length === 0) {
-          callback([]); // ✅ still respond
-          loading = false;
-          return;
-        }
-        callback(kLineDataList, true); // ⬅️ Send new data back to the chart
-        loading = false;
-      };
+            const kLineDataList = await props.datafeed.getHistoryKLineData(
+              s,
+              p,
+              from,
+              to
+            );
+            if (kLineDataList.length === 0) {
+              callback([], true); // ✅ still respond
+              return;
+            }
+            const data = kLineDataList[kLineDataList.length - 1];
+            if (updateTimer) {
+              widget?.overrideOverlay({
+                name: "customOverlayCustomFigure",
+                visible: true,
+                points: [
+                  {
+                    timestamp: data?.timestamp,
+                    value: data?.close,
+                  },
+                ],
+              });
+            }
+            callback(kLineDataList, kLineDataList.length > 0);
+          } catch (error) {
+            console.error("Error in getBars:", error);
+            callback([], false);
+          }
+        },
 
-      get();
-    });
-    // Indicator Tool Tip functions
-    // widget?.subscribeAction(
-    //   ActionType.OnCandleTooltipFeatureClick,
-    //   (data: any) => {
-    //     console.log("OnCandleTooltipFeatureClick", data);
-    //     if (data.indicatorName) {
-    //       switch (data.iconId) {
-    //         case "visible": {
-    //           widget?.overrideIndicator({
-    //             name: data.indicatorName,
-    //             visible: true,
-    //             paneId: data.paneId,
-    //           });
-    //           break;
-    //         }
-    //         case "invisible": {
-    //           widget?.overrideIndicator({
-    //             name: data.indicatorName,
-    //             visible: false,
-    //             paneId: data.paneId,
-    //           });
-    //           break;
-    //         }
-    //         case "setting": {
-    //           const indicator = widget?.getIndicators({
-    //             paneId: data.paneId,
-    //             name: data.indicatorName,
-    //           });
-    //           if (!indicator) {
-    //             break;
-    //           }
-    //           setIndicatorSettingModalParams({
-    //             visible: true,
-    //             indicatorName: data.indicatorName,
-    //             paneId: data.paneId,
-    //             calcParams: indicator[0].calcParams,
-    //           });
-    //           break;
-    //         }
-    //         case "close": {
-    //           if (data.paneId === "candle_pane") {
-    //             const newMainIndicators = [...mainIndicators()];
-    //             widget?.removeIndicator({
-    //               paneId: "candle_pane",
-    //               name: data.indicatorName,
-    //             });
-    //             newMainIndicators.splice(
-    //               newMainIndicators.indexOf(data.indicatorName),
-    //               1
-    //             );
-    //             localStorage.setItem(
-    //               "mainIndicators",
-    //               JSON.stringify(newMainIndicators)
-    //             );
-    //             setMainIndicators(newMainIndicators);
-    //           } else {
-    //             const newIndicators = { ...subIndicators() };
-    //             widget?.removeIndicator({
-    //               paneId: data.paneId,
-    //               name: data.indicatorName,
-    //             });
-    //             // @ts-expect-error
-    //             delete newIndicators[data.indicatorName];
-    //             const names = Object.keys(newIndicators);
-    //             localStorage.setItem("subIndicators", JSON.stringify(names));
-    //             setSubIndicators(newIndicators);
-    //           }
-    //         }
-    //       }
-    //     }
+        subscribeBar: ({ callback }) => {
+          const s = symbol();
+          const p = period();
+
+          props.datafeed.subscribe(s, p, (data) => {
+            if (data) {
+              try {
+                widget?.overrideOverlay({
+                  name: "customOverlayCustomFigure",
+                  points: [
+                    {
+                      timestamp: data?.timestamp,
+                      value: data?.close,
+                    },
+                  ],
+                });
+              } catch (error) {
+                console.log("Custom Overlay Error in Data Feed", error);
+              }
+              let currentCandle =
+                widget?.getDataList()[widget.getDataList().length - 1];
+              if (
+                !currentCandle ||
+                currentCandle.timestamp !== data.timestamp
+              ) {
+                currentCandle = { ...data };
+              } else {
+                // Same candle period, update the existing candle
+                // Keep the original open
+                currentCandle.high = Math.max(currentCandle.high, data.high);
+                currentCandle.low = Math.min(currentCandle.low, data.low);
+                currentCandle.close = data.close;
+
+                // Handle volume - assuming each update contains the incremental volume
+                if (data.volume !== undefined) {
+                  currentCandle.volume =
+                    (currentCandle.volume || 0) + (data.volume || 0);
+                }
+              }
+              callback(currentCandle);
+            }
+          });
+        },
+
+        unsubscribeBar: ({}) => {
+          const s = symbol();
+          const p = period();
+          props.datafeed.unsubscribe(s, p);
+        },
+      });
+    }
+    // widget?.setLoadMoreDataCallback(({ type, data, callback }) => {
+    //   // Type = Backward on websocket message  and Forward on panning
+    //   // console.log("load more data", type, data);
+    //   if (!data || loading == true || type == "backward") {
+    //     callback([], true); // ✅ tell the chart there’s nothing more to load
+    //     return;
     //   }
-    // );
+
+    //   loading = true;
+
+    //   const get = async () => {
+    //     const p = period();
+    //     const earliestTimestamp = data.timestamp;
+    //     if (!earliestTimestamp) {
+    //       callback([], true); // ✅ still respond
+    //       loading = false;
+    //       return;
+    //     }
+
+    //     const [to] = adjustFromTo(p, earliestTimestamp, 1);
+    //     const [from] = adjustFromTo(p, to, 100);
+
+    //     const kLineDataList = await props.datafeed.getHistoryKLineData(
+    //       symbol(),
+    //       p,
+    //       from,
+    //       to
+    //     );
+    //     if (kLineDataList.length === 0) {
+    //       callback([]); // ✅ still respond
+    //       loading = false;
+    //       return;
+    //     }
+    //     callback(kLineDataList, true); // ⬅️ Send new data back to the chart
+    //     loading = false;
+    //   };
+
+    //   get();
+    // });
+    // Indicator Tool Tip functions
+    type IndicatorToolTipClick = {
+      paneId: string;
+      feature: {
+        id: string; // visible, invisible, setting, close
+      };
+      indicator: {
+        id: string;
+        name: string;
+      };
+    };
+    type Indicator = {
+      calcParams: number[];
+      styles: object;
+      figures: object[];
+    };
+    widget?.subscribeAction("onIndicatorTooltipFeatureClick", (event: any) => {
+      const tooltipResponse = event as unknown as IndicatorToolTipClick;
+      console.log("indicator tooltip c", tooltipResponse);
+      if (tooltipResponse.indicator.id) {
+        switch (tooltipResponse.feature.id) {
+          case "visible": {
+            widget?.overrideIndicator({
+              name: tooltipResponse.indicator.name,
+              id: tooltipResponse.indicator.id,
+              visible: true,
+              paneId: tooltipResponse.paneId,
+            });
+            break;
+          }
+          case "invisible": {
+            widget?.overrideIndicator({
+              name: tooltipResponse.indicator.name,
+              id: tooltipResponse.indicator.id,
+              visible: false,
+              paneId: tooltipResponse.paneId,
+            });
+            break;
+          }
+          case "setting": {
+            const indicator = widget?.getIndicators({
+              paneId: tooltipResponse.paneId,
+              id: tooltipResponse.indicator.id,
+            })[0];
+            console.log("indicator", indicator);
+            if (!indicator) {
+              break;
+            }
+            setIndicatorSettingModalParams({
+              visible: true,
+              indicatorName: tooltipResponse.indicator.name,
+              id: tooltipResponse.indicator.id,
+              paneId: tooltipResponse.paneId,
+              calcParams: indicator.calcParams,
+              styles: indicator.styles as { lines: { color: string }[] },
+              figures: indicator.figures as Array<{
+                title: string;
+                key: string;
+              }>,
+            });
+            break;
+          }
+          case "close": {
+            console.log("close", tooltipResponse);
+            if (tooltipResponse.paneId === "candle_pane") {
+              const newMainIndicators = [...mainIndicators()];
+              widget?.removeIndicator({
+                paneId: "candle_pane",
+                id: tooltipResponse.indicator.id,
+              });
+              newMainIndicators.splice(
+                newMainIndicators.indexOf(tooltipResponse.indicator.name),
+                1
+              );
+              localStorage.setItem(
+                "mainIndicators",
+                JSON.stringify(newMainIndicators)
+              );
+              setMainIndicators(newMainIndicators);
+            } else {
+              const newIndicators = { ...subIndicators() };
+              widget?.removeIndicator({
+                paneId: tooltipResponse.paneId,
+                id: tooltipResponse.indicator.id,
+              });
+              // @ts-expect-error
+              delete newIndicators[tooltipResponse.indicator.name];
+              const names = Object.keys(newIndicators);
+              localStorage.setItem("subIndicators", JSON.stringify(names));
+              setSubIndicators(newIndicators);
+            }
+          }
+        }
+      }
+    });
   });
 
   onCleanup(() => {
@@ -781,125 +843,120 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     } else {
       priceUnitDom.style.display = "none";
     }
-
-    widget?.setPrecision({
-      price: s?.pricePrecision ?? 2,
-      volume: s?.volumePrecision ?? 0,
-    });
   });
 
-  createEffect((prev?: PrevSymbolPeriod) => {
-    if (!loading) {
-      if (prev) {
-        props.datafeed.unsubscribe(prev.symbol, prev.period);
-      }
-      const s = symbol();
-      const p = period();
-      loading = true;
-      setLoadingVisible(true);
+  // createEffect((prev?: PrevSymbolPeriod) => {
+  //   if (!loading) {
+  //     if (prev) {
+  //       props.datafeed.unsubscribe(prev.symbol, prev.period);
+  //     }
+  //     const s = symbol();
+  //     const p = period();
+  //     loading = true;
+  //     // setLoadingVisible(true);
 
-      // Track the current candle
-      let currentCandle: any = null;
+  //     // Track the current candle
+  //     let currentCandle: any = null;
 
-      const get = async () => {
-        const [from, to] = adjustFromTo(p, new Date().getTime(), 100);
-        const kLineDataList = await props.datafeed.getHistoryKLineData(
-          s,
-          p,
-          from,
-          to
-        );
-        if (kLineDataList.length > 0) {
-          const data = kLineDataList[kLineDataList.length - 1];
-          widget?.overrideOverlay({
-            name: "customOverlayCustomFigure",
-            visible: true,
-            points: [
-              {
-                timestamp: data?.timestamp,
-                value: data?.close,
-              },
-            ],
-          });
-        }
-        widget?.applyNewData(kLineDataList, kLineDataList.length > 0);
+  //     const get = async () => {
+  //       const [from, to] = adjustFromTo(p, new Date().getTime(), 100);
+  //       const kLineDataList = await props.datafeed.getHistoryKLineData(
+  //         s,
+  //         p,
+  //         from,
+  //         to
+  //       );
+  //       if (kLineDataList.length > 0) {
+  //         const data = kLineDataList[kLineDataList.length - 1];
+  //         widget?.overrideOverlay({
+  //           name: "customOverlayCustomFigure",
+  //           visible: true,
+  //           points: [
+  //             {
+  //               timestamp: data?.timestamp,
+  //               value: data?.close,
+  //             },
+  //           ],
+  //         });
+  //       }
+  //       // widget?.applyNewData(kLineDataList, kLineDataList.length > 0);
 
-        // Initialize current candle from the last data point if available
-        if (kLineDataList && kLineDataList.length > 0) {
-          currentCandle = { ...kLineDataList[kLineDataList.length - 1] };
-        }
+  //       // Initialize current candle from the last data point if available
+  //       if (kLineDataList && kLineDataList.length > 0) {
+  //         currentCandle = { ...kLineDataList[kLineDataList.length - 1] };
+  //       }
 
-        props.datafeed.subscribe(s, p, (data) => {
-          if (data) {
-            try {
-              widget?.overrideOverlay({
-                name: "customOverlayCustomFigure",
-                points: [
-                  {
-                    timestamp: data?.timestamp,
-                    value: data?.close,
-                  },
-                ],
-              });
-            } catch (error) {
-              // console.log("Custom Overlay Error in Data Feed", error);
-            }
-          }
-          if (!currentCandle || currentCandle.timestamp !== data.timestamp) {
-            let data2 = data;
-            if (currentCandle) {
-              data2 = {
-                open: currentCandle.close,
-                high: currentCandle.close,
-                low: currentCandle.close,
-                close: currentCandle.close,
-                volume: data.volume,
-                timestamp: data.timestamp,
-              };
-            }
-            currentCandle = { ...data2 };
-            // // For countdown timer for latest candle stick location with spacing
-            // widget?.overrideOverlay({
-            //   name: "customOverlayCustomFigure",
-            //   points: [
-            //     {
-            //       timestamp: data?.timestamp,
-            //       value: data?.close,
-            //     },
-            //   ],
-            //   extendData: `${formatTimerText(
-            //     getCandleStickInterval(period(), 1000)
-            //   )}`,
-            // });
-            widget?.updateData(currentCandle);
-          } else {
-            // Same candle period, update the existing candle
-            // Keep the original open
-            currentCandle.high = Math.max(currentCandle.high, data.high);
-            currentCandle.low = Math.min(currentCandle.low, data.low);
-            currentCandle.close = data.close;
+  //       props.datafeed.subscribe(s, p, (data) => {
+  //         if (data) {
+  //           try {
+  //             widget?.overrideOverlay({
+  //               name: "customOverlayCustomFigure",
+  //               points: [
+  //                 {
+  //                   timestamp: data?.timestamp,
+  //                   value: data?.close,
+  //                 },
+  //               ],
+  //             });
+  //           } catch (error) {
+  //             // console.log("Custom Overlay Error in Data Feed", error);
+  //           }
+  //         }
+  //         if (!currentCandle || currentCandle.timestamp !== data.timestamp) {
+  //           let data2 = data;
+  //           if (currentCandle) {
+  //             data2 = {
+  //               open: currentCandle.close,
+  //               high: currentCandle.close,
+  //               low: currentCandle.close,
+  //               close: currentCandle.close,
+  //               volume: data.volume,
+  //               timestamp: data.timestamp,
+  //             };
+  //           }
+  //           currentCandle = { ...data2 };
+  //           // // For countdown timer for latest candle stick location with spacing
+  //           // widget?.overrideOverlay({
+  //           //   name: "customOverlayCustomFigure",
+  //           //   points: [
+  //           //     {
+  //           //       timestamp: data?.timestamp,
+  //           //       value: data?.close,
+  //           //     },
+  //           //   ],
+  //           //   extendData: `${formatTimerText(
+  //           //     getCandleStickInterval(period(), 1000)
+  //           //   )}`,
+  //           // });
+  //           // widget?.updateData(currentCandle);
+  //         } else {
+  //           // Same candle period, update the existing candle
+  //           // Keep the original open
+  //           currentCandle.high = Math.max(currentCandle.high, data.high);
+  //           currentCandle.low = Math.min(currentCandle.low, data.low);
+  //           currentCandle.close = data.close;
 
-            // Handle volume - assuming each update contains the incremental volume
-            if (data.volume !== undefined) {
-              currentCandle.volume =
-                (currentCandle.volume || 0) + (data.volume || 0);
-            }
-            // console.log("currentCandle", currentCandle);
-            widget?.updateData(currentCandle);
+  //           // Handle volume - assuming each update contains the incremental volume
+  //           if (data.volume !== undefined) {
+  //             currentCandle.volume =
+  //               (currentCandle.volume || 0) + (data.volume || 0);
+  //           }
+  //           // console.log("currentCandle", currentCandle);
+  //           // widget?.updateData(currentCandle);
 
-            // For countdown timer for latest candle stick location with spacing
-          }
-        });
+  //           // For countdown timer for latest candle stick location with spacing
+  //         }
+  //       });
 
-        loading = false;
-        setLoadingVisible(false);
-      };
-      get();
-      reapplyOverlays();
-      return { symbol: s, period: p };
-    }
-    return prev;
-  });
+  //       loading = false;
+  //       setLoadingVisible(false);
+  //     };
+  //     // get();
+  //     reapplyOverlays();
+  //     return { symbol: s, period: p };
+  //   }
+  //   return prev;
+  // });
 
   createEffect(() => {
     widget?.setOffsetRightDistance(100);
@@ -909,8 +966,96 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     widget?.setStyles({
       indicator: {
         tooltip: {
-          showName: true,
-          showParams: true,
+          features: [
+            {
+              id: "visible",
+              position: "middle",
+              marginLeft: 8,
+              marginTop: 3,
+              marginRight: 0,
+              marginBottom: 0,
+              paddingLeft: 0,
+              paddingTop: 0,
+              paddingRight: 0,
+              paddingBottom: 0,
+              type: "icon_font",
+              content: {
+                family: "icomoon",
+                code: "\ue903",
+              },
+              size: 14,
+              color: color,
+              activeColor: color,
+              backgroundColor: "transparent",
+              activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+            },
+            {
+              id: "invisible",
+              position: "middle",
+              marginLeft: 8,
+              marginTop: 3,
+              marginRight: 0,
+              marginBottom: 0,
+              paddingLeft: 0,
+              paddingTop: 0,
+              paddingRight: 0,
+              paddingBottom: 0,
+              type: "icon_font",
+              content: {
+                family: "icomoon",
+                code: "\ue901",
+              },
+              size: 14,
+              color: color,
+              activeColor: color,
+              backgroundColor: "transparent",
+              activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+            },
+            {
+              id: "setting",
+              position: "middle",
+              marginLeft: 8,
+              marginTop: 3,
+              marginRight: 0,
+              marginBottom: 0,
+              paddingLeft: 0,
+              paddingTop: 0,
+              paddingRight: 0,
+              paddingBottom: 0,
+              type: "icon_font",
+              content: {
+                family: "icomoon",
+                code: "\ue902",
+              },
+              size: 14,
+              color: color,
+              activeColor: color,
+              backgroundColor: "transparent",
+              activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+            },
+            {
+              id: "close",
+              position: "middle",
+              marginLeft: 8,
+              marginTop: 3,
+              marginRight: 0,
+              marginBottom: 0,
+              paddingLeft: 0,
+              paddingTop: 0,
+              paddingRight: 0,
+              paddingBottom: 0,
+              type: "icon_font",
+              content: {
+                family: "icomoon",
+                code: "\ue900",
+              },
+              size: 14,
+              color: color,
+              activeColor: color,
+              backgroundColor: "transparent",
+              activeBackgroundColor: "rgba(22, 119, 255, 0.15)",
+            },
+          ],
         },
       },
     });
@@ -997,6 +1142,15 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
   // Old Timer Logic
   createEffect(() => {
+    widget?.setSymbol({
+      ticker: symbol().shortName ?? symbol().name ?? symbol().ticker,
+      pricePrecision: symbol().pricePrecision || 5,
+      volumePrecision: symbol().volumePrecision || 0,
+    });
+    widget?.setPeriod({
+      type: period().timespan as PeriodType,
+      span: period().multiplier,
+    });
     let baseInterval = 1000;
     const candleStickInterval = getCandleStickInterval(period(), baseInterval);
     // Set up an interval to run this effect every second
@@ -1006,6 +1160,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       const timeLeft = formatTimerText(
         candleStickInterval - (now % candleStickInterval)
       );
+      // console.log("Updating timer");
       // Only update when the displayed value has changed
       if (prevTimeLeft !== timeLeft) {
         prevTimeLeft = timeLeft;
@@ -1016,7 +1171,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             extendData: timeLeft, // a simple string
           });
         } catch (error) {
-          // console.log("Custom Overlay Error", error);
+          console.log("Custom Overlay Error", error);
         }
       }
     }, 500); // Run every 500ms (0.5 second)
