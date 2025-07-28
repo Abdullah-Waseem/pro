@@ -596,6 +596,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             let [from, to]: number[] = [0, 0];
             let updateTimer = false;
             if (type === "init") {
+              setLoadingVisible(true);
               // Initial load - get recent data
               [from, to] = adjustFromTo(p, new Date().getTime(), 100);
               updateTimer = true;
@@ -636,6 +637,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                 ],
               });
             }
+            setLoadingVisible(false);
             callback(kLineDataList, kLineDataList.length > 0);
           } catch (error) {
             console.error("Error in getBars:", error);
@@ -1278,6 +1280,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         };
       },
     });
+    reapplyOverlays();
     // Create the overlay
     widget?.createOverlay({
       name: "customOverlayCustomFigure",
