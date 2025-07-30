@@ -587,19 +587,17 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
     if (widget) {
       widget?.setDataLoader({
-        getBars: async ({ type, timestamp, callback }) => {
+        getBars: async ({ symbol: symbolInfo, type, timestamp, callback }) => {
           // if (timestamp == null) return;
           try {
             const s = symbol();
             const p = period();
-
             let [from, to]: number[] = [0, 0];
             let updateTimer = false;
             if (type === "init") {
-              setLoadingVisible(true);
               // Initial load - get recent data
               [from, to] = adjustFromTo(p, new Date().getTime(), 100);
-              updateTimer = true;
+              updateTimer = updateTimer ? false : true;
             } else if (type === "forward") {
               if (timestamp == null) return;
               // Load more recent data (right side)
@@ -620,10 +618,15 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               from,
               to
             );
-            if (kLineDataList.length === 0) {
+
+            if (
+              kLineDataList.length === 0 ||
+              s.shortName !== symbolInfo.ticker
+            ) {
               callback([], true); // ✅ still respond
               return;
             }
+
             const data = kLineDataList[kLineDataList.length - 1];
             if (updateTimer) {
               widget?.overrideOverlay({
@@ -637,7 +640,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                 ],
               });
             }
-            setLoadingVisible(false);
             callback(kLineDataList, kLineDataList.length > 0);
           } catch (error) {
             console.error("Error in getBars:", error);
@@ -651,26 +653,24 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
           props.datafeed.subscribe(s, p, (data) => {
             if (data) {
-              try {
-                widget?.overrideOverlay({
-                  name: "customOverlayCustomFigure",
-                  points: [
-                    {
-                      timestamp: data?.timestamp,
-                      value: data?.close,
-                    },
-                  ],
-                });
-              } catch (error) {
-                console.log("Custom Overlay Error in Data Feed", error);
-              }
               let currentCandle =
                 widget?.getDataList()[widget.getDataList().length - 1];
               if (
                 !currentCandle ||
                 currentCandle.timestamp !== data.timestamp
               ) {
-                currentCandle = { ...data };
+                let data2 = data;
+                if (currentCandle) {
+                  data2 = {
+                    open: currentCandle.close,
+                    high: currentCandle.close,
+                    low: currentCandle.close,
+                    close: currentCandle.close,
+                    volume: data.volume,
+                    timestamp: data.timestamp,
+                  };
+                }
+                currentCandle = { ...data2 };
               } else {
                 // Same candle period, update the existing candle
                 // Keep the original open
@@ -684,7 +684,21 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                     (currentCandle.volume || 0) + (data.volume || 0);
                 }
               }
+
               callback(currentCandle);
+              try {
+                widget?.overrideOverlay({
+                  name: "customOverlayCustomFigure",
+                  points: [
+                    {
+                      timestamp: data?.timestamp,
+                      value: data?.close,
+                    },
+                  ],
+                });
+              } catch (error) {
+                console.log("Custom Overlay Error in Data Feed", error);
+              }
             }
           });
         },
@@ -1498,7 +1512,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         return true;
       },
       extendData: {
-        text: `$${Number(trade.openingPrice).toFixed(4)} `,
+        text: `${Number(trade.openingPrice).toFixed(symbol().pricePrecision)} `,
         countdown: formatTimerText(
           new Date(closingTime).getTime() - Date.now()
         ),
@@ -1512,16 +1526,16 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       // console.log("timeLeft", timeLeft);
       widget?.overrideOverlay({
         name: `tradeOverlay-${trade.ticketNo}`,
+        onRightClick: () => {
+          return true;
+        },
         extendData: {
-          text: `$${trade.openingPrice?.toFixed(4)} `,
+          text: `${trade.openingPrice?.toFixed(symbol().pricePrecision)} `,
           countdown: timeLeft,
         },
       });
       if (timeLeft === "00:00") {
-        const delay = 600;
-        setTimeout(() => {
-          widget?.removeOverlay({ name: `tradeOverlay-${trade.ticketNo}` });
-        }, delay);
+        widget?.removeOverlay({ name: `tradeOverlay-${trade.ticketNo}` });
         clearInterval(intervalId);
       }
     }, 1000);
