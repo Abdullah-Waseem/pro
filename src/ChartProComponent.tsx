@@ -164,6 +164,12 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     createTrade: (trade: TradesData) => {
       createTrade(trade);
     },
+    enableTradeVisual: (trade: TradesData) => {
+      enableTradeVisual(trade);
+    },
+    disableTradeVisual: (trade: TradesData) => {
+      disableTradeVisual(trade);
+    },
     toggleSearchSymbolModal: () => {
       setSymbolSearchModalVisible(true);
     },
@@ -1543,6 +1549,20 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     }, 1000);
     onCleanup(() => {
       clearInterval(intervalId);
+    });
+  };
+
+  const enableTradeVisual = (trade: TradesData) => {
+    widget?.overrideOverlay({
+      name: `tradeOverlay-${trade.ticketNo}`,
+      visible: true,
+    });
+  };
+
+  const disableTradeVisual = (trade: TradesData) => {
+    widget?.overrideOverlay({
+      name: `tradeOverlay-${trade.ticketNo}`,
+      visible: false,
     });
   };
 
