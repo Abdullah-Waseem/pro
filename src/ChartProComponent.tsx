@@ -596,8 +596,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             let updateTimer = false;
             if (type === "init") {
               // Initial load - get recent data
-              [from, to] = adjustFromTo(p, new Date().getTime(), 100);
+              [from, to] = adjustFromTo(p, new Date().getTime(), 60);
               updateTimer = updateTimer ? false : true;
+              setLoadingVisible(true);
             } else if (type === "forward") {
               if (timestamp == null) return;
               // Load more recent data (right side)
@@ -641,6 +642,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               });
             }
             callback(kLineDataList, kLineDataList.length > 0);
+            setLoadingVisible(false);
           } catch (error) {
             console.error("Error in getBars:", error);
             callback([], false);
