@@ -699,8 +699,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                   name: "customOverlayCustomFigure",
                   points: [
                     {
-                      timestamp: data?.timestamp,
-                      value: data?.close,
+                      timestamp: currentCandle?.timestamp,
+                      value: currentCandle?.close,
                     },
                   ],
                 });
@@ -1543,7 +1543,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         },
       });
       if (timeLeft === "00:00") {
-        widget?.removeOverlay({ name: `tradeOverlay-${trade.ticketNo}` });
+        const delay = 600;
+        setTimeout(() => {
+          widget?.removeOverlay({ name: `tradeOverlay-${trade.ticketNo}` });
+        }, delay);
         clearInterval(intervalId);
       }
     }, 1000);
