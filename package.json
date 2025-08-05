@@ -28,6 +28,7 @@
   "license": "Apache-2.0",
   "private": false,
   "scripts": {
+    "dev": "vite",
     "build-core": "tsc && vite build",
     "build-dts": "dts-bundle-generator --no-banner true --umd-module-name klinechartspro -o dist/index.d.ts src/index.ts",
     "build": "npm run build-core && npm run build-dts",
@@ -59,6 +60,8 @@
     "vitest": "^0.28.4"
   },
   "dependencies": {
+    "axios": "^1.9.0",
+    "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "solid-js": "^1.6.11"
   },
