@@ -25,7 +25,7 @@ import { TabItem } from "../../component/tabs";
 
 import i18n from "../../i18n";
 
-import { SymbolInfo, Datafeed } from "../../types";
+import { SymbolInfo, Datafeed, SymbolChangeSource } from "../../types";
 
 export interface SymbolSearchModalProps {
   locale: string;
@@ -33,6 +33,10 @@ export interface SymbolSearchModalProps {
   onSymbolSelected: (symbol: SymbolInfo) => void;
   onClose: () => void;
   onFavoriteChange: () => void;
+  onSymbolChangeRequest?: (
+    symbol: SymbolInfo,
+    source: SymbolChangeSource
+  ) => Promise<void>;
 }
 
 const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
@@ -112,8 +116,13 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
         renderItem={(symbol: SymbolInfo) => (
           <li
             class="symbol-item"
-            onClick={() => {
-              props.onSymbolSelected(symbol);
+            onClick={async () => {
+              if (props.onSymbolChangeRequest) {
+                await props.onSymbolChangeRequest(symbol, "modal");
+              } else {
+                // Fallback to direct symbol selection for backward compatibility
+                props.onSymbolSelected(symbol);
+              }
               props.onClose();
             }}
           >

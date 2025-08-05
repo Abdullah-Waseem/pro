@@ -24,6 +24,7 @@ import {
   ChartPro,
   ChartProOptions,
   TradesData,
+  SymbolChangeSource,
 } from "./types";
 
 const Logo = (
@@ -81,6 +82,7 @@ export default class KLineChartPro implements ChartPro {
           mainIndicators={options.mainIndicators ?? [""]}
           subIndicators={options.subIndicators ?? [""]}
           datafeed={options.datafeed}
+          onSymbolChangeRequest={options.onSymbolChangeRequest}
         />
       ),
       this._container
@@ -152,5 +154,12 @@ export default class KLineChartPro implements ChartPro {
 
   toggleSearchSymbolModal(): void {
     this._chartApi!.toggleSearchSymbolModal!();
+  }
+
+  async handleSymbolChange(
+    symbol: SymbolInfo,
+    source: SymbolChangeSource
+  ): Promise<void> {
+    return this._chartApi!.handleSymbolChange(symbol, source);
   }
 }

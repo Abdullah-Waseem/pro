@@ -23,7 +23,7 @@ import {
   createEffect,
 } from "solid-js";
 
-import { SymbolInfo, Period, Datafeed } from "../../types";
+import { SymbolInfo, Period, Datafeed, SymbolChangeSource } from "../../types";
 import lodashSet from "lodash/set";
 
 import i18n from "../../i18n";
@@ -47,6 +47,10 @@ export interface PeriodBarProps {
   onTimezoneClick: () => void;
   onSettingClick: () => void;
   favoriteUpdateCount: number;
+  onSymbolChangeRequest?: (
+    symbol: SymbolInfo,
+    source: SymbolChangeSource
+  ) => Promise<void>;
   // onScreenshotClick: () => void;
 }
 
@@ -205,8 +209,13 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
             <div
               class="symbol-item"
               title={symbol.shortName ?? symbol.name ?? symbol.ticker}
-              onClick={() => {
-                props.onSymbolSelected(symbol);
+              onClick={async () => {
+                if (props.onSymbolChangeRequest) {
+                  await props.onSymbolChangeRequest(symbol, "favorites");
+                } else {
+                  // Fallback to direct symbol selection for backward compatibility
+                  props.onSymbolSelected(symbol);
+                }
               }}
             >
               <span

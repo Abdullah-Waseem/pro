@@ -68,6 +68,8 @@ import {
   ChartProOptions,
   ChartPro,
   TradesData,
+  SymbolChangeRequestCallback,
+  SymbolChangeSource,
 } from "./types";
 import {
   formatTimerText,
@@ -75,8 +77,11 @@ import {
 } from "./utils/timerCalculations";
 
 export interface ChartProComponentProps
-  extends Required<Omit<ChartProOptions, "container">> {
+  extends Required<
+    Omit<ChartProOptions, "container" | "onSymbolChangeRequest">
+  > {
   ref: (chart: ChartPro) => void;
+  onSymbolChangeRequest?: SymbolChangeRequestCallback;
 }
 
 interface PrevSymbolPeriod {
@@ -143,6 +148,43 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       figures: [] as Array<{ title: string; key: string }>,
     });
 
+  // Debouncing for symbol changes
+  let symbolChangeTimeout: NodeJS.Timeout | null = null;
+
+  // Symbol change handler with debouncing and callback support
+  const handleSymbolChange = async (
+    newSymbol: SymbolInfo,
+    source: SymbolChangeSource
+  ) => {
+    // Clear any pending symbol change
+    if (symbolChangeTimeout) {
+      clearTimeout(symbolChangeTimeout);
+    }
+
+    symbolChangeTimeout = setTimeout(async () => {
+      try {
+        // If callback is provided, use it for symbol change control
+        if (props.onSymbolChangeRequest) {
+          const shouldChange = await props.onSymbolChangeRequest(
+            newSymbol,
+            source
+          );
+          if (shouldChange) {
+            setSymbol(newSymbol);
+          }
+        } else {
+          // Fallback to direct symbol change for backward compatibility
+          setSymbol(newSymbol);
+        }
+      } catch (error) {
+        console.error("Error in symbol change callback:", error);
+        // Fallback to direct change on error
+        setSymbol(newSymbol);
+      }
+      symbolChangeTimeout = null;
+    }, 300); // 300ms debounce
+  };
+
   props.ref({
     setTheme,
     getTheme: () => theme(),
@@ -173,6 +215,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     toggleSearchSymbolModal: () => {
       setSymbolSearchModalVisible(true);
     },
+    handleSymbolChange,
   });
 
   const documentResize = () => {
@@ -856,6 +899,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
   onCleanup(() => {
     window.removeEventListener("resize", documentResize);
+    if (symbolChangeTimeout) {
+      clearTimeout(symbolChangeTimeout);
+    }
     dispose(widgetRef!);
   });
 
@@ -1612,6 +1658,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           onSymbolSelected={(symbol) => {
             setSymbol(symbol);
           }}
+          onSymbolChangeRequest={handleSymbolChange}
           onClose={() => {
             setSymbolSearchModalVisible(false);
           }}
@@ -1759,6 +1806,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         onSymbolSelected={(symbol) => {
           setSymbol(symbol);
         }}
+        onSymbolChangeRequest={handleSymbolChange}
         onChartStyleChange={(style) => {
           widget?.setStyles(style);
         }}

@@ -14,6 +14,13 @@
 
 import { KLineData, Styles, DeepPartial } from "klinecharts";
 
+export type SymbolChangeSource = "modal" | "favorites" | "api";
+
+export type SymbolChangeRequestCallback = (
+  symbol: SymbolInfo,
+  source: SymbolChangeSource
+) => Promise<boolean> | boolean;
+
 export interface SymbolInfo {
   _id?: string;
   ticker: string;
@@ -85,6 +92,7 @@ export interface ChartProOptions {
   mainIndicators?: string[];
   subIndicators?: string[];
   datafeed: Datafeed;
+  onSymbolChangeRequest?: SymbolChangeRequestCallback;
 }
 
 export interface ChartPro {
@@ -104,4 +112,8 @@ export interface ChartPro {
   enableTradeVisual(trade: TradesData): void;
   disableTradeVisual(trade: TradesData): void;
   toggleSearchSymbolModal?(): void;
+  handleSymbolChange(
+    symbol: SymbolInfo,
+    source: SymbolChangeSource
+  ): Promise<void>;
 }
