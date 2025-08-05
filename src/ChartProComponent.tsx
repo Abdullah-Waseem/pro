@@ -625,6 +625,14 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               from,
               to
             );
+            console.log(
+              "S ",
+              s.shortName,
+              "symbolInfo: ",
+              symbolInfo.ticker,
+              "klineDataList: ",
+              kLineDataList[0].close
+            );
 
             if (
               kLineDataList.length === 0 ||
