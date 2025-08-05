@@ -70,6 +70,7 @@ import {
   TradesData,
   SymbolChangeRequestCallback,
   SymbolChangeSource,
+  PeriodChangeRequestCallback,
 } from "./types";
 import {
   formatTimerText,
@@ -78,10 +79,14 @@ import {
 
 export interface ChartProComponentProps
   extends Required<
-    Omit<ChartProOptions, "container" | "onSymbolChangeRequest">
+    Omit<
+      ChartProOptions,
+      "container" | "onSymbolChangeRequest" | "onPeriodChangeRequest"
+    >
   > {
   ref: (chart: ChartPro) => void;
   onSymbolChangeRequest?: SymbolChangeRequestCallback;
+  onPeriodChangeRequest?: PeriodChangeRequestCallback;
 }
 
 interface PrevSymbolPeriod {
@@ -151,6 +156,21 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   // Debouncing for symbol changes
   let symbolChangeTimeout: NodeJS.Timeout | null = null;
 
+  const handlePeriodChange = async (newPeriod: Period) => {
+    try {
+      if (props.onPeriodChangeRequest) {
+        const shouldChange = await props.onPeriodChangeRequest(newPeriod);
+        if (shouldChange) {
+          setPeriod(newPeriod);
+        }
+      } else {
+        setPeriod(newPeriod);
+      }
+    } catch (error) {
+      console.error("Error in period change callback:", error);
+    }
+  };
+
   // Symbol change handler with debouncing and callback support
   const handleSymbolChange = async (
     newSymbol: SymbolInfo,
@@ -216,6 +236,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       setSymbolSearchModalVisible(true);
     },
     handleSymbolChange,
+    handlePeriodChange,
   });
 
   const documentResize = () => {

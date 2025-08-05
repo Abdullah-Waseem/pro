@@ -83,6 +83,7 @@ export default class KLineChartPro implements ChartPro {
           subIndicators={options.subIndicators ?? [""]}
           datafeed={options.datafeed}
           onSymbolChangeRequest={options.onSymbolChangeRequest}
+          onPeriodChangeRequest={options.onPeriodChangeRequest}
         />
       ),
       this._container
@@ -161,5 +162,8 @@ export default class KLineChartPro implements ChartPro {
     source: SymbolChangeSource
   ): Promise<void> {
     return this._chartApi!.handleSymbolChange(symbol, source);
+  }
+  async handlePeriodChange(period: Period): Promise<void> {
+    return this._chartApi!.handlePeriodChange(period);
   }
 }

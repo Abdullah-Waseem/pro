@@ -52,6 +52,7 @@ export interface PeriodBarProps {
     source: SymbolChangeSource
   ) => Promise<void>;
   // onScreenshotClick: () => void;
+  onPeriodChangeRequest?: (period: Period) => Promise<boolean> | boolean;
 }
 
 const PeriodBar: Component<PeriodBarProps> = (props) => {
@@ -152,7 +153,11 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
             (p) => p.text === (data as SelectDataSourceItem).key
           );
           if (selectedPeriod) {
-            props.onPeriodChange(selectedPeriod);
+            if (props.onPeriodChangeRequest) {
+              props.onPeriodChangeRequest(selectedPeriod);
+            } else {
+              props.onPeriodChange(selectedPeriod);
+            }
           }
         }}
       />

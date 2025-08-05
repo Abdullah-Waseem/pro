@@ -21,6 +21,10 @@ export type SymbolChangeRequestCallback = (
   source: SymbolChangeSource
 ) => Promise<boolean> | boolean;
 
+export type PeriodChangeRequestCallback = (
+  period: Period
+) => Promise<boolean> | boolean;
+
 export interface SymbolInfo {
   _id?: string;
   ticker: string;
@@ -93,6 +97,7 @@ export interface ChartProOptions {
   subIndicators?: string[];
   datafeed: Datafeed;
   onSymbolChangeRequest?: SymbolChangeRequestCallback;
+  onPeriodChangeRequest?: PeriodChangeRequestCallback;
 }
 
 export interface ChartPro {
@@ -116,4 +121,5 @@ export interface ChartPro {
     symbol: SymbolInfo,
     source: SymbolChangeSource
   ): Promise<void>;
+  handlePeriodChange(period: Period): Promise<void>;
 }
