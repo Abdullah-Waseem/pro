@@ -636,6 +636,19 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       priceUnitDom = document.createElement("span");
       priceUnitDom.className = "klinecharts-pro-price-unit";
       priceUnitContainer?.appendChild(priceUnitDom);
+
+      widget.setSymbol({
+        ticker: symbol().ticker,
+        name: symbol().name,
+        shortName: symbol().shortName,
+        pricePrecision: symbol().pricePrecision ?? 5,
+        volumePrecision: symbol().volumePrecision ?? 0,
+        payout: symbol().payout,
+      });
+      widget.setPeriod({
+        span: period().multiplier,
+        type: period().timespan as PeriodType,
+      });
     }
 
     mainIndicators().forEach((indicator) => {
