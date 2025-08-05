@@ -618,20 +618,12 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               callback([], true); // ✅ still respond
               return;
             }
-
+            console.log("S ", s.shortName, "symbolInfo: ", symbolInfo.ticker);
             const kLineDataList = await props.datafeed.getHistoryKLineData(
               s,
               p,
               from,
               to
-            );
-            console.log(
-              "S ",
-              s.shortName,
-              "symbolInfo: ",
-              symbolInfo.ticker,
-              "klineDataList: ",
-              kLineDataList[0].close
             );
 
             if (
