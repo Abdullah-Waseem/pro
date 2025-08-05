@@ -160,9 +160,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
     try {
       if (props.onPeriodChangeRequest) {
         const shouldChange = await props.onPeriodChangeRequest(newPeriod);
-        if (shouldChange) {
-          setPeriod(newPeriod);
-        }
+        // if (shouldChange) {
+        //   setPeriod(newPeriod);
+        // }
       } else {
         setPeriod(newPeriod);
       }
@@ -189,9 +189,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
             newSymbol,
             source
           );
-          if (shouldChange) {
-            setSymbol(newSymbol);
-          }
+          // if (shouldChange) {
+          //   setSymbol(newSymbol);
+          // }
         } else {
           // Fallback to direct symbol change for backward compatibility
           setSymbol(newSymbol);
@@ -1233,15 +1233,15 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
   // Old Timer Logic
   createEffect(() => {
-    widget?.setSymbol({
-      ticker: symbol().shortName ?? symbol().name ?? symbol().ticker,
-      pricePrecision: symbol().pricePrecision || 5,
-      volumePrecision: symbol().volumePrecision || 0,
-    });
-    widget?.setPeriod({
-      type: period().timespan as PeriodType,
-      span: period().multiplier,
-    });
+    // widget?.setSymbol({
+    //   ticker: symbol().shortName ?? symbol().name ?? symbol().ticker,
+    //   pricePrecision: symbol().pricePrecision || 5,
+    //   volumePrecision: symbol().volumePrecision || 0,
+    // });
+    // widget?.setPeriod({
+    //   type: period().timespan as PeriodType,
+    //   span: period().multiplier,
+    // });
     let baseInterval = 1000;
     const candleStickInterval = getCandleStickInterval(period(), baseInterval);
     // Set up an interval to run this effect every second
