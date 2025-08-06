@@ -69,6 +69,7 @@ import {
   ChartPro,
   TradesData,
   SymbolChangeRequestCallback,
+  PeriodChangeRequestCallback,
 } from "./types";
 import {
   formatTimerText,
@@ -77,10 +78,14 @@ import {
 
 export interface ChartProComponentProps
   extends Required<
-    Omit<ChartProOptions, "container" | "onSymbolChangeRequest">
+    Omit<
+      ChartProOptions,
+      "container" | "onSymbolChangeRequest" | "onPeriodChangeRequest"
+    >
   > {
   ref: (chart: ChartPro) => void;
   onSymbolChangeRequest?: SymbolChangeRequestCallback;
+  onPeriodChangeRequest?: PeriodChangeRequestCallback;
 }
 
 interface PrevSymbolPeriod {
@@ -1785,9 +1790,13 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         onSymbolClick={() => {
           setSymbolSearchModalVisible(!symbolSearchModalVisible());
         }}
-        onPeriodChange={(props) => {
-          localStorage.setItem("period", JSON.stringify(props));
-          setPeriod(props);
+        onPeriodChange={(prop) => {
+          localStorage.setItem("period", JSON.stringify(prop));
+          if (props.onPeriodChangeRequest) {
+            props.onPeriodChangeRequest(prop);
+          } else {
+            console.error("Props ON period Change not found");
+          }
         }}
         onIndicatorClick={() => {
           setIndicatorModalVisible((visible) => !visible);
