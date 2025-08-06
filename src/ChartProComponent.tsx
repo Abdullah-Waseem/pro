@@ -68,6 +68,7 @@ import {
   ChartProOptions,
   ChartPro,
   TradesData,
+  SymbolChangeRequestCallback,
 } from "./types";
 import {
   formatTimerText,
@@ -75,8 +76,11 @@ import {
 } from "./utils/timerCalculations";
 
 export interface ChartProComponentProps
-  extends Required<Omit<ChartProOptions, "container">> {
+  extends Required<
+    Omit<ChartProOptions, "container" | "onSymbolChangeRequest">
+  > {
   ref: (chart: ChartPro) => void;
+  onSymbolChangeRequest?: SymbolChangeRequestCallback;
 }
 
 interface PrevSymbolPeriod {
@@ -1610,7 +1614,11 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           onFavoriteChange={() => setFavoriteUpdateCount((c) => c + 1)}
           datafeed={props.datafeed}
           onSymbolSelected={(symbol) => {
-            setSymbol(symbol);
+            if (props.onSymbolChangeRequest) {
+              props.onSymbolChangeRequest(symbol);
+            } else {
+              console.error("OnSymbolChangeRequest Prop not found");
+            }
           }}
           onClose={() => {
             setSymbolSearchModalVisible(false);
@@ -1757,7 +1765,11 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         periods={props.periods}
         currentStyles={props.styles}
         onSymbolSelected={(symbol) => {
-          setSymbol(symbol);
+          if (props.onSymbolChangeRequest) {
+            props.onSymbolChangeRequest(symbol);
+          } else {
+            console.error("OnSymbolChangeRequest Prop not found");
+          }
         }}
         onChartStyleChange={(style) => {
           widget?.setStyles(style);
