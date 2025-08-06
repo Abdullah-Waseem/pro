@@ -110,6 +110,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
   createEffect(() => {
     if (props.loadingVisible) {
       setClickDisabled(true);
+    } else {
       setTimeout(() => {
         setClickDisabled(false);
       }, 1000);
@@ -214,7 +215,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
         <div class="symbol-list">
           {localFavoriteSymbols()?.map((symbol) => (
             <div
-              class="symbol-item"
+              class={`symbol-item ${clickDisabled() ? "disabled" : ""}`}
               title={symbol.shortName ?? symbol.name ?? symbol.ticker}
               onClick={() => {
                 if (clickDisabled()) return;
