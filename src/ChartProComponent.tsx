@@ -632,7 +632,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               s,
               p,
               from,
-              to
+              to,
+              type
             );
 
             if (
@@ -1174,6 +1175,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   // });
 
   // Old Timer Logic
+
   createEffect(() => {
     widget?.setSymbol({
       ticker: symbol().shortName ?? symbol().name ?? symbol().ticker,
@@ -1618,9 +1620,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           locale={props.locale}
           onFavoriteChange={() => setFavoriteUpdateCount((c) => c + 1)}
           datafeed={props.datafeed}
-          onSymbolSelected={(symbol) => {
+          onSymbolSelected={(newSymbol) => {
             if (props.onSymbolChangeRequest) {
-              props.onSymbolChangeRequest(symbol);
+              props.datafeed.unsubscribe(symbol(), period());
+              props.onSymbolChangeRequest(newSymbol);
             } else {
               console.error("OnSymbolChangeRequest Prop not found");
             }
@@ -1761,6 +1764,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       </Show>
 
       <PeriodBar
+        loadingVisible={loadingVisible()}
         locale={props.locale}
         symbol={symbol()}
         favoriteUpdateCount={favoriteUpdateCount()}
@@ -1769,9 +1773,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         period={period()}
         periods={props.periods}
         currentStyles={props.styles}
-        onSymbolSelected={(symbol) => {
+        onSymbolSelected={(newSymbol) => {
           if (props.onSymbolChangeRequest) {
-            props.onSymbolChangeRequest(symbol);
+            props.datafeed.unsubscribe(symbol(), period());
+            props.onSymbolChangeRequest(newSymbol);
           } else {
             console.error("OnSymbolChangeRequest Prop not found");
           }
