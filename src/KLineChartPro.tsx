@@ -81,6 +81,7 @@ export default class KLineChartPro implements ChartPro {
           mainIndicators={options.mainIndicators ?? [""]}
           subIndicators={options.subIndicators ?? [""]}
           datafeed={options.datafeed}
+          onSymbolChangeRequest={options.onSymbolChangeRequest}
         />
       ),
       this._container

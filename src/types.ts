@@ -30,6 +30,10 @@ export interface SymbolInfo {
   payout: number;
 }
 
+export type SymbolChangeRequestCallback = (
+  symbol: SymbolInfo
+) => Promise<boolean> | boolean;
+
 export interface Period {
   multiplier: number;
   timespan: string;
@@ -85,6 +89,7 @@ export interface ChartProOptions {
   mainIndicators?: string[];
   subIndicators?: string[];
   datafeed: Datafeed;
+  onSymbolChangeRequest?: SymbolChangeRequestCallback;
 }
 
 export interface ChartPro {
