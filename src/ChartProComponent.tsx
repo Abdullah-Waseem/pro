@@ -721,10 +721,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           });
         },
 
-        unsubscribeBar: ({}) => {
+        unsubscribeBar: async ({}) => {
           const s = symbol();
           const p = period();
-          props.datafeed.unsubscribe(s, p);
+          await props.datafeed.unsubscribe(s, p);
         },
       });
     }
@@ -1605,7 +1605,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       >
         00:00
       </div> */}
-      <div
+      {/* <div
         class="custom-button"
         onClick={() => {
           widget?.scrollToRealTime(200);
@@ -1613,16 +1613,21 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         }}
       >
         →
-      </div>
+      </div> */}
 
       <Show when={symbolSearchModalVisible()}>
         <SymbolSearchModal
           locale={props.locale}
           onFavoriteChange={() => setFavoriteUpdateCount((c) => c + 1)}
           datafeed={props.datafeed}
-          onSymbolSelected={(newSymbol) => {
+          onSymbolSelected={async (newSymbol) => {
             if (props.onSymbolChangeRequest) {
-              props.datafeed.unsubscribe(symbol(), period());
+              console.log(
+                "Unsubscribing before OnSymbolChangeRequest from",
+                symbol(),
+                period()
+              );
+              await props.datafeed.unsubscribe(symbol(), period());
               props.onSymbolChangeRequest(newSymbol);
             } else {
               console.error("OnSymbolChangeRequest Prop not found");
@@ -1773,9 +1778,9 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         period={period()}
         periods={props.periods}
         currentStyles={props.styles}
-        onSymbolSelected={(newSymbol) => {
+        onSymbolSelected={async (newSymbol) => {
           if (props.onSymbolChangeRequest) {
-            props.datafeed.unsubscribe(symbol(), period());
+            await props.datafeed.unsubscribe(symbol(), period());
             props.onSymbolChangeRequest(newSymbol);
           } else {
             console.error("OnSymbolChangeRequest Prop not found");
@@ -1795,9 +1800,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         onSymbolClick={() => {
           setSymbolSearchModalVisible(!symbolSearchModalVisible());
         }}
-        onPeriodChange={(prop) => {
+        onPeriodChange={async (prop) => {
           localStorage.setItem("period", JSON.stringify(prop));
           if (props.onPeriodChangeRequest) {
+            await props.datafeed.unsubscribe(symbol(), period());
             props.onPeriodChangeRequest(prop);
           } else {
             console.error("Props ON period Change not found");

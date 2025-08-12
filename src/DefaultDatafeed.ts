@@ -163,5 +163,15 @@ export default class DefaultDatafeed implements Datafeed {
     // For now, return the original timestamp for unsupported periods
     return timestamp;
   }
-  unsubscribe(symbol: SymbolInfo, period: Period): void {}
+  unsubscribe(symbol: SymbolInfo, period: Period): Promise<void> {
+    return new Promise((resolve) => {
+      this._ws?.send(
+        JSON.stringify({
+          action: "unsubscribe",
+          params: `CAS.${symbol.ticker}`,
+        })
+      );
+      resolve();
+    });
+  }
 }

@@ -110,10 +110,9 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
   createEffect(() => {
     if (props.loadingVisible) {
       setClickDisabled(true);
-    } else {
       setTimeout(() => {
         setClickDisabled(false);
-      }, 1000);
+      }, 1700);
     }
   }, [props.loadingVisible]);
 
@@ -202,7 +201,13 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
       </div> */}
 
       <Show when={props.symbol}>
-        <div class="symbol" onClick={props.onSymbolClick}>
+        <div
+          class={`symbol ${clickDisabled() ? "disabled" : ""}`}
+          onClick={() => {
+            if (clickDisabled()) return;
+            props.onSymbolClick();
+          }}
+        >
           <Show when={props.symbol.logo}>
             <img alt="symbol" src={props.symbol.logo} />
           </Show>

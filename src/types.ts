@@ -77,7 +77,7 @@ export interface Datafeed {
     callback: DatafeedSubscribeCallback
   ): void;
   addOrRemoveFavorite?(symbol: SymbolInfo): Promise<boolean>;
-  unsubscribe(symbol: SymbolInfo, period: Period): void;
+  unsubscribe(symbol: SymbolInfo, period: Period): Promise<void>;
 }
 
 export interface ChartProOptions {
