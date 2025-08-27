@@ -45,6 +45,11 @@
       height: 20px;
       margin-right: 6px;
     }
+    &.disabled {
+      cursor: not-allowed;
+      pointer-events: none;
+      opacity: 0.5;
+    }
   }
   .item {
     transition: all 0.2s;
@@ -114,6 +119,22 @@
     min-width: 0;
     transition: box-shadow 0.2s;
     cursor: pointer;
+  }
+  .symbol-item.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+    box-shadow: none;
+
+    .star,
+    .cross {
+      pointer-events: none;
+      color: #999 !important;
+    }
+
+    .symbol-text {
+      color: #999;
+    }
   }
   .symbol-item:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);

@@ -69,6 +69,7 @@ import {
   ChartPro,
   TradesData,
   SymbolChangeRequestCallback,
+  PeriodChangeRequestCallback,
 } from "./types";
 import {
   formatTimerText,
@@ -77,10 +78,14 @@ import {
 
 export interface ChartProComponentProps
   extends Required<
-    Omit<ChartProOptions, "container" | "onSymbolChangeRequest">
+    Omit<
+      ChartProOptions,
+      "container" | "onSymbolChangeRequest" | "onPeriodChangeRequest"
+    >
   > {
   ref: (chart: ChartPro) => void;
   onSymbolChangeRequest?: SymbolChangeRequestCallback;
+  onPeriodChangeRequest?: PeriodChangeRequestCallback;
 }
 
 interface PrevSymbolPeriod {
@@ -622,12 +627,13 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               callback([], true); // ✅ still respond
               return;
             }
-            console.log("S ", s.shortName, "symbolInfo: ", symbolInfo.ticker);
+
             const kLineDataList = await props.datafeed.getHistoryKLineData(
               s,
               p,
               from,
-              to
+              to,
+              type
             );
 
             if (
@@ -715,10 +721,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
           });
         },
 
-        unsubscribeBar: ({}) => {
+        unsubscribeBar: async ({}) => {
           const s = symbol();
           const p = period();
-          props.datafeed.unsubscribe(s, p);
+          await props.datafeed.unsubscribe(s, p);
         },
       });
     }
@@ -1169,6 +1175,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
   // });
 
   // Old Timer Logic
+
   createEffect(() => {
     widget?.setSymbol({
       ticker: symbol().shortName ?? symbol().name ?? symbol().ticker,
@@ -1598,7 +1605,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       >
         00:00
       </div> */}
-      <div
+      {/* <div
         class="custom-button"
         onClick={() => {
           widget?.scrollToRealTime(200);
@@ -1606,16 +1613,22 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         }}
       >
         →
-      </div>
+      </div> */}
 
       <Show when={symbolSearchModalVisible()}>
         <SymbolSearchModal
           locale={props.locale}
           onFavoriteChange={() => setFavoriteUpdateCount((c) => c + 1)}
           datafeed={props.datafeed}
-          onSymbolSelected={(symbol) => {
+          onSymbolSelected={async (newSymbol) => {
             if (props.onSymbolChangeRequest) {
-              props.onSymbolChangeRequest(symbol);
+              console.log(
+                "Unsubscribing before OnSymbolChangeRequest from",
+                symbol(),
+                period()
+              );
+              await props.datafeed.unsubscribe(symbol(), period());
+              props.onSymbolChangeRequest(newSymbol);
             } else {
               console.error("OnSymbolChangeRequest Prop not found");
             }
@@ -1756,6 +1769,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       </Show>
 
       <PeriodBar
+        loadingVisible={loadingVisible()}
         locale={props.locale}
         symbol={symbol()}
         favoriteUpdateCount={favoriteUpdateCount()}
@@ -1764,9 +1778,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         period={period()}
         periods={props.periods}
         currentStyles={props.styles}
-        onSymbolSelected={(symbol) => {
+        onSymbolSelected={async (newSymbol) => {
           if (props.onSymbolChangeRequest) {
-            props.onSymbolChangeRequest(symbol);
+            await props.datafeed.unsubscribe(symbol(), period());
+            props.onSymbolChangeRequest(newSymbol);
           } else {
             console.error("OnSymbolChangeRequest Prop not found");
           }
@@ -1785,9 +1800,14 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         onSymbolClick={() => {
           setSymbolSearchModalVisible(!symbolSearchModalVisible());
         }}
-        onPeriodChange={(props) => {
-          localStorage.setItem("period", JSON.stringify(props));
-          setPeriod(props);
+        onPeriodChange={async (prop) => {
+          localStorage.setItem("period", JSON.stringify(prop));
+          if (props.onPeriodChangeRequest) {
+            await props.datafeed.unsubscribe(symbol(), period());
+            props.onPeriodChangeRequest(prop);
+          } else {
+            console.error("Props ON period Change not found");
+          }
         }}
         onIndicatorClick={() => {
           setIndicatorModalVisible((visible) => !visible);

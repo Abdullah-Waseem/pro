@@ -34,6 +34,10 @@ export type SymbolChangeRequestCallback = (
   symbol: SymbolInfo
 ) => Promise<boolean> | boolean;
 
+export type PeriodChangeRequestCallback = (
+  period: Period
+) => Promise<boolean> | boolean;
+
 export interface Period {
   multiplier: number;
   timespan: string;
@@ -64,7 +68,8 @@ export interface Datafeed {
     symbol: SymbolInfo,
     period: Period,
     from: number,
-    to: number
+    to: number,
+    type?: "init" | "forward" | "backward" | "update"
   ): Promise<KLineData[]>;
   subscribe(
     symbol: SymbolInfo,
@@ -72,7 +77,7 @@ export interface Datafeed {
     callback: DatafeedSubscribeCallback
   ): void;
   addOrRemoveFavorite?(symbol: SymbolInfo): Promise<boolean>;
-  unsubscribe(symbol: SymbolInfo, period: Period): void;
+  unsubscribe(symbol: SymbolInfo, period: Period): Promise<void>;
 }
 
 export interface ChartProOptions {
@@ -90,6 +95,7 @@ export interface ChartProOptions {
   subIndicators?: string[];
   datafeed: Datafeed;
   onSymbolChangeRequest?: SymbolChangeRequestCallback;
+  onPeriodChangeRequest?: PeriodChangeRequestCallback;
 }
 
 export interface ChartPro {

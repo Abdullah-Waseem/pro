@@ -27,7 +27,7 @@ import { SymbolInfo, Period, Datafeed } from "../../types";
 import lodashSet from "lodash/set";
 
 import i18n from "../../i18n";
-import { Select, SelectDataSourceItem } from "../../component";
+import { Loading, Select, SelectDataSourceItem } from "../../component";
 import { getCandleTypes } from "../setting-modal/data";
 import { DeepPartial, Styles, utils } from "klinecharts";
 export interface PeriodBarProps {
@@ -47,6 +47,7 @@ export interface PeriodBarProps {
   onTimezoneClick: () => void;
   onSettingClick: () => void;
   favoriteUpdateCount: number;
+  loadingVisible: boolean;
   // onScreenshotClick: () => void;
 }
 
@@ -54,6 +55,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
   let ref: Node;
   const candleOption = createMemo(() => getCandleTypes(props.locale));
   const [styles, setStyles] = createSignal(props.currentStyles);
+  const [clickDisabled, setClickDisabled] = createSignal(false);
   // Fetch symbols once
   const [symbolsList, { refetch }] = createResource(() =>
     props.datafeed.searchSymbols()
@@ -105,6 +107,15 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
     console.log("favoriteUpdateCount", props.favoriteUpdateCount);
     refetch();
   });
+  createEffect(() => {
+    if (props.loadingVisible) {
+      setClickDisabled(true);
+      setTimeout(() => {
+        setClickDisabled(false);
+      }, 1700);
+    }
+  }, [props.loadingVisible]);
+
   return (
     <div
       ref={(el) => {
@@ -190,7 +201,13 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
       </div> */}
 
       <Show when={props.symbol}>
-        <div class="symbol" onClick={props.onSymbolClick}>
+        <div
+          class={`symbol ${clickDisabled() ? "disabled" : ""}`}
+          onClick={() => {
+            if (clickDisabled()) return;
+            props.onSymbolClick();
+          }}
+        >
           <Show when={props.symbol.logo}>
             <img alt="symbol" src={props.symbol.logo} />
           </Show>
@@ -203,9 +220,10 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
         <div class="symbol-list">
           {localFavoriteSymbols()?.map((symbol) => (
             <div
-              class="symbol-item"
+              class={`symbol-item ${clickDisabled() ? "disabled" : ""}`}
               title={symbol.shortName ?? symbol.name ?? symbol.ticker}
               onClick={() => {
+                if (clickDisabled()) return;
                 props.onSymbolSelected(symbol);
               }}
             >
