@@ -871,12 +871,13 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
   createEffect(() => {
     const s = symbol();
-    if (s?.priceCurrency) {
-      priceUnitDom.innerHTML = s?.priceCurrency.toLocaleUpperCase();
-      priceUnitDom.style.display = "flex";
-    } else {
-      priceUnitDom.style.display = "none";
-    }
+    // if (s?.priceCurrency) {
+    //   priceUnitDom.innerHTML = s?.priceCurrency.toLocaleUpperCase();
+    //   priceUnitDom.style.display = "flex";
+    // } else {
+    //   priceUnitDom.style.display = "none";
+    // }
+    priceUnitDom.style.display = "none";
   });
 
   // createEffect((prev?: PrevSymbolPeriod) => {
@@ -1605,7 +1606,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       >
         00:00
       </div> */}
-      {/* <div
+      <div
         class="custom-button"
         onClick={() => {
           widget?.scrollToRealTime(200);
@@ -1613,7 +1614,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         }}
       >
         →
-      </div> */}
+      </div>
 
       <Show when={symbolSearchModalVisible()}>
         <SymbolSearchModal
