@@ -138,6 +138,7 @@ const IndicatorModal: Component<IndicatorModalProps> = (props) => {
                   paneId: "candle_pane",
                   added: true, // Always add
                 });
+                props.onClose();
               }}
             >
               <span class="indicator-button">
@@ -159,6 +160,7 @@ const IndicatorModal: Component<IndicatorModalProps> = (props) => {
                   added: true, // Always add
                   calcParams: subInd.calcParams,
                 });
+                props.onClose();
               }}
             >
               <span class="indicator-button">
