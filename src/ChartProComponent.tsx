@@ -671,15 +671,29 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
           props.datafeed.subscribe(s, p, (data) => {
             if (data) {
+              try {
+                widget?.overrideOverlay({
+                  name: "customOverlayCustomFigure",
+                  points: [
+                    {
+                      timestamp: data?.timestamp,
+                      value: data?.close,
+                    },
+                  ],
+                });
+              } catch (error) {
+                console.log("Custom Overlay Error in Data Feed", error);
+              }
               let currentCandle =
                 widget?.getDataList()[widget.getDataList().length - 1];
               if (
                 !currentCandle ||
                 currentCandle.timestamp !== data.timestamp
               ) {
-                let data2 = data;
+                let bridgeCandle = data;
+
                 if (currentCandle) {
-                  data2 = {
+                  bridgeCandle = {
                     open: currentCandle.close,
                     high: currentCandle.close,
                     low: currentCandle.close,
@@ -688,7 +702,19 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                     timestamp: data.timestamp,
                   };
                 }
-                currentCandle = { ...data2 };
+
+                currentCandle = { ...bridgeCandle };
+                const savedDataPoint = {
+                  open: currentCandle.close,
+                  high: Math.max(currentCandle.high, data.high),
+                  low: Math.min(currentCandle.low, data.low),
+                  close: data.close,
+                  volume: 0,
+                  timestamp: currentCandle.timestamp,
+                };
+                setTimeout(() => {
+                  callback(savedDataPoint);
+                }, 10);
               } else {
                 // Same candle period, update the existing candle
                 // Keep the original open
@@ -704,19 +730,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               }
 
               callback(currentCandle);
-              try {
-                widget?.overrideOverlay({
-                  name: "customOverlayCustomFigure",
-                  points: [
-                    {
-                      timestamp: currentCandle?.timestamp,
-                      value: currentCandle?.close,
-                    },
-                  ],
-                });
-              } catch (error) {
-                console.log("Custom Overlay Error in Data Feed", error);
-              }
             }
           });
         },
