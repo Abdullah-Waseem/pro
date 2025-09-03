@@ -686,6 +686,14 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               }
               let currentCandle =
                 widget?.getDataList()[widget.getDataList().length - 1];
+              let savedDataPoint: {
+                open: number;
+                high: number;
+                low: number;
+                close: number;
+                volume: number;
+                timestamp: number;
+              } | null = null;
               if (
                 !currentCandle ||
                 currentCandle.timestamp !== data.timestamp
@@ -704,7 +712,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                 }
 
                 currentCandle = { ...bridgeCandle };
-                const savedDataPoint = {
+                savedDataPoint = {
                   open: currentCandle.close,
                   high: Math.max(currentCandle.high, data.high),
                   low: Math.min(currentCandle.low, data.low),
@@ -712,9 +720,6 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
                   volume: 0,
                   timestamp: currentCandle.timestamp,
                 };
-                setTimeout(() => {
-                  callback(savedDataPoint);
-                }, 10);
               } else {
                 // Same candle period, update the existing candle
                 // Keep the original open
@@ -730,6 +735,10 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
               }
 
               callback(currentCandle);
+              if (savedDataPoint !== null) {
+                callback(savedDataPoint);
+                savedDataPoint = null;
+              }
             }
           });
         },
