@@ -146,6 +146,22 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
           {p.text}
         </span>
       ))} */}
+      <Show when={props.symbol}>
+        <div
+          class={`symbol ${clickDisabled() ? "disabled" : ""}`}
+          onClick={() => {
+            if (clickDisabled()) return;
+            props.onSymbolClick();
+          }}
+        >
+          <Show when={props.symbol.logo}>
+            <img alt="symbol" src={props.symbol.logo} />
+          </Show>
+          <span>
+            {props.symbol.shortName ?? props.symbol.name ?? props.symbol.ticker}
+          </span>
+        </div>
+      </Show>
       <Select
         class="period-select"
         style={{ width: "70px", margin: "0 10px" }}
@@ -200,23 +216,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
         <span>{i18n("setting", props.locale)}</span>  
       </div> */}
 
-      <Show when={props.symbol}>
-        <div
-          class={`symbol ${clickDisabled() ? "disabled" : ""}`}
-          onClick={() => {
-            if (clickDisabled()) return;
-            props.onSymbolClick();
-          }}
-        >
-          <Show when={props.symbol.logo}>
-            <img alt="symbol" src={props.symbol.logo} />
-          </Show>
-          <span>
-            {props.symbol.shortName ?? props.symbol.name ?? props.symbol.ticker}
-          </span>
-        </div>
-      </Show>
-      <div class="favorite-symbols">
+      {/* <div class="favorite-symbols">
         <div class="symbol-list">
           {localFavoriteSymbols()?.map((symbol) => (
             <div
@@ -271,7 +271,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
       {/* <div
         class='item tools'
         onClick={props.onScreenshotClick}>
