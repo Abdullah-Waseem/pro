@@ -75,7 +75,7 @@ import {
   formatTimerText,
   getCandleStickInterval,
 } from "./utils/timerCalculations";
-
+import "./ChartProComponent.less";
 export interface ChartProComponentProps
   extends Required<
     Omit<

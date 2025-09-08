@@ -1,13 +1,15 @@
 @import (reference) "../../base.less";
 
 .@{prefix-cls}-period-bar {
+  margin-top: 1rem;
   display: flex;
   flex-direction: row;
+  gap: 8px;
+  margin-left: 10px;
   align-items: center;
   height: @period-bar-height;
   width: 100%;
   box-sizing: border-box;
-  border-bottom: solid 1px var(--klinecharts-pro-border-color);
   .menu-container {
     display: flex;
     height: 100%;
@@ -16,13 +18,15 @@
     align-items: center;
     width: @drawing-bar-width;
     box-sizing: border-box;
-    border-right: solid 1px var(--klinecharts-pro-border-color);
     svg {
       fill: var(--klinecharts-pro-text-color);
-      width: 28px;
-      height: 28px;
+      width: 50px;
+      border: solid 1px var(--klinecharts-pro-border-color);
+      height: 34px;
       cursor: pointer;
       transition: all 0.2s;
+      border-radius: 15px;
+
       &.rotate {
         transform: rotate(180deg);
         transform-origin: center;
@@ -33,13 +37,15 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    height: 100%;
     font-size: 12px;
     padding: 0 12px;
     font-weight: bold;
     box-sizing: border-box;
-    border-right: solid 1px var(--klinecharts-pro-border-color);
     cursor: pointer;
+    border: solid 1px var(--klinecharts-pro-border-color);
+    height: 34px;
+    border-radius: 15px;
+
     img {
       width: 20px;
       height: 20px;
@@ -62,9 +68,7 @@
     }
   }
   .period {
-    padding: 2px 6px;
-    margin: 0 4px;
-    border-radius: 2px;
+    border-radius: 15px;
     &:hover {
       background-color: var(--klinecharts-pro-hover-background-color);
     }
@@ -72,10 +76,7 @@
       margin-left: 8px;
     }
   }
-  .symbol + .period,
-  .menu-container + .period {
-    margin-left: 12px;
-  }
+
   .tools {
     display: flex;
     flex-direction: row;
@@ -83,7 +84,6 @@
     justify-content: center;
     height: 100%;
     padding: 0 12px;
-    border-right: solid 1px var(--klinecharts-pro-border-color);
     &:hover {
       fill: var(--klinecharts-pro-primary-color);
       color: var(--klinecharts-pro-primary-color);
