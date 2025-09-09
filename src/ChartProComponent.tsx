@@ -151,7 +151,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       styles: { lines: [{ color: "" }] },
       figures: [] as Array<{ title: string; key: string }>,
     });
-
+  const [lastKnownSymbolPrice, setLastKnownSymbolPrice] = createSignal(0);
   props.ref({
     setTheme,
     getTheme: () => theme(),
@@ -671,6 +671,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
           props.datafeed.subscribe(s, p, (data) => {
             if (data) {
+              setLastKnownSymbolPrice(data.close);
               try {
                 widget?.overrideOverlay({
                   name: "customOverlayCustomFigure",
@@ -1794,6 +1795,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         loadingVisible={loadingVisible()}
         locale={props.locale}
         symbol={symbol()}
+        lastKnownSymbolPrice={lastKnownSymbolPrice()}
         favoriteUpdateCount={favoriteUpdateCount()}
         datafeed={props.datafeed}
         spread={drawingBarVisible()}
