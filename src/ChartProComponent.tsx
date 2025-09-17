@@ -894,12 +894,13 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
 
   createEffect(() => {
     const s = symbol();
-    if (s?.priceCurrency) {
-      priceUnitDom.innerHTML = s?.priceCurrency.toLocaleUpperCase();
-      priceUnitDom.style.display = "flex";
-    } else {
-      priceUnitDom.style.display = "none";
-    }
+    // if (s?.priceCurrency) {
+    //   priceUnitDom.innerHTML = s?.priceCurrency.toLocaleUpperCase();
+    //   priceUnitDom.style.display = "flex";
+    // } else {
+    //   priceUnitDom.style.display = "none";
+    // }
+    priceUnitDom.style.display = "none";
   });
 
   // createEffect((prev?: PrevSymbolPeriod) => {
