@@ -1,4 +1,4 @@
-@import (reference) '../../base.less';
+@import (reference) "../../base.less";
 
 @gap: 8px;
 
@@ -6,7 +6,7 @@
   width: @drawing-bar-width;
   height: 100%;
   box-sizing: border-box;
-  border-right: solid 1px var(--klinecharts-pro-border-color);
+  // border-right: solid 1px var(--klinecharts-pro-border-color);
   .item {
     display: flex;
     flex-direction: row;
@@ -28,7 +28,7 @@
         background-color: var(--klinecharts-pro-hover-background-color);
       }
       &.selected {
-        background-color: var(--klinecharts-pro-selected-color)!important;
+        background-color: var(--klinecharts-pro-selected-color) !important;
         fill: var(--klinecharts-pro-primary-color);
         stroke: var(--klinecharts-pro-primary-color);
       }
@@ -44,14 +44,14 @@
       height: 32px;
       width: 10px;
       opacity: 0;
-      transition: all .2s;
+      transition: all 0.2s;
       border-top-left-radius: 2px;
       border-bottom-left-radius: 2px;
       z-index: 10;
       svg {
         width: 4px;
         height: 6px;
-        transition: all .2s;
+        transition: all 0.2s;
         &.rotate {
           transform: rotate(180deg);
         }
@@ -68,7 +68,7 @@
       left: calc(100% + 1px);
       background-color: var(--klinecharts-pro-popover-background-color);
       z-index: 99;
-      box-shadow: 0 6px 12px 0 rgba(0, 0, 0, .3);
+      box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.3);
       min-height: auto;
       max-height: 320px;
       li {
@@ -80,7 +80,7 @@
         }
       }
     }
-    
+
     &:hover {
       .icon-arrow {
         opacity: 1;
