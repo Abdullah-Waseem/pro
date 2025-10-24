@@ -38,6 +38,8 @@ export type PeriodChangeRequestCallback = (
   period: Period
 ) => Promise<boolean> | boolean;
 
+export type AccountToggleCallback = () => "real" | "demo";
+
 export interface Period {
   multiplier: number;
   timespan: string;
@@ -97,7 +99,7 @@ export interface ChartProOptions {
   onSymbolChangeRequest?: SymbolChangeRequestCallback;
   onPeriodChangeRequest?: PeriodChangeRequestCallback;
   selectedAccount?: "real" | "demo";
-  onAccountToggle?: () => void;
+  onAccountToggle?: AccountToggleCallback;
 }
 
 export interface ChartPro {
