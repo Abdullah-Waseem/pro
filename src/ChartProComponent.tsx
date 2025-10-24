@@ -70,6 +70,7 @@ import {
   TradesData,
   SymbolChangeRequestCallback,
   PeriodChangeRequestCallback,
+  AccountToggleCallback,
 } from "./types";
 import {
   formatTimerText,
@@ -91,7 +92,7 @@ export interface ChartProComponentProps
   onSymbolChangeRequest?: SymbolChangeRequestCallback;
   onPeriodChangeRequest?: PeriodChangeRequestCallback;
   selectedAccount?: "real" | "demo";
-  onAccountToggle?: () => void;
+  onAccountToggle?: AccountToggleCallback;
 }
 
 interface PrevSymbolPeriod {

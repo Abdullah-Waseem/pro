@@ -22,7 +22,12 @@ import {
   createEffect,
 } from "solid-js";
 
-import { SymbolInfo, Period, Datafeed } from "../../types";
+import {
+  SymbolInfo,
+  Period,
+  Datafeed,
+  AccountToggleCallback,
+} from "../../types";
 import lodashSet from "lodash/set";
 
 import i18n from "../../i18n";
@@ -51,7 +56,7 @@ export interface PeriodBarProps {
   favoriteUpdateCount: number;
   loadingVisible: boolean;
   selectedAccount?: "real" | "demo";
-  onAccountToggle?: () => void;
+  onAccountToggle?: AccountToggleCallback;
 }
 
 const PeriodBar: Component<PeriodBarProps> = (props) => {
@@ -133,11 +138,11 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
     }
   });
 
-  // createEffect(() => {
-  //   if (props.selectedAccount && props.selectedAccount !== accountMode()) {
-  //     setAccountMode(props.selectedAccount);
-  //   }
-  // });
+  createEffect(() => {
+    if (props.selectedAccount) {
+      setAccountMode(props.selectedAccount);
+    }
+  }, []);
 
   const handleToggleFavorite = async () => {
     if (
