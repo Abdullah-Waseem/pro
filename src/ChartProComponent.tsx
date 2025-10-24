@@ -80,12 +80,18 @@ export interface ChartProComponentProps
   extends Required<
     Omit<
       ChartProOptions,
-      "container" | "onSymbolChangeRequest" | "onPeriodChangeRequest"
+      | "container"
+      | "onSymbolChangeRequest"
+      | "onPeriodChangeRequest"
+      | "selectedAccount"
+      | "onAccountToggle"
     >
   > {
   ref: (chart: ChartPro) => void;
   onSymbolChangeRequest?: SymbolChangeRequestCallback;
   onPeriodChangeRequest?: PeriodChangeRequestCallback;
+  selectedAccount?: "real" | "demo";
+  onAccountToggle?: (accountType: "real" | "demo") => void;
 }
 
 interface PrevSymbolPeriod {
@@ -1852,6 +1858,8 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
         //     setScreenshotUrl(url);
         //   }
         // }}
+        selectedAccount={props.selectedAccount}
+        onAccountToggle={props.onAccountToggle}
       />
 
       <div class="klinecharts-pro-content">

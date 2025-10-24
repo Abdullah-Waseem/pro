@@ -77,12 +77,14 @@ export default class KLineChartPro implements ChartPro {
               { multiplier: 24, timespan: "hour", text: "D" },
             ]
           }
-          timezone={options.timezone ?? "Asia/Karachi"}
+          timezone={options.timezone ?? ""}
           mainIndicators={options.mainIndicators ?? [""]}
           subIndicators={options.subIndicators ?? [""]}
           datafeed={options.datafeed}
           onSymbolChangeRequest={options.onSymbolChangeRequest}
           onPeriodChangeRequest={options.onPeriodChangeRequest}
+          selectedAccount={options.selectedAccount ?? "demo"}
+          onAccountToggle={options.onAccountToggle}
         />
       ),
       this._container
