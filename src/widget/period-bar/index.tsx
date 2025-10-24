@@ -172,12 +172,8 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
 
   const handleAccountToggle = () => {
     const next = accountMode() === "demo" ? "real" : "demo";
-    console.log("Before set:", accountMode(), "Next:", next);
-    setAccountMode(next);
-    setTimeout(() => {
-      alert("New Account Mode: " + accountMode());
-      console.log("After set:", accountMode());
-    }, 10);
+    const newAccountMode = props.onAccountToggle?.();
+    setAccountMode(newAccountMode ?? next);
   };
 
   const removeFavorite = async (target: SymbolInfo) => {
@@ -351,7 +347,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
             <span>Demo Mode</span>
             <Switch
               class={`demo-switch ${accountMode()}`}
-              open={accountMode() === "real"}
+              open={accountMode() === "demo"}
               onChange={handleAccountToggle}
             />
           </div>
