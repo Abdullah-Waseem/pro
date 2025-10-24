@@ -50,6 +50,8 @@ export interface PeriodBarProps {
   favoriteUpdateCount: number;
   loadingVisible: boolean;
   // onScreenshotClick: () => void;
+  selectedAccount?: "real" | "demo";
+  onAccountToggle?: (accountType: "real" | "demo") => void;
 }
 
 const PeriodBar: Component<PeriodBarProps> = (props) => {
@@ -283,6 +285,15 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
           ))}
         </div>
       </div>
+      <div
+        class={`item account-toggle ${props.selectedAccount}`}
+        onClick={() => {
+          const newAccount = props.selectedAccount === "real" ? "demo" : "real";
+          props.onAccountToggle?.(newAccount);
+        }}
+      >
+        {props.selectedAccount === "real" ? "REAL" : "DEMO"}
+      </div>
       {/* <div
         class='item tools'
         onClick={props.onScreenshotClick}>
@@ -321,6 +332,8 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
           ) : (
             <>
               <svg viewBox="0 0 20 20">
+                <path d="M1.08108,0L0,1.079L4.18919,5.27938L2.54826,6.91715L6.9112,6.91715L6.9112,2.56262L5.28957,4.18112L1.08108,0ZM15.8108,5.27938L20,1.079L18.9189,0L14.7104,4.18112L13.0888,2.56262L13.0888,6.91715L17.4517,6.91715L15.8108,5.27938ZM4.16988,14.7014L0.07722,18.8054L1.1583,20L5.27027,15.7996L6.9112,17.4374L6.9112,13.0829L2.54826,13.0829L4.16988,14.7014ZM17.4517,13.082
+                <path d="M1.08108,0L0,1.079L4.18919,5.27938L2.54826,6.91715L6.9112,6.91715L6.9112,2.56262L5.28957,4.18112L1.08108,0ZM15.8108,5.27938L20,1.079L18.9189,0L14.7104,4.18112L13.0888,2.56262L13.0888,6.91715L17.4517,6.91715L15.8108,5.27938ZM4.16988,14.7014L0.07722,18.8054L1.1583,20L5.27027,15.7996L6.9112,17.4374L6.9112,13.0829L2.54826,13.0829L4.16988,14.7014ZM17.4517,13.082
                 <path d="M2.93444,1.76899L7.57544,6.40999L6.38918,7.59626L1.76899,2.93444L0,4.70343L0,0L4.70343,0L2.93444,1.76899ZM6.40999,12.4037L1.76899,17.0447L0,15.2758L0,19.9792L4.70343,19.9792L2.93444,18.2102L7.57544,13.5692L6.40999,12.4037ZM15.2758,0L17.0447,1.76899L12.4037,6.40999L13.59,7.59626L18.231,2.95526L20,4.72425L20,0L15.2758,0ZM13.5692,12.4037L12.3829,13.59L17.0239,18.231L15.2549,20L19.9792,20L19.9792,15.2758L18.2102,17.0447L13.5692,12.4037Z"/>
               </svg>
               <span>{i18n('full_screen', props.locale)}</span>

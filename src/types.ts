@@ -96,6 +96,8 @@ export interface ChartProOptions {
   datafeed: Datafeed;
   onSymbolChangeRequest?: SymbolChangeRequestCallback;
   onPeriodChangeRequest?: PeriodChangeRequestCallback;
+  selectedAccount?: "real" | "demo";
+  onAccountToggle?: (accountType: "real" | "demo") => void;
 }
 
 export interface ChartPro {
