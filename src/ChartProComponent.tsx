@@ -1210,6 +1210,7 @@ const ChartProComponent: Component<ChartProComponentProps> = (props) => {
       ticker: symbol().shortName ?? symbol().name ?? symbol().ticker,
       pricePrecision: symbol().pricePrecision || 5,
       volumePrecision: symbol().volumePrecision || 0,
+      payout: symbol().payout,
     });
     widget?.setPeriod({
       type: period().timespan as PeriodType,

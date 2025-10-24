@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         priceCurrency: "usd",
         type: "ADRC",
         pricePrecision: 4,
+        payout: 0,
       },
       mainIndicators: [],
       subIndicators: [],

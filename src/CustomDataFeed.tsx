@@ -182,7 +182,7 @@ export default class CustomDatafeed implements Datafeed {
     // Align to fixed time boundaries by flooring to the nearest period boundary
     return Math.floor(timestamp / windowMs) * windowMs;
   }
-  unsubscribe(symbol: SymbolInfo, period: Period): void {
+  async unsubscribe(symbol: SymbolInfo, period: Period): Promise<void> {
     console.log(symbol, period);
   }
 }
