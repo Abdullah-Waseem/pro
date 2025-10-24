@@ -97,7 +97,9 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
   createEffect(() => {
     const list = symbolsList();
     if (!list) return;
-    setLocalFavoriteSymbols(list.filter((symbol) => symbol.isFavorite));
+    setLocalFavoriteSymbols(
+      list.filter((symbol) => symbol.isFavorite).splice(0, 2)
+    );
   });
 
   createEffect(() => {
