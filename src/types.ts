@@ -97,7 +97,7 @@ export interface ChartProOptions {
   onSymbolChangeRequest?: SymbolChangeRequestCallback;
   onPeriodChangeRequest?: PeriodChangeRequestCallback;
   selectedAccount?: "real" | "demo";
-  onAccountToggle?: (accountType: "real" | "demo") => void;
+  onAccountToggle?: () => void;
 }
 
 export interface ChartPro {

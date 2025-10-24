@@ -91,7 +91,7 @@ export interface ChartProComponentProps
   onSymbolChangeRequest?: SymbolChangeRequestCallback;
   onPeriodChangeRequest?: PeriodChangeRequestCallback;
   selectedAccount?: "real" | "demo";
-  onAccountToggle?: (accountType: "real" | "demo") => void;
+  onAccountToggle?: () => void;
 }
 
 interface PrevSymbolPeriod {

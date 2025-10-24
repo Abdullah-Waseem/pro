@@ -51,7 +51,7 @@ export interface PeriodBarProps {
   loadingVisible: boolean;
   // onScreenshotClick: () => void;
   selectedAccount?: "real" | "demo";
-  onAccountToggle?: (accountType: "real" | "demo") => void;
+  onAccountToggle?: () => void;
 }
 
 const PeriodBar: Component<PeriodBarProps> = (props) => {
@@ -288,8 +288,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
       <div
         class={`item account-toggle ${props.selectedAccount}`}
         onClick={() => {
-          const newAccount = props.selectedAccount === "real" ? "demo" : "real";
-          props.onAccountToggle?.(newAccount);
+          props.onAccountToggle?.();
         }}
       >
         {props.selectedAccount === "real" ? "REAL" : "DEMO"}
