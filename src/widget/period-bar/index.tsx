@@ -29,6 +29,7 @@ import i18n from "../../i18n";
 import { Select, SelectDataSourceItem, Switch } from "../../component";
 import { getCandleTypes } from "../setting-modal/data";
 import { DeepPartial, Styles, utils } from "klinecharts";
+import set from "lodash/set";
 
 export interface PeriodBarProps {
   locale: string;
@@ -132,11 +133,11 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
     }
   });
 
-  createEffect(() => {
-    if (props.selectedAccount && props.selectedAccount !== accountMode()) {
-      setAccountMode(props.selectedAccount);
-    }
-  });
+  // createEffect(() => {
+  //   if (props.selectedAccount && props.selectedAccount !== accountMode()) {
+  //     setAccountMode(props.selectedAccount);
+  //   }
+  // });
 
   const handleToggleFavorite = async () => {
     if (
@@ -166,14 +167,12 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
 
   const handleAccountToggle = () => {
     const next = accountMode() === "demo" ? "real" : "demo";
-
-    // Update the local state
+    console.log("Before set:", accountMode(), "Next:", next);
     setAccountMode(next);
-
-    // Call the callback if provided
-    if (props.onAccountToggle) {
-      props.onAccountToggle();
-    }
+    setTimeout(() => {
+      alert("New Account Mode: " + accountMode());
+      console.log("After set:", accountMode());
+    }, 10);
   };
 
   const removeFavorite = async (target: SymbolInfo) => {
@@ -204,7 +203,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
             type="button"
             class="icon-button menu-toggle"
             aria-label="Toggle tools menu"
-            disabled={clickDisabled()}
+            disabled={clickDisabled() || !props.onMenuClick}
             onClick={() => {
               if (clickDisabled()) return;
               props.onMenuClick();
@@ -212,7 +211,6 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
           >
             <svg
               viewBox="0 0 1024 1024"
-              onClick={props.onMenuClick}
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"
             >
@@ -348,7 +346,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
             <span>Demo Mode</span>
             <Switch
               class={`demo-switch ${accountMode()}`}
-              open={accountMode() === "demo"}
+              open={accountMode() === "real"}
               onChange={handleAccountToggle}
             />
           </div>
