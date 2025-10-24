@@ -133,8 +133,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
   });
 
   createEffect(() => {
-    if (!props.selectedAccount) return;
-    if (props.selectedAccount !== accountMode()) {
+    if (props.selectedAccount && props.selectedAccount !== accountMode()) {
       setAccountMode(props.selectedAccount);
     }
   });
@@ -167,8 +166,14 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
 
   const handleAccountToggle = () => {
     const next = accountMode() === "demo" ? "real" : "demo";
+
+    // Update the local state
     setAccountMode(next);
-    props.onAccountToggle?.();
+
+    // Call the callback if provided
+    if (props.onAccountToggle) {
+      props.onAccountToggle();
+    }
   };
 
   const removeFavorite = async (target: SymbolInfo) => {
