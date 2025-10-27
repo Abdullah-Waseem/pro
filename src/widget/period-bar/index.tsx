@@ -343,7 +343,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
           <Show when={payout() >= 0} keyed>
             {() => (
               <div class="pill payout">
-                <span>{`Payout: ${payout()}`}</span>
+                <span>{`Payout: ${payout()} %`}</span>
               </div>
             )}
           </Show>
