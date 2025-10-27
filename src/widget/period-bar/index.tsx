@@ -70,6 +70,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
   const [localFavoriteSymbols, setLocalFavoriteSymbols] = createSignal<
     SymbolInfo[]
   >([]);
+  const [payout, setPayout] = createSignal(72);
   const [isFavorite, setIsFavorite] = createSignal<boolean>(
     props.symbol?.isFavorite ?? false
   );
@@ -105,6 +106,9 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
     if (!list) return;
     setLocalFavoriteSymbols(
       list.filter((symbol) => symbol.isFavorite).splice(0, 2)
+    );
+    setPayout(
+      list.find((symbol) => symbol.ticker === props.symbol?.ticker)?.payout ?? 0
     );
   });
 
@@ -195,7 +199,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
     }
     refetch();
   };
-
+  console.log("Current Symbol: ", props.symbol);
   return (
     <div class="klinecharts-pro-period-bar">
       <div class="period-bar-shell">
@@ -336,10 +340,10 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
           </div>
         </Show>
         <div class="right-section">
-          <Show when={payoutText()} keyed>
-            {(text: string) => (
+          <Show when={payout() >= 0} keyed>
+            {() => (
               <div class="pill payout">
-                <span>{`Payout: ${text}`}</span>
+                <span>{`Payout: ${payout()}`}</span>
               </div>
             )}
           </Show>
