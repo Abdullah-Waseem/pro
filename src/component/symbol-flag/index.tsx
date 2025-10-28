@@ -1,7 +1,7 @@
 /**
  * Reusable SymbolFlag component
  */
-import { Component } from "solid-js";
+import { Component, JSX } from "solid-js";
 import "./index.less";
 import { getSymbolFlags } from "../../utils/symbolIcons";
 
@@ -12,8 +12,8 @@ export interface SymbolFlagProps {
   quoteFlag?: string;
   class?: string;
   alt?: string;
-  baseFlagClass?: string;
-  quoteFlagClass?: string;
+  baseFlagStyle?: JSX.CSSProperties;
+  quoteFlagStyle?: JSX.CSSProperties;
 }
 
 const SymbolFlag: Component<SymbolFlagProps> = (props) => {
@@ -34,13 +34,15 @@ const SymbolFlag: Component<SymbolFlagProps> = (props) => {
       <div class="flag-stack" aria-hidden="true">
         <img
           src={base}
-          class={`flag-base ${props.baseFlagClass ?? ""}`}
+          class="flag-base"
           alt={props.alt ?? ""}
+          style={props.baseFlagStyle}
         />
         <img
           src={quote}
-          class={`flag-quote ${props.quoteFlagClass ?? ""}`}
+          class="flag-quote"
           alt={props.alt ?? ""}
+          style={props.quoteFlagStyle}
         />
       </div>
     </span>

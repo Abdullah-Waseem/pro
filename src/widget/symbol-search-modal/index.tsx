@@ -160,7 +160,10 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
                   </svg>
                 </div>
                 <SymbolFlag
-                  class="favorite-flag"
+                  quoteFlagStyle={{
+                    "margin-bottom": "1.2rem",
+                    "margin-left": "0.2rem",
+                  }}
                   ticker={symbol.shortName ?? symbol.name ?? symbol.ticker}
                 />
                 <span class="symbol-shortname" title={symbol.name ?? ""}>
