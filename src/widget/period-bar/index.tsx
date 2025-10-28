@@ -337,7 +337,11 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
                       />
                       <div class="symbol-text">
                         <span class="symbol-name">
-                          {symbol.shortName ?? symbol.name ?? symbol.ticker}
+                          {(
+                            symbol.shortName ??
+                            symbol.name ??
+                            symbol.ticker
+                          ).replace("-", "")}
                         </span>
                         <span class="symbol-payout">{symbol.payout}%</span>
                       </div>
