@@ -104,9 +104,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
   createEffect(() => {
     const list = symbolsList();
     if (!list) return;
-    setLocalFavoriteSymbols(
-      list.filter((symbol) => symbol.isFavorite).splice(0, 2)
-    );
+    setLocalFavoriteSymbols(list.filter((symbol) => symbol.isFavorite));
     setPayout(
       list.find((symbol) => symbol.ticker === props.symbol?.ticker)?.payout ?? 0
     );
@@ -199,7 +197,10 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
     }
     refetch();
   };
-  console.log("Current Symbol: ", props.symbol);
+
+  const showSymbol = (symbol: string) => {
+    return symbol.replace("-", "");
+  };
   return (
     <div class="klinecharts-pro-period-bar">
       <div class="period-bar-shell">
@@ -244,9 +245,12 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
               }}
             >
               <span class="symbol-name">
-                {props.symbol?.shortName ??
-                  props.symbol?.name ??
-                  props.symbol?.ticker}
+                {showSymbol(
+                  props.symbol?.shortName ??
+                    props.symbol?.name ??
+                    props.symbol?.ticker
+                )}
+                <span class="symbol-payout"> {payout()}%</span>
               </span>
             </button>
           </Show>
@@ -297,57 +301,58 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
             <GlobeIcon />
             <span>{i18n("timezone", props.locale)}</span>
           </button>
-        </div>
-        <Show when={(localFavoriteSymbols()?.length ?? 0) > 0}>
-          <div class="favorite-symbols">
-            <div class="symbol-list">
-              {localFavoriteSymbols()?.map((symbol) => {
-                const key = symbol._id ?? symbol.ticker;
-                const isActive =
-                  key === (props.symbol?._id ?? props.symbol?.ticker);
-                return (
-                  <div
-                    class={`symbol-item ${clickDisabled() ? "disabled" : ""} ${
-                      isActive ? "current" : ""
-                    }`}
-                    title={symbol.shortName ?? symbol.name ?? symbol.ticker}
-                    onClick={() => {
-                      if (clickDisabled()) return;
-                      props.onSymbolSelected(symbol);
-                    }}
-                  >
-                    <span class={`favorite-flag ${isActive ? "active" : ""}`}>
-                      <StarIcon />
-                    </span>
-                    <span class="symbol-text">
-                      {symbol.shortName ?? symbol.name ?? symbol.ticker}
-                    </span>
-                    <button
-                      type="button"
-                      class="remove"
-                      disabled={clickDisabled()}
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        await removeFavorite(symbol);
+          <Show when={(localFavoriteSymbols()?.length ?? 0) > 0}>
+            <div class="favorite-symbols">
+              <div class="symbol-list">
+                {localFavoriteSymbols()?.map((symbol) => {
+                  const key = symbol._id ?? symbol.ticker;
+                  const isActive =
+                    key === (props.symbol?._id ?? props.symbol?.ticker);
+                  return (
+                    <div
+                      class={`symbol-item ${
+                        clickDisabled() ? "disabled" : ""
+                      } ${isActive ? "current" : ""}`}
+                      title={symbol.shortName ?? symbol.name ?? symbol.ticker}
+                      onClick={() => {
+                        if (clickDisabled()) return;
+                        props.onSymbolSelected(symbol);
                       }}
                     >
-                      x
-                    </button>
-                  </div>
-                );
-              })}
+                      <span class={`favorite-flag ${isActive ? "active" : ""}`}>
+                        <StarIcon />
+                      </span>
+                      <span class="symbol-text">
+                        {symbol.shortName ?? symbol.name ?? symbol.ticker}
+                      </span>
+                      <button
+                        type="button"
+                        class="remove"
+                        disabled={clickDisabled()}
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await removeFavorite(symbol);
+                        }}
+                      >
+                        x
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </Show>
-        <div class="right-section">
-          <Show when={payout() >= 0} keyed>
+          </Show>
+        </div>
+
+        {/* <div class="right-section"> */}
+        {/* <Show when={payout() >= 0} keyed>
             {() => (
               <div class="pill payout">
                 <span>{`Payout: ${payout()} %`}</span>
               </div>
             )}
-          </Show>
-          {/* <div class="demo-mode-control">
+          </Show> */}
+        {/* <div class="demo-mode-control">
             <span>Demo Mode</span>
             <Switch
               class={`demo-switch ${accountMode()}`}
@@ -355,7 +360,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
               onChange={handleAccountToggle}
             />
           </div> */}
-        </div>
+        {/* </div> */}
       </div>
     </div>
   );
