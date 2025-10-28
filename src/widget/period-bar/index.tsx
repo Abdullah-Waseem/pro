@@ -347,14 +347,14 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
               </div>
             )}
           </Show>
-          <div class="demo-mode-control">
+          {/* <div class="demo-mode-control">
             <span>Demo Mode</span>
             <Switch
               class={`demo-switch ${accountMode()}`}
               open={accountMode() === "demo"}
               onChange={handleAccountToggle}
             />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
