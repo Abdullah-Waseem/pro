@@ -1,0 +1,39 @@
+.klinecharts-pro-symbol-flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+
+  .flag-stack {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 28px;
+    line-height: 0;
+  }
+
+  .flag-stack img {
+    display: block;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .flag-base {
+    width: 1.5rem; /* 24px */
+    height: 1.5rem;
+    border-radius: 50%;
+    background: #1f1f1f;
+  }
+
+  .flag-quote {
+    position: absolute;
+    left: 12px; /* overlap */
+    bottom: -0.5rem; /* slight negative */
+    width: 1.35rem; /* ~21.6px */
+    height: 1.35rem;
+    border-radius: 50%;
+    border: 2px solid #000;
+    background: #fff;
+    object-fit: cover;
+  }
+}

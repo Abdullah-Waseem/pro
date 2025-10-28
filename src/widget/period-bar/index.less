@@ -122,10 +122,10 @@
 
   .nav-action {
     border: none;
-    padding: 0 12px;
+    padding: 0 4px;
     background: transparent;
     color: #d0d0d0;
-    gap: 6px;
+    gap: 2px;
 
     &:hover:not(:disabled) {
       color: #ffffff;
@@ -281,9 +281,9 @@
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
-    border-radius: 999px;
+    border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(255, 255, 255, 0.04);
+    background: black;
     color: #f0f0f0;
     font-size: 12px;
     cursor: pointer;
@@ -313,22 +313,66 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
     color: #f1cf24;
 
     &.active {
       color: #ffd54f;
     }
-  }
 
+    /* Flag stack (base + overlapping quote) */
+    .flag-stack {
+      position: relative;
+      display: inline-block;
+      /* width allows space for overlap: base (24px) + overlap offset (12px) */
+      width: 36px;
+      height: 28px; /* allow slight overflow for the quoted flag */
+      line-height: 0;
+    }
+
+    .flag-stack img {
+      display: block;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    /* base flag: w-6 h-6 => 1.5rem = 24px */
+    .flag-base {
+      width: 1.2rem; /* 24px */
+      height: 1.2rem; /* 24px */
+      border-radius: 50%;
+      background: #1f1f1f;
+      object-fit: cover;
+    }
+
+    /* quote flag: 1.35rem ~ 21.6px, overlapping (negative margin-left -0.75rem => left: 12px)
+       and negative bottom -0.5rem => bottom: -8px. Add 2px solid black border and white background */
+    .flag-quote {
+      position: absolute;
+      left: 11px; /* base width (24) + (-ml-3) -> 12px */
+      bottom: -0.1rem; /* -8px */
+      width: 1.2rem; /* ~21.6px */
+      height: 1.2rem;
+      border-radius: 50%;
+      border: 1px solid #333;
+      background: #1f1f1f;
+      object-fit: cover;
+    }
+  }
   .symbol-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .symbol-name {
     max-width: 90px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+  }
+  .symbol-payout {
+    color: #f1cf24;
   }
 
   .remove {

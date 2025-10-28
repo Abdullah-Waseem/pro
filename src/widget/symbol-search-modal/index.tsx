@@ -26,6 +26,7 @@ import { TabItem } from "../../component/tabs";
 import i18n from "../../i18n";
 
 import { SymbolInfo, Datafeed } from "../../types";
+import SymbolFlag from "../../component/symbol-flag";
 
 export interface SymbolSearchModalProps {
   locale: string;
@@ -158,8 +159,12 @@ const SymbolSearchModal: Component<SymbolSearchModalProps> = (props) => {
                     <path d="M908.1 353.1l-267-38.8L512 64 382.9 314.3l-267 38.8L234 602.5l-45.6 266.1L512 728.4l239.6 140.2L706 602.5l169.6-249.4z" />
                   </svg>
                 </div>
+                <SymbolFlag
+                  class="favorite-flag"
+                  ticker={symbol.shortName ?? symbol.name ?? symbol.ticker}
+                />
                 <span class="symbol-shortname" title={symbol.name ?? ""}>
-                  {symbol.shortName ?? symbol.ticker}
+                  {(symbol.shortName ?? symbol.ticker).replace("-", "")}
                 </span>
               </div>
 
