@@ -320,7 +320,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
                     key === (props.symbol?._id ?? props.symbol?.ticker);
                   return (
                     <div
-                      class={`pill symbol ${
+                      class={`pill symbol symbol-favorite ${
                         clickDisabled() ? "disabled" : ""
                       } ${isActive ? "current" : ""}`}
                       title={symbol.shortName ?? symbol.name ?? symbol.ticker}
