@@ -308,7 +308,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
             disabled={clickDisabled()}
             onClick={props.onTimezoneClick}
           >
-            <GlobeIcon />
+            {/* <GlobeIcon /> */}
             {/* <span>{i18n("timezone", props.locale)}</span> */}
           </button>
           <Show when={(localFavoriteSymbols()?.length ?? 0) > 0}>
@@ -320,7 +320,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
                     key === (props.symbol?._id ?? props.symbol?.ticker);
                   return (
                     <div
-                      class={`symbol-item ${
+                      class={`pill symbol ${
                         clickDisabled() ? "disabled" : ""
                       } ${isActive ? "current" : ""}`}
                       title={symbol.shortName ?? symbol.name ?? symbol.ticker}
@@ -347,14 +347,17 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
                       </div>
                       <button
                         type="button"
-                        class="remove"
+                        class="symbol-remove"
+                        title="Remove favorite"
+                        aria-label="Remove favorite"
                         disabled={clickDisabled()}
                         onClick={async (e) => {
                           e.stopPropagation();
+                          if (clickDisabled()) return;
                           await removeFavorite(symbol);
                         }}
                       >
-                        x
+                        <span aria-hidden="true">✖</span>
                       </button>
                     </div>
                   );
