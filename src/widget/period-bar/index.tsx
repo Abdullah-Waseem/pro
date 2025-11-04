@@ -308,7 +308,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
             disabled={clickDisabled()}
             onClick={props.onTimezoneClick}
           >
-            {/* <GlobeIcon /> */}
+            <GlobeIcon />
             {/* <span>{i18n("timezone", props.locale)}</span> */}
           </button>
           <Show when={(localFavoriteSymbols()?.length ?? 0) > 0}>
