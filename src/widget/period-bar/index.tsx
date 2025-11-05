@@ -302,15 +302,15 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
             <IndicatorIcon />
             {/* <span>{i18n("indicator", props.locale)}</span> */}
           </button>
-          <button
+          {/* <button
             type="button"
             class="pill nav-action"
             disabled={clickDisabled()}
             onClick={props.onTimezoneClick}
           >
-            {/* <GlobeIcon /> */}
-            {/* <span>{i18n("timezone", props.locale)}</span> */}
-          </button>
+            <GlobeIcon />
+            <span>{i18n("timezone", props.locale)}</span>
+          </button> */}
           <Show when={(localFavoriteSymbols()?.length ?? 0) > 0}>
             <div class="favorite-symbols">
               <div class="symbol-list">
