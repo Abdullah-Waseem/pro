@@ -295,7 +295,7 @@ const PeriodBar: Component<PeriodBarProps> = (props) => {
           />
           <button
             type="button"
-            class="pill nav-action"
+            class=" nav-action"
             disabled={clickDisabled()}
             onClick={props.onIndicatorClick}
           >
